@@ -24,6 +24,7 @@ class MainActivity : ComponentActivity() {
                         name = "Android",
                         modifier = Modifier.padding(innerPadding)
                     )
+                    //First
                 }
             }
         }
@@ -36,6 +37,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         text = "Hello $name!",
         modifier = modifier
     )
+    //Adding
 }
 
 @Preview(showBackground = true)
