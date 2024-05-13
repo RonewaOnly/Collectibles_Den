@@ -18,32 +18,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Collectibles_DenTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Collectables Den",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                    //First
-                }
-            }
+
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-    //Adding
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Collectibles_DenTheme {
-        Greeting("Android")
     }
 }
