@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
             Collectibles_DenTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Android",
+                        name = "Collectables Den",
                         modifier = Modifier.padding(innerPadding)
                     )
                     //First
