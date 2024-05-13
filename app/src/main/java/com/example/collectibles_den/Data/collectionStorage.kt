@@ -1,14 +1,15 @@
 package com.example.collectibles_den.Data
 
-import android.net.Uri
+import com.example.collectibles_den.R
 import java.sql.Timestamp
 
 data class collectionStorage(
     val collectionID: String,
     val userAssigned: String ="",
     val collectionName:String,
-    var collectionImage: List<Uri?> = emptyList(),
+    var collectionImage: Int = R.drawable.default_image,//Will be changing this from an int to Uri
     var collectionDescription: List<String> = emptyList(),
+    var collectionCategory: String = "",
     var localAreaStorage:  String = "",
-    val posted_Date: Timestamp
+    val postedDate: Timestamp
 )
