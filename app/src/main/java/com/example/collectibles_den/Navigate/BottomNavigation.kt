@@ -24,60 +24,61 @@ import androidx.navigation.NavController
 fun BottomNavigation(navController:NavController){
     val context = LocalContext.current
     var count by remember{ mutableIntStateOf(1) }
-    var navList = listOf(
-        {
-            navIcons.title = "Home"
-            navIcons.icon = Icons.Filled.Home
-        },
-        {
-            navIcons.title = "Collection"
-            navIcons.icon = Icons.Filled.Newspaper
-        },
-        {
-            navIcons.title = "Add"
-            navIcons.icon = Icons.Filled.Add
-        },
-        {
-            navIcons.title = "Storyboard"
-            navIcons.icon = Icons.Filled.SpaceDashboard
-        },
-        {
-            navIcons.title = "Profile"
-            navIcons.icon = Icons.Filled.Person
-        }
+    val navList = listOf(
+        navIcons(
+            "Home",
+            Icons.Filled.Home
+        ),
+        navIcons(
+            "Collection",
+            Icons.Filled.Newspaper
+        ),
+        navIcons(
+            "Add",
+            Icons.Filled.Add
+        ),
+        navIcons(
+            "Storyboard",
+            Icons.Filled.SpaceDashboard
+        ),
+        navIcons(
+            "Profile",
+            Icons.Filled.Person
+        )
     )
 
     NavigationBar {
-        navList.forEachIndexed{ index,item ->
+        navList.forEachIndexed{ index, item ->
                 NavigationBarItem(
                     selected = index == count ,
                     onClick = {
                         when (index) {
-                            1 -> {
+                            0 -> {
                                 navController.navigate("homepage")
+                                count = 0
                             }
-                            2 -> {
+                            1 -> {
                                 Toast.makeText(context,"$index", Toast.LENGTH_SHORT).show()
                                 count++
                                 navController.navigate("personalCollection")
 
 
                             }
-                            3 -> {
+                            2 -> {
                                 Toast.makeText(context,"$index", Toast.LENGTH_SHORT).show()
                                 count++
                                 navController.navigate("addCollections")
 
 
                             }
-                            4 -> {
+                            3 -> {
                                 Toast.makeText(context,"$index", Toast.LENGTH_SHORT).show()
                                 count++
                                 navController.navigate("storyboard")
 
 
                             }
-                            5 -> {
+                            4 -> {
                                 Toast.makeText(context,"$index", Toast.LENGTH_SHORT).show()
                                 count++
                                 navController.navigate("profileAccount")
@@ -86,15 +87,14 @@ fun BottomNavigation(navController:NavController){
                         }
                     },
                     icon = {
-                        Icon(imageVector = navIcons.icon, contentDescription = navIcons.title)
-                    })
+                        Icon(imageVector = item.icon, contentDescription = item.title)
+                    }
+                )
         }
-
-
     }
 }
 
-object navIcons {
-    var title: String = ""
+data class navIcons (
+    var title: String = "",
     var icon: ImageVector = Icons.Default.InsertPageBreak
-}
+)
