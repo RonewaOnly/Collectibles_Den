@@ -5,7 +5,7 @@ import java.sql.Timestamp
 
 data class collectionStorage(
     val collectionID: String,
-    val userAssigned: String,
+    val userAssigned: String ="",
     val collectionName:String,
     var collectionImage: List<Uri?> = emptyList(),
     var collectionDescription: List<String> = emptyList(),

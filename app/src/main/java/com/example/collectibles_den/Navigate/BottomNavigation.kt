@@ -55,34 +55,30 @@ fun BottomNavigation(navController:NavController){
                         when (index) {
                             0 -> {
                                 navController.navigate("homepage")
-                                count = 0
                             }
                             1 -> {
                                 Toast.makeText(context,"$index", Toast.LENGTH_SHORT).show()
-                                count++
                                 navController.navigate("personalCollection")
+                                count++
 
 
                             }
                             2 -> {
                                 Toast.makeText(context,"$index", Toast.LENGTH_SHORT).show()
-                                count++
                                 navController.navigate("addCollections")
+                                count++
 
 
                             }
                             3 -> {
                                 Toast.makeText(context,"$index", Toast.LENGTH_SHORT).show()
-                                count++
                                 navController.navigate("storyboard")
-
-
+                                count++
                             }
                             4 -> {
                                 Toast.makeText(context,"$index", Toast.LENGTH_SHORT).show()
-                                count++
                                 navController.navigate("profileAccount")
-
+                                count++
                             }
                         }
                     },
