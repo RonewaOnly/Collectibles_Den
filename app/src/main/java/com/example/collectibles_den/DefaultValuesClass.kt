@@ -11,6 +11,7 @@ class DefaultValuesClass {
             collectionID = "laskdk",
             collectionName = "kajsnldpaks",
             collectionDescription = listOf("kdoaopdkso","sdkajsoas"),
+            collectionCategory = "Glasses",
             postedDate = Timestamp(System.currentTimeMillis())
         ),
         collectionStorage(
@@ -23,8 +24,10 @@ class DefaultValuesClass {
             collectionID = "49djd",
             collectionName = "afoiajp-kdf",
             collectionDescription = listOf("adfkaoisfj","afkoaidjiaks"),
-            postedDate = Timestamp(System.currentTimeMillis())
-        ),
+            postedDate = Timestamp(System.currentTimeMillis()),
+            collectionCategory = "Phone",
+
+            ),
         collectionStorage(
             collectionID = "al820391j",
             collectionName = "afoaijd",
