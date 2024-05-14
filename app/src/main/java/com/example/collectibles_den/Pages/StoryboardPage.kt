@@ -1,85 +1,202 @@
 package com.example.collectibles_den.Pages
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FileOpen
+import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import com.example.collectibles_den.Data.Storyboard_Stories
 import com.example.collectibles_den.Data.collectionStorage
 import com.example.collectibles_den.DefaultValuesClass
-import com.example.collectibles_den.R
 
 @Composable
-fun Storyboard(){
-    Text(text = "Story board")
-    val getCollection = DefaultValuesClass()
-    //CollectionStoryboard(collections = getCollection.recentCollection)
-}
-
-/*
-@Composable
-fun CollectionStoryboard(collections: List<collectionStorage>) {
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(collections) { collection ->
-            CollectionItem(collection = collection)
-        }
+fun  Storyboard() {
+    Column {
+        Text(text = "Storyboard.")
+        MaxSection()
     }
 }
 
 @Composable
-private fun CollectionItem(collection: collectionStorage) {
-    Surface(
+fun MaxSection(){
+    val context = LocalContext.current
+    var isPopVisble by remember {
+        mutableStateOf(false)
+    }
+    val selectedCollection = remember {
+        mutableStateListOf<Storyboard_Stories.StoryboardLine>() }
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
-        shape = RoundedCornerShape(8.dp),
+            .height(60.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
+        Button(onClick = { isPopVisble = true }) {
+            Text(text = "Create your storyboard")
+        }
+        if(isPopVisble){
+            CustomPopup(
+                onClose = { isPopVisble = false },
+                onSave = {
+                    selectedCollection.add(//This will be a list that will saved all storyBoard in memory for the moment
+                        Storyboard_Stories.StoryboardLine(
+                            it.storyName,
+                            it.storyDescription,
+                            it.storyItems,
+                            it.storyCategory,
+                            it.storyCovers
+                        )
+                    )
+                    Toast.makeText(context,"Saved",Toast.LENGTH_LONG).show()
+                }
+            )
+        }
+        
+    }
+}
+@Composable
+fun CustomPopup(
+    onClose: () -> Unit,
+    onSave: (Storyboard_Stories.StoryboardLine) -> Unit
+) {
+    var storyName by remember { mutableStateOf("") }
+    var storyDescription by  remember { mutableStateOf("") }
+    var storyCategory by remember { mutableStateOf("") }
+    var coverBook by remember { mutableStateOf<List<Uri?>>(emptyList()) }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }//This will be storing the uri for the image chosen from the device gallery
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        imageUri = uri //this set the uri to the imageUri
+    }
+    val getCollection = DefaultValuesClass()
+    var selecteItems by remember {
+        mutableStateOf<List<collectionStorage?>>(emptyList())
+    }
+    Dialog(onDismissRequest = onClose) {
+        Surface(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .width(300.dp)
+                .padding(16.dp),
+            shape = RoundedCornerShape(8.dp),
+            
         ) {
-            CollectionImage(imageResId = R.drawable.default_image)            
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(text = collection.collectionName, style = MaterialTheme.typography.labelSmall)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = collection.collectionDescription.firstOrNull() ?: "", style = MaterialTheme.typography.bodyMedium)
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                TextField(
+                    value = storyName,
+                    onValueChange = { storyName = it },
+                    label = { Text("Enter storyboardName: ") }
+                )
+                TextField(
+                    value = storyDescription,
+                    onValueChange = { storyDescription = it },
+                    label = { Text("Enter storyboard Description: ") }
+                )
+                TextField(
+                    value = storyCategory,
+                    onValueChange = {storyCategory = it},
+                    label = { Text(text = "Enter category name: ")}
+                )
+                selecteItems = SelectedItem(collection = getCollection.recentCollection)//This will be getting the selected collection
+                Row(
+                    modifier = Modifier.width(200.dp)
+                ) {
+                    TextButton(onClick = {
+                        launcher.launch("image/*")
+                        if(imageUri != null){
+                            coverBook = listOf(imageUri)
+                        }
+                    }) {
+                       Icon(imageVector = Icons.Default.FileOpen, contentDescription = "")
+                       Text(text = "Select image")
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onClose) {
+                        Text("Cancel")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    TextButton(
+                        onClick = {
+                            onSave(//It will be saving the data entered
+                                Storyboard_Stories.StoryboardLine(
+                                    storyName = storyName,
+                                    storyItems = selecteItems,
+                                    storyCategory = storyCategory,
+                                    storyDescription = storyDescription,
+                                    storyCovers = coverBook
+                                )
+                            )
+                            onClose()
+                        }
+                    ) {
+                        Text("Save")
+                    }
+                }
             }
         }
     }
 }
 @Composable
-private fun CollectionImage(imageResId: Int?, modifier: Modifier = Modifier) {
-    imageResId?.let {
-        Image(
-            painter = painterResource(id = imageResId),
-            contentDescription = null,
-            modifier = modifier
-                .width(100.dp)
-                .height(100.dp)
-                .background(color = Color.LightGray),
-            contentScale = ContentScale.Crop
-        )
+fun SelectedItem(collection: List<collectionStorage>): List<collectionStorage?> {
+    val isSelected by remember { mutableStateOf(false) }
+    val selectedCollection = remember { mutableStateListOf<collectionStorage>() }
+
+    Column {
+        collection.forEach { item ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(
+                    checked = item in selectedCollection,
+                    onCheckedChange = { isChecked ->
+                        if (isChecked) {
+                            selectedCollection.add(item)
+                        } else {
+                            selectedCollection.remove(item)
+                        }
+                    }
+                )
+                // Display the name of the collection
+                Text(text = item.collectionName)
+            }
+        }
     }
+    // Return the list of selected collections
+    return selectedCollection.toList()
 }
- */
+
+
