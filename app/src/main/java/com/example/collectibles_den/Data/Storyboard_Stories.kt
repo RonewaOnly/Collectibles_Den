@@ -7,7 +7,7 @@ class Storyboard_Stories {
 
     data class StoryboardLine(
         val storyID: String ="",
-        val storyName: String,
+        val storyName: String = "",
         val storyItems: List<collectionStorage?> = emptyList(),
         val storyDescription: String = "",
         val storyCovers: List<Uri?> = emptyList(),
