@@ -1,5 +1,6 @@
 package com.example.collectibles_den
 
+import com.example.collectibles_den.Data.UserData
 import com.example.collectibles_den.Data.collectionStorage
 import com.example.collectibles_den.Pages.getBeginningOfPastMonth
 import java.sql.Timestamp
@@ -52,5 +53,16 @@ class DefaultValuesClass {
             collectionDescription = listOf("0987tcvbjkl;","retyu"),
             postedDate = getBeginningOfPastMonth()
         ),
+    )
+
+    var userDummy = listOf(
+        UserData(
+                customerId = "43djdk_w",
+                firstname = "OneKim",
+                lastname = "Lim",
+                username = "Tom",
+                email = "www.TomStream19@gmail.com",
+                password = "password"
+        )
     )
 }
