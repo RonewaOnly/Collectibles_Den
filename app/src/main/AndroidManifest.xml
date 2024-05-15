@@ -13,9 +13,8 @@
         android:theme="@style/Theme.Collectibles_Den"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".Pages.MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.Collectibles_Den">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
