@@ -1,7 +1,6 @@
 package com.example.collectibles_den.Pages
 
 import android.Manifest
-import android.content.ContentResolver
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.widget.Toast
@@ -11,6 +10,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -23,9 +24,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -37,12 +40,6 @@ import com.example.collectibles_den.CoreFunction_AddCollection.TakePhotosClass
 import com.example.collectibles_den.Data.MakeCollection
 import com.example.collectibles_den.Data.NoteData
 import com.example.collectibles_den.R
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
-import java.nio.file.Files
 
 @Composable
 fun AddCollections() {
@@ -56,12 +53,15 @@ fun AddCollections() {
                 horizontalAlignment = Alignment.CenterHorizontally
         ) {
                 Text(text = "Add Collection")
-                MakeCollection()
+               val group =  MakeCollection()
+                Spacer(modifier = Modifier.padding(16.dp))
+                //Displaying stored Collection
+                DisplayCollection(bank = group)
         }
 }
 
 @Composable
-fun MakeCollection() {
+fun MakeCollection():MutableList<MakeCollection> {
         val context = LocalContext.current
         var mainSwitch by remember { mutableStateOf(false) }
         var isPopClicked by remember { mutableStateOf(false) }
@@ -256,7 +256,9 @@ fun MakeCollection() {
                                                                         makeCollectionImages = it.makeCollectionImages
                                                                 )
                                                         )
-                                                        Toast.makeText(context,"${listCollection.get(0)}",Toast.LENGTH_LONG).show()
+                                                        Toast.makeText(context,"${listCollection[0]}",Toast.LENGTH_LONG).show()
+                                                        mainSwitch = false
+
                                                 }else if(imageCameraUri != null){
                                                         listCollection.add(
                                                                 MakeCollection(
@@ -265,7 +267,8 @@ fun MakeCollection() {
                                                                         makeCollectionCameraImages = it.makeCollectionCameraImages
                                                                 )
                                                         )
-                                                        Toast.makeText(context,"${listCollection.get(0)}",Toast.LENGTH_LONG).show()
+                                                        Toast.makeText(context,"${listCollection[0]}",Toast.LENGTH_LONG).show()
+                                                        mainSwitch = false
 
                                                 }else if(notesBank.isNotEmpty()){
                                                         listCollection.add(
@@ -275,7 +278,8 @@ fun MakeCollection() {
                                                                         makeCollectionNotes = notesBank
                                                                 )
                                                         )
-                                                        Toast.makeText(context,"${listCollection.get(0)}",Toast.LENGTH_LONG).show()
+                                                        Toast.makeText(context,"${listCollection[0]}",Toast.LENGTH_LONG).show()
+                                                        mainSwitch = false
 
                                                 }else if(scannedUri != null){
                                                         listCollection.add(
@@ -285,6 +289,8 @@ fun MakeCollection() {
                                                                         makeCollectionScannedItems = it.makeCollectionScannedItems
                                                                 )
                                                         )
+                                                        mainSwitch = false
+
                                                 }else if(attachedFileUri != null){
                                                         listCollection.add(
                                                                 MakeCollection(
@@ -293,7 +299,8 @@ fun MakeCollection() {
                                                                         makeCollectionFiles = it.makeCollectionFiles
                                                                 )
                                                         )
-                                                        Toast.makeText(context,"${listCollection.get(0)}",Toast.LENGTH_LONG).show()
+                                                        Toast.makeText(context,"${listCollection[0]}",Toast.LENGTH_LONG).show()
+                                                        mainSwitch = false
 
                                                 }else{//Saves everything
                                                         listCollection.add(
@@ -308,8 +315,8 @@ fun MakeCollection() {
 
                                                                         )
                                                         )
-                                                        Toast.makeText(context,"${listCollection.get(0)}",Toast.LENGTH_LONG).show()
-
+                                                        Toast.makeText(context,"${listCollection[0]}",Toast.LENGTH_LONG).show()
+                                                        mainSwitch = false
                                                 }
 
                                         }
@@ -317,10 +324,52 @@ fun MakeCollection() {
                         }
                 }
         }
-
-
+        return listCollection
 }
-
+@Composable
+fun DisplayCollection(bank: MutableList<MakeCollection>){
+        
+        if (bank.isNotEmpty()){
+                LazyColumn(
+                        modifier = Modifier.height(1500.dp)
+                ) {
+                        items(bank){teller ->
+                                Column(
+                                        modifier = Modifier
+                                                .width(550.dp)
+                                                .border(1.dp, Color.Black),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                        Image(
+                                                painter = 
+                                                if(teller.makeCollectionImages[0] != null) rememberAsyncImagePainter(teller.makeCollectionImages[0]) 
+                                                else painterResource(R.drawable.default_image), 
+                                                contentDescription = null,
+                                                modifier = Modifier
+                                                        .width(200.dp)
+                                                        .height(200.dp), // Ensure the image has a specific height
+                                                contentScale = ContentScale.Fit,
+                                        )
+                                        Text(
+                                                text = teller.makeCollectionName, 
+                                                fontWeight = FontWeight.SemiBold, 
+                                                textAlign = TextAlign.Center,
+                                                modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .background(Color.LightGray)
+                                                        .height(50.dp)
+                                                        .padding(top = 15.dp)
+                                        )
+                                        
+                                }
+                                Spacer(modifier = Modifier.padding(12.dp))
+                        }
+                }
+        }else{
+                Text(text = "No Collections Found , You have not added any collection")
+        }
+}
 @Composable
 fun SaveCollection(
         getImage: Uri? = Uri.EMPTY,
@@ -373,7 +422,7 @@ fun SaveCollection(
                                                                         makeCollectionName = collectionName,
                                                                         makeCollectionCategory = collectionCategory,
                                                                         makeCollectionFiles = listOf(file),
-                                                                        makeCollectionImages = listOf(getImage),
+                                                                        makeCollectionImages =  listOf(getImage) ,
                                                                         makeCollectionCameraImages = listOf(takeImage),
                                                                         makeCollectionNotes = notes,
                                                                         makeCollectionScannedItems = listOf(scanned)
