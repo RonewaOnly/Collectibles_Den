@@ -1,5 +1,6 @@
 package com.example.collectibles_den
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
@@ -19,5 +20,10 @@ class StartActivity : AppCompatActivity() {
         }
     }
 
-    fun getStarted(view: View) {}
+    //function to switch activities
+    fun getStarted(view: View) {
+
+        val intent = Intent(this@StartActivity, Login::class.java)
+        startActivity(intent)
+    }
 }
