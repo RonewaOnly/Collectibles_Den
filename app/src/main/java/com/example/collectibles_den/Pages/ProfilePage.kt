@@ -279,7 +279,8 @@ fun FullPersonalProfile(user: List<UserData>,userID:String,onClose: () ->Unit){/
                                         onValueChange = {
                                                 if (isEnable) password = it else user.password = it
                                         }, enabled = isEnable,
-                                        label = { Text(text = "Enter Password: ")}
+                                        label = { Text(text = "Enter Password: ")},
+                                        minLines = 2
                                 )
 
                                 Button(onClick = {
