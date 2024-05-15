@@ -1,7 +1,6 @@
 package com.example.collectibles_den.Data
 
 import android.net.Uri
-import java.nio.file.Files
 import java.sql.Timestamp
 
 data class MakeCollection(
@@ -13,5 +12,5 @@ data class MakeCollection(
     var makeCollectionNotes: List<NoteData> = emptyList(),
     var makeCollectionScannedItems: List<Uri?> = emptyList(),
     var makeCollectionFiles: List<Uri?> = emptyList(),
-    var makeCollectionDate : Timestamp = Timestamp(System.currentTimeMillis())
+    var makeCollectionDate: Timestamp = Timestamp(System.currentTimeMillis())
     )
