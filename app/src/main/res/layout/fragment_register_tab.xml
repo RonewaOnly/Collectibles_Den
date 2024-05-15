@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".RegisterTabFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="20dp"
+        android:padding="20dp"
+        tools:ignore="UselessParent">
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Create Account"
+            android:textAllCaps="true"
+            android:textColor="@color/black"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            tools:ignore="HardcodedText" />
+
+        <EditText
+            android:id="@+id/signup_firstName"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="60dp"
+            android:background="@drawable/edit_text"
+            android:drawableLeft="@drawable/user"
+            android:drawablePadding="8dp"
+            android:hint="First Name"
+            android:padding="8dp"
+            tools:ignore="Autofill,HardcodedText,RtlHardcoded,TextFields,TextContrastCheck" />
+
+        <EditText
+            android:id="@+id/signup_lastName"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/edit_text"
+            android:drawableLeft="@drawable/user"
+            android:drawablePadding="8dp"
+            android:hint="Last Name"
+            android:padding="8dp"
+            tools:ignore="Autofill,HardcodedText,RtlHardcoded,TextFields,TextContrastCheck" />
+
+        <EditText
+            android:id="@+id/signup_email"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/edit_text"
+            android:drawableLeft="@drawable/email"
+            android:drawablePadding="8dp"
+            android:hint="Email"
+            android:padding="8dp"
+            tools:ignore="Autofill,HardcodedText,RtlHardcoded,TextFields,TextContrastCheck" />
+
+        <EditText
+            android:id="@+id/signup_password"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/edit_text"
+            android:textColor="@color/black"
+            android:drawableLeft="@drawable/locked"
+            android:drawableRight="@drawable/eye"
+            android:drawablePadding="8dp"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:padding="8dp"
+            tools:ignore="Autofill,HardcodedText,RtlHardcoded,TextContrastCheck" />
+
+        <EditText
+            android:id="@+id/signup_confirm"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/edit_text"
+            android:drawableLeft="@drawable/locked"
+            android:drawableRight="@drawable/eye"
+            android:drawablePadding="8dp"
+            android:hint="Confirm Password"
+            android:inputType="textPassword"
+            android:padding="8dp"
+            tools:ignore="Autofill,HardcodedText,RtlHardcoded,TextContrastCheck" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/signup_button"
+            android:layout_width="300dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/get_started_btn"
+            android:text="Create Account"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText,DuplicateSpeakableTextCheck" />
+
+    </LinearLayout>
+
+
+</FrameLayout>
