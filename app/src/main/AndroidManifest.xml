@@ -13,6 +13,12 @@
         android:theme="@style/Theme.Collectibles_Den"
         tools:targetApi="31">
         <activity
+            android:name=".Login"
+            android:exported="false" />
+        <activity
+            android:name=".StartActivity"
+            android:exported="false" />
+        <activity
             android:name=".Pages.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Collectibles_Den">

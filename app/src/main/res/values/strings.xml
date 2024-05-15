@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Collectibles_Den</string>
+    <string name="app">"Collectables\n"den</string>
+    <string name="sup_title">"Welcome to Collectables Den\n"a place for your collections</string>
+    <string name="get_started">Get Started</string>
+    <string name="register">Register</string>
+    <string name="login">Login</string>
+    <string name="register_account">Create an account with us</string>
+    <string name="login_account">Already have an account? Sign In</string>
+    <string name="todo">TODO</string>
+    <string name="account">Account</string>
+    <string name="account_sup">Login or create an account </string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
