@@ -1,54 +1,51 @@
 package com.example.collectibles_den.Pages
 
+import android.Manifest
+import android.content.ContentResolver
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Attachment
-import androidx.compose.material.icons.filled.Camera
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.NoteAlt
-import androidx.compose.material.icons.filled.Scanner
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.sharp.OpenInBrowser
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.example.collectibles_den.Data.Storyboard_Stories
+import androidx.core.content.ContextCompat
+import coil.compose.rememberAsyncImagePainter
+import com.example.collectibles_den.CoreFunction_AddCollection.FileReaderClass
+import com.example.collectibles_den.CoreFunction_AddCollection.ScannerClass
+import com.example.collectibles_den.CoreFunction_AddCollection.TakePhotosClass
+import com.example.collectibles_den.Data.MakeCollection
+import com.example.collectibles_den.Data.NoteData
+import com.example.collectibles_den.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
 import java.nio.file.Files
 
 @Composable
-fun AddCollections(){
+fun AddCollections() {
         Column(
                 modifier = Modifier
                         .width(1200.dp)
@@ -61,22 +58,13 @@ fun AddCollections(){
                 Text(text = "Add Collection")
                 MakeCollection()
         }
-
 }
 
 @Composable
-fun MakeCollection(){
-        var openForm by remember {
-                mutableStateOf(false
-                )
-        }
-        var isPopClicked by remember {
-                mutableStateOf(false
-                )
-        }
-        var isGalleryClick by remember {
-                mutableStateOf(false)
-        }
+fun MakeCollection() {
+        val context = LocalContext.current
+        var mainSwitch by remember { mutableStateOf(false) }
+        var isPopClicked by remember { mutableStateOf(false) }
         var isCameraClick by remember {
                 mutableStateOf(false)
         }
@@ -89,170 +77,264 @@ fun MakeCollection(){
         var isFolderClick by remember {
                 mutableStateOf(false)
         }
-        var isCreateFolderClick by remember {
-                mutableStateOf(false)
+        val listCollection by remember {
+                mutableStateOf(mutableListOf<MakeCollection>())
         }
+        val noteClass = FileReaderClass()
+        val scanClass = ScannerClass()
+        var imageUri by remember { mutableStateOf<Uri?>(null) }//This will be storing the Uri of the selected Image
+        var imageCameraUri by remember { mutableStateOf<Uri?>(null) }//This will be storing the Uri of the  Image taken by camera
+        var scannedUri by remember { mutableStateOf<Uri?>(null) }//This will be storing the Uri of the scanned Image
+        var notesBank by remember {//Storing the note taken
+                mutableStateOf<List<NoteData>>(emptyList())
+        }
+        var attachedFileUri by remember { mutableStateOf<Uri?>(null) }//Will be storing the Uri of the file chosen
+        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+                imageUri = uri
+        }
+
         IconButton(
-                onClick = { /*TODO*/ },
+                onClick = { mainSwitch = true },
                 modifier = Modifier
                         .border(1.dp, Color.Black, RoundedCornerShape(25.dp))
                         .width(150.dp)
                         .height(60.dp),
-                colors = IconButtonDefaults.iconButtonColors(MaterialTheme.colorScheme.inversePrimary),
-                
-                ) {
+                colors = IconButtonDefaults.iconButtonColors(MaterialTheme.colorScheme.inversePrimary)
+        ) {
                 Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
-                ){
+                ) {
                         Icon(imageVector = Icons.Sharp.OpenInBrowser, contentDescription = null)
                         Text(text = "Make a Collection")
                 }
         }
 
-        Column(
-                modifier = Modifier
-                        .width(900.dp)
-                        .border(1.dp, Color.Black)
-                        .background(Color.DarkGray),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-                Text(text = "Add Items", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
-                Spacer(modifier = Modifier.padding(12.dp))
-                IconButton(
-                        onClick = { /*TODO*/ },
+        if (mainSwitch){
+                Column(
                         modifier = Modifier
-                                .width(200.dp)
-                                .border(1.dp, Color.Transparent, RectangleShape),
-                        colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
-
+                                .width(900.dp)
+                                .border(1.dp, Color.Black)
+                                .background(Color.DarkGray),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                        Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Start
+                        Text(text = "Add Items", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
+                        Spacer(modifier = Modifier.padding(12.dp))
+                        IconButton(
+                                onClick = { launcher.launch("image/*") },
+                                modifier = Modifier
+                                        .width(200.dp)
+                                        .border(1.dp, Color.Transparent, RectangleShape),
+                                colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
                         ) {
-                                Icon(imageVector = Icons.Filled.Image, contentDescription = null)
-                                Text(text = "Get Image")
+                                Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Start
+                                ) {
+                                        Icon(imageVector = Icons.Filled.Image, contentDescription = null)
+                                        Text(text = "Get Image")
+                                }
                         }
-                }
-                Spacer(modifier = Modifier.padding(5.dp))
-                IconButton(
-                        onClick = { /*TODO*/ },
-                        modifier = Modifier
-                                .width(200.dp)
-                                .border(1.dp, Color.Transparent, RectangleShape),
-                        colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
-
-                ) {
-                        Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                        ){
-                                Icon(imageVector = Icons.Filled.Camera, contentDescription = null)
-                                Text(text = "Take Image")
-                        }
-                }
-                Spacer(modifier = Modifier.padding(5.dp))
-
-                IconButton(
-                        onClick = { /*TODO*/ },
-                        modifier = Modifier
-                                .width(200.dp)
-                                .border(1.dp, Color.Transparent, RectangleShape),
-                        colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
-
-                ) {
-                        Row(
-                                verticalAlignment = Alignment.CenterVertically,
+                        Spacer(modifier = Modifier.padding(5.dp))
+                        IconButton(
+                                onClick = { isCameraClick = true },
+                                modifier = Modifier
+                                        .width(200.dp)
+                                        .border(1.dp, Color.Transparent, RectangleShape),
+                                colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
                         ) {
-                                Icon(imageVector = Icons.Filled.NoteAlt, contentDescription = null)
-                                Text(text = "Take Notes")
+                                Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                        Icon(imageVector = Icons.Filled.Camera, contentDescription = null)
+                                        Text(text = "Take Image")
+                                }
                         }
-                }
-                Spacer(modifier = Modifier.padding(5.dp))
-
-                IconButton(
-                        onClick = { /*TODO*/ },
-                        modifier = Modifier
-                                .width(200.dp)
-                                .border(1.dp, Color.Transparent, RectangleShape),
-                        colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
-
-                ) {
-                        Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                                Icon(imageVector = Icons.Filled.Scanner, contentDescription = null)
-                                Text(text = "Scan")
+                        if (isCameraClick) {
+                                imageCameraUri = CapturingImages()
                         }
-                }
-                Spacer(modifier = Modifier.padding(5.dp))
+                        Spacer(modifier = Modifier.padding(5.dp))
 
-                IconButton(
-                        onClick = { /*TODO*/ },
-                        modifier = Modifier
-                                .width(200.dp)
-                                .border(1.dp, Color.Transparent, RectangleShape),
-                        colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
-
-                ) {
-                        Row(
-                                verticalAlignment = Alignment.CenterVertically,
+                        IconButton(
+                                onClick = { isNotesClick = true },
+                                modifier = Modifier
+                                        .width(200.dp)
+                                        .border(1.dp, Color.Transparent, RectangleShape),
+                                colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
                         ) {
-                                Icon(
-                                        imageVector = Icons.Filled.Attachment,
-                                        contentDescription = null
+                                Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                        Icon(imageVector = Icons.Filled.NoteAlt, contentDescription = null)
+                                        Text(text = "Take Notes")
+                                }
+                        }
+                        if (isNotesClick){
+                                noteClass.NoteForm( onClose = { isNotesClick = false }, onSave = {note ->
+                                        //There will be an List that will be storing notes
+                                        notesBank = listOf(note)
+                                })
+
+                        }
+                        Spacer(modifier = Modifier.padding(5.dp))
+
+                        IconButton(
+                                onClick = { isScannerClick = true },
+                                modifier = Modifier
+                                        .width(200.dp)
+                                        .border(1.dp, Color.Transparent, RectangleShape),
+                                colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
+                        ) {
+                                Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                        Icon(imageVector = Icons.Filled.Scanner, contentDescription = null)
+                                        Text(text = "Scan")
+                                }
+                        }
+                        if (isScannerClick){
+                                scannedUri = scanClass.scannerDocument()//this return a Uri
+                        }
+                        Spacer(modifier = Modifier.padding(5.dp))
+
+                        IconButton(
+                                onClick = { isFolderClick = true },
+                                modifier = Modifier
+                                        .width(200.dp)
+                                        .border(1.dp, Color.Transparent, RectangleShape),
+                                colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
+                        ) {
+                                Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                        Icon(
+                                                imageVector = Icons.Filled.Attachment,
+                                                contentDescription = null
+                                        )
+                                        Text(text = "Attach File")
+                                }
+                        }
+                        if (isFolderClick){
+                                noteClass.FilePickerAndReader{ uri ->
+                                        // Handle the selected file URI here
+                                        // For example, you can use it to display or process the file
+                                        attachedFileUri = uri
+                                }
+                        }
+                        Spacer(modifier = Modifier.padding(5.dp))
+
+                        IconButton(
+                                onClick = { isPopClicked = true },
+                                modifier = Modifier
+                                        .width(120.dp)
+                                        .border(1.dp, Color.Transparent, RoundedCornerShape(25)),
+                                colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
+                        ) {
+                                Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                        Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                                        Text(text = "Create Board")
+                                }
+                        }
+
+                        if (isPopClicked) {
+                                SaveCollection(
+                                        getImage = imageUri,
+                                        takeImage = imageCameraUri,
+                                        notes = notesBank,
+                                        scanned = scannedUri,
+                                        file = attachedFileUri,
+                                        onClose = { isPopClicked = false },
+                                        onSave = {
+                                                if(imageUri != null){
+                                                        listCollection.add(
+                                                                MakeCollection(
+                                                                        makeCollectionName = it.makeCollectionName,
+                                                                        makeCollectionCategory = it.makeCollectionCategory,
+                                                                        makeCollectionImages = it.makeCollectionImages
+                                                                )
+                                                        )
+                                                        Toast.makeText(context,"${listCollection.get(0)}",Toast.LENGTH_LONG).show()
+                                                }else if(imageCameraUri != null){
+                                                        listCollection.add(
+                                                                MakeCollection(
+                                                                        makeCollectionName = it.makeCollectionName,
+                                                                        makeCollectionCategory = it.makeCollectionCategory,
+                                                                        makeCollectionCameraImages = it.makeCollectionCameraImages
+                                                                )
+                                                        )
+                                                        Toast.makeText(context,"${listCollection.get(0)}",Toast.LENGTH_LONG).show()
+
+                                                }else if(notesBank.isNotEmpty()){
+                                                        listCollection.add(
+                                                                MakeCollection(
+                                                                        makeCollectionName = it.makeCollectionName,
+                                                                        makeCollectionCategory = it.makeCollectionCategory,
+                                                                        makeCollectionNotes = notesBank
+                                                                )
+                                                        )
+                                                        Toast.makeText(context,"${listCollection.get(0)}",Toast.LENGTH_LONG).show()
+
+                                                }else if(scannedUri != null){
+                                                        listCollection.add(
+                                                                MakeCollection(
+                                                                        makeCollectionName = it.makeCollectionName,
+                                                                        makeCollectionCategory = it.makeCollectionCategory,
+                                                                        makeCollectionScannedItems = it.makeCollectionScannedItems
+                                                                )
+                                                        )
+                                                }else if(attachedFileUri != null){
+                                                        listCollection.add(
+                                                                MakeCollection(
+                                                                        makeCollectionName = it.makeCollectionName,
+                                                                        makeCollectionCategory = it.makeCollectionCategory,
+                                                                        makeCollectionFiles = it.makeCollectionFiles
+                                                                )
+                                                        )
+                                                        Toast.makeText(context,"${listCollection.get(0)}",Toast.LENGTH_LONG).show()
+
+                                                }else{//Saves everything
+                                                        listCollection.add(
+                                                                MakeCollection(
+                                                                        makeCollectionName = it.makeCollectionName,
+                                                                        makeCollectionCategory = it.makeCollectionCategory,
+                                                                        makeCollectionImages = it.makeCollectionImages,
+                                                                        makeCollectionCameraImages = it.makeCollectionCameraImages,
+                                                                        makeCollectionNotes = it.makeCollectionNotes,
+                                                                        makeCollectionScannedItems = it.makeCollectionScannedItems,
+                                                                        makeCollectionFiles = it.makeCollectionFiles,
+
+                                                                        )
+                                                        )
+                                                        Toast.makeText(context,"${listCollection.get(0)}",Toast.LENGTH_LONG).show()
+
+                                                }
+
+                                        }
                                 )
-                                Text(text = "Attach File")
                         }
-                }
-                Spacer(modifier = Modifier.padding(5.dp))
-                
-                IconButton(
-                        onClick = { isPopClicked = true },
-                        modifier = Modifier
-                                .width(120.dp)
-                                .border(1.dp, Color.Transparent, RoundedCornerShape(25)),
-                        colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
-
-                ){
-                        Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                                Icon(imageVector = Icons.Filled.Add, contentDescription = null)
-                                Text(text = "Create Board")
-                        }
-                }
-
-                if (isPopClicked){
-                        SaveCollection(
-                                onClose = { /*TODO*/ },
-                                onSave = {}
-                        )
                 }
         }
+
+
 }
 
 @Composable
 fun SaveCollection(
         getImage: Uri? = Uri.EMPTY,
-        takeImage:Uri? = Uri.EMPTY,
-        notes: String? = "",
+        takeImage: Uri? = Uri.EMPTY,
+        notes: List<NoteData> = emptyList(),
         scanned: Uri? = Uri.EMPTY,
-        file:Files? = null,
-        onClose:() -> Unit,
-        onSave: () -> Unit
-){
-        var collectionName by remember {
-                mutableStateOf("")
-        }
-        var collectionCategory by remember {
-                mutableStateOf("")
-        }
+        file: Uri? = null,
+        onClose: () -> Unit,
+        onSave: (MakeCollection) -> Unit
+) {
+        var collectionName by remember { mutableStateOf("") }
+        var collectionCategory by remember { mutableStateOf("") }
 
-
-        Dialog(onDismissRequest = { onClose }) {
-
+        Dialog(onDismissRequest = { onClose() }) {
                 Surface(
                         modifier = Modifier
                                 .width(300.dp)
@@ -265,36 +347,69 @@ fun SaveCollection(
                         ) {
                                 TextField(
                                         value = collectionName,
-                                        onValueChange = {collectionName = it},
-                                        label = { Text(text = "Enter Board Name:")}
+                                        onValueChange = { collectionName = it },
+                                        label = { Text(text = "Enter Board Name:") }
                                 )
                                 Spacer(modifier = Modifier.padding(10.dp))
 
                                 TextField(
                                         value = collectionCategory,
-                                        onValueChange = {collectionCategory = it},
-                                        label = { Text(text = "Enter Board Category:")}
+                                        onValueChange = { collectionCategory = it },
+                                        label = { Text(text = "Enter Board Category:") }
                                 )
-                        }
 
-                        Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End
-                        ) {
-                                TextButton(onClick = onClose) {
-                                        Text("Cancel")
-                                }
-                                Spacer(modifier = Modifier.width(8.dp))
-                                TextButton(
-                                        onClick = {
-                                                onSave()
-                                                onClose()
-                                        }
+                                Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.End
                                 ) {
-                                        Text("Save")
+                                        TextButton(onClick = onClose) {
+                                                Text("Cancel")
+                                        }
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        TextButton(
+                                                onClick = {
+                                                        onSave(
+                                                                MakeCollection(
+                                                                        makeCollectionName = collectionName,
+                                                                        makeCollectionCategory = collectionCategory,
+                                                                        makeCollectionFiles = listOf(file),
+                                                                        makeCollectionImages = listOf(getImage),
+                                                                        makeCollectionCameraImages = listOf(takeImage),
+                                                                        makeCollectionNotes = notes,
+                                                                        makeCollectionScannedItems = listOf(scanned)
+                                                                )
+                                                        )
+                                                        onClose()
+                                                }
+                                        ) {
+                                                Text("Save")
+                                        }
                                 }
                         }
                 }
-
         }
 }
+@Composable
+fun CapturingImages():Uri {
+        val context = LocalContext.current
+        var capturedImageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
+
+        val get = TakePhotosClass()
+
+        val (cameraLauncher, permissionLauncher) = get.setupCameraLauncher(
+                context = context,
+                onImageCaptured = { uri -> capturedImageUri = uri },
+                onError = { message -> Toast.makeText(context, message, Toast.LENGTH_SHORT).show() }
+        )
+
+        LaunchedEffect(Unit) {
+                val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                        cameraLauncher.launch(capturedImageUri)
+                } else {
+                        permissionLauncher.launch(Manifest.permission.CAMERA)
+                }
+        }
+        return capturedImageUri
+}
+
