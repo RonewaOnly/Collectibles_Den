@@ -30,12 +30,14 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -58,9 +60,8 @@ import com.example.collectibles_den.DefaultValuesClass
 import com.example.collectibles_den.R
 
 @Composable
-fun  Storyboard() {
+fun Storyboard() {
     Column {
-        //Text(text = "Storyboard.")
         MaxSection()
     }
 }
@@ -72,8 +73,8 @@ fun MaxSection() {
     var isPopVisible by remember { mutableStateOf(false) }
     var isExpended by remember { mutableStateOf(false) }
     val selectedCollection = remember { mutableStateListOf<Storyboard_Stories.StoryboardLine>() }
-    // Use a map to track the toggle state for each storyboard
     val toggleStates = remember { mutableStateMapOf<String, Boolean>() }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -88,10 +89,14 @@ fun MaxSection() {
             CustomPopup(
                 onClose = { isPopVisible = false },
                 onSave = { storyboard ->
-                    selectedCollection.add(
-                        storyboard.copy(showGoalDialog = false)
-                    )
-                    Toast.makeText(context, "Saved", Toast.LENGTH_LONG).show()
+                    try {
+                        selectedCollection.add(
+                            storyboard.copy(showGoalDialog = false)
+                        )
+                        Toast.makeText(context, "Saved", Toast.LENGTH_LONG).show()
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Error saving storyboard: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
                 }
             )
         }
@@ -102,7 +107,6 @@ fun MaxSection() {
     if (selectedCollection.isNotEmpty()) {
         LazyColumn {
             items(selectedCollection) { item ->
-                //var toggle by remember { mutableStateOf(item.showGoalDialog) } // Track showGoalDialog state for each item
 
                 Column(
                     modifier = Modifier
@@ -122,31 +126,28 @@ fun MaxSection() {
                             horizontalArrangement = Arrangement.Start
                         ) {
                             IconButton(onClick = {
-                                // Toggle the edit action for the corresponding item
-                                toggleStates[item.storyID] = toggleStates[item.storyID]?.not() ?: true
                                 isExpended = false
                             }) {
                                 Icon(imageVector = Icons.Default.Edit, contentDescription = null)
                             }
                             IconButton(onClick = {
-                                // Toggle the delete action for the corresponding item
-                                selectedCollection.remove(item)
-                                isExpended = false
+                                try {
+                                    selectedCollection.remove(item)
+                                    isExpended = false
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Error deleting item: ${e.message}", Toast.LENGTH_LONG).show()
+                                }
                             }) {
                                 Icon(imageVector = Icons.Default.Delete, contentDescription = null)
                             }
                             IconButton(onClick = {
-                                // Toggle the share action for the corresponding item
-                                toggleStates[item.storyID] = toggleStates[item.storyID]?.not() ?: true
                                 isExpended = false
                             }) {
                                 Icon(imageVector = Icons.Default.Share, contentDescription = null)
                             }
                             IconButton(
                                 onClick = {
-                                    // Toggle the set goal action for the corresponding item
                                     toggleStates[item.storyID] = toggleStates[item.storyID]?.not() ?: true
-                                    isExpended = false
                                 },
                                 modifier = Modifier.width(140.dp)
                             ) {
@@ -163,17 +164,18 @@ fun MaxSection() {
                                 toggle = toggleStates[item.storyID] ?: false, // Pass toggle state
                                 onClose = { toggleStates[item.storyID] = false },
                                 onSave = { updatedItem ->
-                                    val index = selectedCollection.indexOfFirst { it.storyID == updatedItem.storyID }
-                                    if (index != -1) {
-                                        selectedCollection[index] = updatedItem
+                                    try {
+                                        val index = selectedCollection.indexOfFirst { it.storyID == updatedItem.storyID }
+                                        if (index != -1) {
+                                            selectedCollection[index] = updatedItem
+                                        }
+                                    } catch (e: Exception) {
+                                        Toast.makeText(context, "Error setting goal: ${e.message}", Toast.LENGTH_LONG).show()
                                     }
                                 }
                             )
                         }
-
-                    }
-
-                     else {
+                    } else {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.End
@@ -185,6 +187,7 @@ fun MaxSection() {
                             }
                         }
                     }
+
                     Image(
                         painter = imagePainter,
                         contentScale = ContentScale.FillWidth,
@@ -197,7 +200,27 @@ fun MaxSection() {
                         .fillMaxHeight()
                         .background(Color.LightGray))
 
+
+                    if(item.goalSet == 0){
+                        // Display nothing
+                    }else{
+                        // Progress Bar
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(text = "Progress towards goal")
+                            LinearProgressIndicator(
+                                progress = { item.getProgress() },
+                            )
+                            Text(text = "${item.currentProgress} / ${item.goalSet}")
+                        }
+                    }
+
                 }
+                Spacer(modifier = Modifier.padding(12.dp))
             }
         }
     } else {
@@ -210,11 +233,13 @@ fun MaxSection() {
         )
     }
 }
+
 @Composable
 fun CustomPopup(
     onClose: () -> Unit,
     onSave: (Storyboard_Stories.StoryboardLine) -> Unit
 ) {
+    val context = LocalContext.current
     var storyName by remember { mutableStateOf("") }
     var storyDescription by remember { mutableStateOf("") }
     var storyCategory by remember { mutableStateOf("") }
@@ -226,9 +251,7 @@ fun CustomPopup(
     }
 
     val getCollection = DefaultValuesClass()
-    var selectedItems by remember {
-        mutableStateOf<List<collectionStorage?>>(emptyList())
-    }
+    var selectedItems by remember { mutableStateOf<List<collectionStorage?>>(emptyList()) }
 
     Dialog(onDismissRequest = onClose) {
         Surface(
@@ -256,7 +279,8 @@ fun CustomPopup(
                     onValueChange = { storyCategory = it },
                     label = { Text("Enter category name: ") }
                 )
-                selectedItems = SelectedItem(collection = getCollection.recentCollection)
+
+                selectedItems = selectedItem(collection = getCollection.recentCollection, category = storyCategory)
 
                 Row(modifier = Modifier.width(200.dp)) {
                     TextButton(onClick = {
@@ -279,17 +303,21 @@ fun CustomPopup(
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(
                         onClick = {
-                            onSave(
-                                Storyboard_Stories.StoryboardLine(
-                                    storyName = storyName,
-                                    storyItems = selectedItems,
-                                    storyCategory = storyCategory,
-                                    storyDescription = storyDescription,
-                                    storyCovers = coverBook,
-                                    showGoalDialog = false
+                            try {
+                                onSave(
+                                    Storyboard_Stories.StoryboardLine(
+                                        storyName = storyName,
+                                        storyItems = selectedItems,
+                                        storyCategory = storyCategory,
+                                        storyDescription = storyDescription,
+                                        storyCovers = coverBook,
+                                        showGoalDialog = false,
+                                    )
                                 )
-                            )
-                            onClose()
+                                onClose()
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "Error saving storyboard: ${e.message}", Toast.LENGTH_LONG).show()
+                            }
                         }
                     ) {
                         Text("Save")
@@ -301,19 +329,25 @@ fun CustomPopup(
 }
 
 @Composable
-fun SelectedItem(collection: List<collectionStorage>): List<collectionStorage?> {
+fun selectedItem(collection: List<collectionStorage>, category: String): List<collectionStorage?> {
+    val context = LocalContext.current
+
     val selectedCollection = remember { mutableStateListOf<collectionStorage>() }
 
     Column {
-        collection.forEach { item ->
+        collection.filter { it.collectionCategory == category }.forEach { item ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
                     checked = item in selectedCollection,
                     onCheckedChange = { isChecked ->
-                        if (isChecked) {
-                            selectedCollection.add(item)
-                        } else {
-                            selectedCollection.remove(item)
+                        try {
+                            if (isChecked) {
+                                selectedCollection.add(item)
+                            } else {
+                                selectedCollection.remove(item)
+                            }
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Error selecting item: ${e.message}", Toast.LENGTH_LONG).show()
                         }
                     }
                 )
@@ -333,7 +367,7 @@ fun SetGoal(
     onSave: (Storyboard_Stories.StoryboardLine) -> Unit
 ) {
     val context = LocalContext.current
-    var goalSet by remember { mutableStateOf(0) }
+    var goalSet by remember { mutableIntStateOf(0) }
 
     Dialog(onDismissRequest = onClose) {
         Surface(
@@ -344,16 +378,27 @@ fun SetGoal(
         ) {
             Column {
                 story.forEach { item ->
+
                     if (item.storyID == storyID && toggle) {
                         TextField(
                             value = goalSet.toString(),
-                            onValueChange = { goalSet = it.toInt() },
+                            onValueChange = {
+                                try {
+                                    goalSet = it.toInt()
+                                } catch (e: NumberFormatException) {
+                                    Toast.makeText(context, "Invalid input: ${e.message}", Toast.LENGTH_LONG).show()
+                                }
+                            },
                             label = { Text("Set goal: ") }
                         )
                         Button(onClick = {
-                            onSave(item.copy(goalSet = goalSet))
-                            Toast.makeText(context, item.storyName, Toast.LENGTH_LONG).show()
-                            onClose()
+                            try {
+                                onSave(item.copy(goalSet = goalSet))
+                                Toast.makeText(context, item.storyName, Toast.LENGTH_LONG).show()
+                                onClose()
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "Error setting goal: ${e.message}", Toast.LENGTH_LONG).show()
+                            }
                         }) {
                             Text(text = "Set Goal")
                         }
@@ -374,3 +419,4 @@ fun SetGoal(
         }
     }
 }
+
