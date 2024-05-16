@@ -189,7 +189,9 @@ fun MaxSection() {
                     }
 
                     Image(
-                        painter = imagePainter,
+                        painter = if(item.storyCovers[0] != null) rememberAsyncImagePainter(item.storyCovers[0] ) else painterResource(
+                            R.drawable.default_image
+                        ),
                         contentScale = ContentScale.FillWidth,
                         contentDescription = null,
                         modifier = Modifier

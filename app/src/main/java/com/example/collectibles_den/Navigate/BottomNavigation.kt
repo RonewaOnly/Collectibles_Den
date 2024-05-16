@@ -13,7 +13,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -21,76 +21,67 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 
 @Composable
-fun BottomNavigation(navController:NavController){
+fun BottomNavigation(navController: NavController) {
     val context = LocalContext.current
-    var count by remember{ mutableIntStateOf(1) }
+    var selectedIndex by remember { mutableStateOf(0) }
     val navList = listOf(
-        navIcons(
+        NavIcons(
             "Home",
             Icons.Filled.Home
         ),
-        navIcons(
+        NavIcons(
             "Collection",
             Icons.Filled.Newspaper
         ),
-        navIcons(
+        NavIcons(
             "Add",
             Icons.Filled.Add
         ),
-        navIcons(
+        NavIcons(
             "Storyboard",
             Icons.Filled.SpaceDashboard
         ),
-        navIcons(
+        NavIcons(
             "Profile",
             Icons.Filled.Person
         )
     )
 
     NavigationBar {
-        navList.forEachIndexed{ index, item ->
-                NavigationBarItem(
-                    selected = index == count ,
-                    onClick = {
-                        when (index) {
-                            0 -> {
-                                navController.navigate("homepage")
-                            }
-                            1 -> {
-                                Toast.makeText(context,"$index", Toast.LENGTH_SHORT).show()
-                                navController.navigate("personalCollection")
-                                count++
-
-
-                            }
-                            2 -> {
-                                Toast.makeText(context,"$index", Toast.LENGTH_SHORT).show()
-                                navController.navigate("addCollections")
-                                count++
-
-
-                            }
-                            3 -> {
-                                Toast.makeText(context,"$index", Toast.LENGTH_SHORT).show()
-                                navController.navigate("storyboard")
-                                count++
-                            }
-                            4 -> {
-                                Toast.makeText(context,"$index", Toast.LENGTH_SHORT).show()
-                                navController.navigate("profileAccount")
-                                count++
-                            }
+        navList.forEachIndexed { index, item ->
+            NavigationBarItem(
+                selected = index == selectedIndex,
+                onClick = {
+                    selectedIndex = index
+                    when (index) {
+                        0 -> navController.navigate("homepage")
+                        1 -> {
+                            Toast.makeText(context, "Collection", Toast.LENGTH_SHORT).show()
+                            navController.navigate("personalCollection")
                         }
-                    },
-                    icon = {
-                        Icon(imageVector = item.icon, contentDescription = item.title)
+                        2 -> {
+                            Toast.makeText(context, "Add", Toast.LENGTH_SHORT).show()
+                            navController.navigate("addCollections")
+                        }
+                        3 -> {
+                            Toast.makeText(context, "Storyboard", Toast.LENGTH_SHORT).show()
+                            navController.navigate("storyboard")
+                        }
+                        4 -> {
+                            Toast.makeText(context, "Profile", Toast.LENGTH_SHORT).show()
+                            navController.navigate("profileAccount")
+                        }
                     }
-                )
+                },
+                icon = {
+                    Icon(imageVector = item.icon, contentDescription = item.title)
+                }
+            )
         }
     }
 }
 
-data class navIcons (
+data class NavIcons(
     var title: String = "",
     var icon: ImageVector = Icons.Default.InsertPageBreak
 )
