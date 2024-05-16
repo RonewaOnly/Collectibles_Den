@@ -20,12 +20,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="Create Account"
+            android:textAlignment="center"
             android:textAllCaps="true"
             android:textColor="@color/black"
             android:textSize="28sp"
             android:textStyle="bold"
-            android:textAlignment="center"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText,TextContrastCheck" />
 
         <EditText
             android:id="@+id/signup_firstName"
