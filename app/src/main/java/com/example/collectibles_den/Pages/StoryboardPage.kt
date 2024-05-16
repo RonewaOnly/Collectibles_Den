@@ -312,7 +312,7 @@ fun CustomPopup(
                                         storyItems = selectedItems,
                                         storyCategory = storyCategory,
                                         storyDescription = storyDescription,
-                                        storyCovers = coverBook,
+                                        storyCovers = if(coverBook.isNotEmpty()) coverBook else listOf(Uri.parse("https://th.bing.com/th/id/OIP._ajHHTmB2OCkdyQi51_qvgHaEn?rs=1&pid=ImgDetMain"))  ,
                                         showGoalDialog = false,
                                     )
                                 )

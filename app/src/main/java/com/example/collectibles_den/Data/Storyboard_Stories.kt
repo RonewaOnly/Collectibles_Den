@@ -8,10 +8,10 @@ class Storyboard_Stories {
     data class StoryboardLine(
         val storyID: String ="",
         val storyName: String,
-        val storyItems: List<collectionStorage?>,
+        val storyItems: List<collectionStorage?> = emptyList(),
         val storyCategory: String,
-        val storyDescription: String,
-        val storyCovers: List<Uri?>,
+        val storyDescription: String ="",
+        val storyCovers: List<Uri?> = emptyList(),
         val showGoalDialog: Boolean,
         val goalSet: Int = 0,
         val currentProgress: Int = if(storyItems.isNotEmpty()) storyItems.count() else 0
