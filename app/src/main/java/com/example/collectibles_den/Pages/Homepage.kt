@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,11 +26,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.collectibles_den.Data.collectionStorage
 import com.example.collectibles_den.DefaultValuesClass
 import java.sql.Timestamp
 
-
+@Preview
 @Composable
 fun Homepage(){
    var getCollection = DefaultValuesClass()
@@ -39,10 +41,12 @@ fun Homepage(){
       Text(
          text = "Recent Additions",
          textAlign = TextAlign.Center,
+         fontSize = 40.sp,
          modifier = Modifier
             .fillMaxWidth()
             .height(50.dp)
             .background(Color.LightGray)
+
       )
       MainSection(getCollection.recentCollection)
 

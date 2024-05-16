@@ -70,7 +70,7 @@ fun MainSearch(){
             TextField(
                 value = searchValue,
                 onValueChange = { searchValue = it },
-                placeholder = { Text(text = "search for your collection") },
+                placeholder = { Text(text = "Search Collection") },
                 modifier = Modifier.fillMaxWidth().height(60.dp)
             )
         }
