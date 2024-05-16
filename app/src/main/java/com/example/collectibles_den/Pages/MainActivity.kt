@@ -28,12 +28,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         //enableEdgeToEdge()
         setContent {
-            //MainScreen()
+            MainScreen()
            /* val startingScreen = StartActivity()
             startingScreen.getStarted()*/
 
-            val intent = Intent(this, StartActivity::class.java)
-            startActivity(intent)
+            /*val intent = Intent(this, StartActivity::class.java)
+            startActivity(intent)*/
         }
     }
 }

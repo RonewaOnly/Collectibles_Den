@@ -14,7 +14,9 @@ class Storyboard_Stories {
         val goalSet: Int = 0,
         val dateOfCreation: Timestamp = Timestamp(System.currentTimeMillis()),
         val tags: List<String> = emptyList(),
-        val storyCategory: String = ""
+        val storyCategory: String = "",
+        var showGoalDialog: Boolean = false // New property to track dialog visibility
+
     )
 
     data class Settings(//This data class will be

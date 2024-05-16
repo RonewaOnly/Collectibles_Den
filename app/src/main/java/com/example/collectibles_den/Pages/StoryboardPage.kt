@@ -37,6 +37,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -71,7 +72,8 @@ fun MaxSection() {
     var isPopVisible by remember { mutableStateOf(false) }
     var isExpended by remember { mutableStateOf(false) }
     val selectedCollection = remember { mutableStateListOf<Storyboard_Stories.StoryboardLine>() }
-
+    // Use a map to track the toggle state for each storyboard
+    val toggleStates = remember { mutableStateMapOf<String, Boolean>() }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -86,14 +88,8 @@ fun MaxSection() {
             CustomPopup(
                 onClose = { isPopVisible = false },
                 onSave = { storyboard ->
-                    selectedCollection.add(//This will be storing the storyboard created
-                        Storyboard_Stories.StoryboardLine(
-                           storyName =  storyboard.storyName, 
-                            storyDescription = storyboard.storyDescription,
-                           storyItems =  storyboard.storyItems,
-                           storyCategory =  storyboard.storyCategory,
-                           storyCovers =  storyboard.storyCovers
-                        )
+                    selectedCollection.add(
+                        storyboard.copy(showGoalDialog = false)
                     )
                     Toast.makeText(context, "Saved", Toast.LENGTH_LONG).show()
                 }
@@ -106,6 +102,8 @@ fun MaxSection() {
     if (selectedCollection.isNotEmpty()) {
         LazyColumn {
             items(selectedCollection) { item ->
+                //var toggle by remember { mutableStateOf(item.showGoalDialog) } // Track showGoalDialog state for each item
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -118,52 +116,67 @@ fun MaxSection() {
                     } else {
                         painterResource(R.drawable.default_image)
                     }
-                    if(isExpended){
+                    if (isExpended) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Start
                         ) {
                             IconButton(onClick = {
+                                // Toggle the edit action for the corresponding item
+                                toggleStates[item.storyID] = toggleStates[item.storyID]?.not() ?: true
                                 isExpended = false
                             }) {
                                 Icon(imageVector = Icons.Default.Edit, contentDescription = null)
                             }
                             IconButton(onClick = {
+                                // Toggle the delete action for the corresponding item
                                 selectedCollection.remove(item)
                                 isExpended = false
                             }) {
                                 Icon(imageVector = Icons.Default.Delete, contentDescription = null)
                             }
                             IconButton(onClick = {
+                                // Toggle the share action for the corresponding item
+                                toggleStates[item.storyID] = toggleStates[item.storyID]?.not() ?: true
                                 isExpended = false
                             }) {
                                 Icon(imageVector = Icons.Default.Share, contentDescription = null)
                             }
-                            IconButton(onClick = { isPopVisible = true },
+                            IconButton(
+                                onClick = {
+                                    // Toggle the set goal action for the corresponding item
+                                    toggleStates[item.storyID] = toggleStates[item.storyID]?.not() ?: true
+                                    isExpended = false
+                                },
                                 modifier = Modifier.width(140.dp)
-                                ) {
+                            ) {
                                 Column {
                                     Icon(imageVector = Icons.Default.BorderAll, contentDescription = null)
                                     Text(text = "Set Goal")
                                 }
                             }
                         }
-                        if (isPopVisible){
+                        if (toggleStates[item.storyID] == true) {
                             SetGoal(
                                 story = selectedCollection,
                                 storyID = item.storyID,
-                                onClose = { isPopVisible = false },
+                                toggle = toggleStates[item.storyID] ?: false, // Pass toggle state
+                                onClose = { toggleStates[item.storyID] = false },
                                 onSave = { updatedItem ->
                                     val index = selectedCollection.indexOfFirst { it.storyID == updatedItem.storyID }
                                     if (index != -1) {
                                         selectedCollection[index] = updatedItem
                                     }
-                                })
+                                }
+                            )
                         }
-                    }else{
+
+                    }
+
+                     else {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.Start
+                            horizontalAlignment = Alignment.End
                         ) {
                             IconButton(onClick = {
                                 isExpended = true
@@ -180,7 +193,7 @@ fun MaxSection() {
                             .width(200.dp)
                             .height(200.dp)
                     )
-                    Text(text = item.storyName,modifier = Modifier
+                    Text(text = item.storyName, modifier = Modifier
                         .fillMaxHeight()
                         .background(Color.LightGray))
 
@@ -203,24 +216,26 @@ fun CustomPopup(
     onSave: (Storyboard_Stories.StoryboardLine) -> Unit
 ) {
     var storyName by remember { mutableStateOf("") }
-    var storyDescription by  remember { mutableStateOf("") }
+    var storyDescription by remember { mutableStateOf("") }
     var storyCategory by remember { mutableStateOf("") }
     var coverBook by remember { mutableStateOf<List<Uri?>>(emptyList()) }
-    var imageUri by remember { mutableStateOf<Uri?>(null) }//This will be storing the uri for the image chosen from the device gallery
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        imageUri = uri //this set the uri to the imageUri
+        imageUri = uri
     }
+
     val getCollection = DefaultValuesClass()
-    var selecteItems by remember {
+    var selectedItems by remember {
         mutableStateOf<List<collectionStorage?>>(emptyList())
     }
+
     Dialog(onDismissRequest = onClose) {
         Surface(
             modifier = Modifier
                 .width(300.dp)
                 .padding(16.dp),
-            shape = RoundedCornerShape(8.dp),
-            
+            shape = RoundedCornerShape(8.dp)
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
@@ -238,21 +253,20 @@ fun CustomPopup(
                 )
                 TextField(
                     value = storyCategory,
-                    onValueChange = {storyCategory = it},
-                    label = { Text(text = "Enter category name: ")}
+                    onValueChange = { storyCategory = it },
+                    label = { Text("Enter category name: ") }
                 )
-                selecteItems = SelectedItem(collection = getCollection.recentCollection)//This will be getting the selected collection
-                Row(
-                    modifier = Modifier.width(200.dp)
-                ) {
+                selectedItems = SelectedItem(collection = getCollection.recentCollection)
+
+                Row(modifier = Modifier.width(200.dp)) {
                     TextButton(onClick = {
                         launcher.launch("image/*")
-                        if(imageUri != null){
+                        if (imageUri != null) {
                             coverBook = listOf(imageUri)
                         }
                     }) {
-                       Icon(imageVector = Icons.Default.FileOpen, contentDescription = "")
-                       Text(text = "Select image")
+                        Icon(imageVector = Icons.Default.FileOpen, contentDescription = null)
+                        Text(text = "Select image")
                     }
                 }
                 Row(
@@ -265,13 +279,14 @@ fun CustomPopup(
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(
                         onClick = {
-                            onSave(//It will be saving the data entered
+                            onSave(
                                 Storyboard_Stories.StoryboardLine(
                                     storyName = storyName,
-                                    storyItems = selecteItems,
+                                    storyItems = selectedItems,
                                     storyCategory = storyCategory,
                                     storyDescription = storyDescription,
-                                    storyCovers = coverBook
+                                    storyCovers = coverBook,
+                                    showGoalDialog = false
                                 )
                             )
                             onClose()
@@ -284,9 +299,9 @@ fun CustomPopup(
         }
     }
 }
+
 @Composable
 fun SelectedItem(collection: List<collectionStorage>): List<collectionStorage?> {
-    val isSelected by remember { mutableStateOf(false) }
     val selectedCollection = remember { mutableStateListOf<collectionStorage>() }
 
     Column {
@@ -302,21 +317,22 @@ fun SelectedItem(collection: List<collectionStorage>): List<collectionStorage?> 
                         }
                     }
                 )
-                // Display the name of the collection
                 Text(text = item.collectionName)
             }
         }
     }
-    // Return the list of selected collections
     return selectedCollection.toList()
 }
+
 @Composable
 fun SetGoal(
     story: List<Storyboard_Stories.StoryboardLine>,
     storyID: String,
+    toggle: Boolean = false,
     onClose: () -> Unit,
     onSave: (Storyboard_Stories.StoryboardLine) -> Unit
 ) {
+    val context = LocalContext.current
     var goalSet by remember { mutableStateOf(0) }
 
     Dialog(onDismissRequest = onClose) {
@@ -324,11 +340,11 @@ fun SetGoal(
             modifier = Modifier
                 .width(300.dp)
                 .padding(16.dp),
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(8.dp)
         ) {
             Column {
                 story.forEach { item ->
-                    if (item.storyID == storyID) {
+                    if (item.storyID == storyID && toggle) {
                         TextField(
                             value = goalSet.toString(),
                             onValueChange = { goalSet = it.toInt() },
@@ -336,6 +352,7 @@ fun SetGoal(
                         )
                         Button(onClick = {
                             onSave(item.copy(goalSet = goalSet))
+                            Toast.makeText(context, item.storyName, Toast.LENGTH_LONG).show()
                             onClose()
                         }) {
                             Text(text = "Set Goal")
