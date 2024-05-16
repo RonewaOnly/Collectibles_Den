@@ -23,7 +23,7 @@ class RegisterTabFragment : Fragment() {
         // onclick function
         view.findViewById<Button>(R.id.signup_button).setOnClickListener {
 
-            val intent = Intent(this@RegisterTabFragment.requireContext(), MainActivity::class.java)
+            val intent = Intent(this@RegisterTabFragment.requireContext(), LoginTabFragment::class.java)
             startActivity(intent)
         }
 
