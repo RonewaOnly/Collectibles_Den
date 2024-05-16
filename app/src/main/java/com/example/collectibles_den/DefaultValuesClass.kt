@@ -51,6 +51,7 @@ class DefaultValuesClass {
             collectionID = "nbgyu876trdf",
             collectionName = "8765rdcv",
             collectionDescription = listOf("0987tcvbjkl;","retyu"),
+            collectionCategory = "Laptops".lowercase(),
             postedDate = getBeginningOfPastMonth()
         ),
     )
