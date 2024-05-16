@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -42,7 +43,7 @@ import com.example.collectibles_den.CoreFunction_AddCollection.TakePhotosClass
 import com.example.collectibles_den.Data.MakeCollection
 import com.example.collectibles_den.Data.NoteData
 import com.example.collectibles_den.R
-
+@Preview
 @Composable
 fun AddCollections() {
         Column(
