@@ -99,7 +99,7 @@ class FileReaderClass {
                                 onClose()
                             }
                         ) {
-                            Text("Save")
+                            Text("Save :)")
                         }
                     }
 
