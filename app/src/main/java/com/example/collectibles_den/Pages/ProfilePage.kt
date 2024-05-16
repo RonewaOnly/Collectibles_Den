@@ -1,22 +1,19 @@
 package com.example.collectibles_den.Pages
 
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,12 +24,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.SubdirectoryArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -45,14 +38,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
 import com.example.collectibles_den.Data.UserData
 import com.example.collectibles_den.DefaultValuesClass
 
@@ -72,8 +62,9 @@ fun ProfileAccount(){
 fun ProfileSection(){
         var isPopProfile by remember {
                 mutableStateOf(false)
-        } 
-        
+        }
+        var users by remember { mutableStateOf(getData.userDummy) }
+
         if (!isPopProfile){
                 Column(
                         modifier = Modifier
@@ -82,57 +73,60 @@ fun ProfileSection(){
                                 .padding(10.dp)
                                 .border(1.dp, Color.Gray, RoundedCornerShape(25.dp))
                 ) {//Mini Version for personal Details
-                        Row(
+                        LazyRow(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                         ) {
+                                items(users){
 
-                                Column(
-                                        modifier = Modifier
-                                                .clip(RoundedCornerShape(50))
-                                                .border(2.dp, Color.White)
-                                                .width(55.dp)
-                                                .height(55.dp)
-                                                .background(
-                                                        Color.LightGray
-                                                ),
-                                        verticalArrangement = Arrangement.Center,
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                ) {//The circle
-                                        Text(
-                                                text = "Us",
-                                                color = Color.White,
-                                                textAlign = TextAlign.Center,
+                                        Column(
                                                 modifier = Modifier
                                                         .clip(RoundedCornerShape(50))
-                                        )
-                                }
-                                Column {
-                                        Text(text = "Username",
-                                                color = Color.White,
-                                        )
-                                        Text(
-                                                text = "Email",
-                                                color = Color.White,
-                                                modifier = Modifier.fillMaxWidth(0.7f)
-                                        )
-                                }
-
-                                Icon(
-                                        imageVector = Icons.Default.SubdirectoryArrowRight,
-                                        contentDescription = null,
-                                        tint = Color.White,
-                                        modifier =  Modifier.clickable {
-                                                isPopProfile = true
+                                                        .border(2.dp, Color.White)
+                                                        .width(55.dp)
+                                                        .height(55.dp)
+                                                        .background(
+                                                                Color.LightGray
+                                                        ),
+                                                verticalArrangement = Arrangement.Center,
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {//The circle
+                                                Text(
+                                                        text = it.username.substring(0,2),
+                                                        color = Color.White,
+                                                        textAlign = TextAlign.Center,
+                                                        modifier = Modifier
+                                                                .clip(RoundedCornerShape(50))
+                                                )
                                         }
-                                )
+                                        Column(
+                                                modifier = Modifier.padding(10.dp).width(295.dp)
+                                        ) {
+                                                Text(text = it.username,
+                                                        color = Color.White,
+                                                )
+                                                Text(
+                                                        text = it.email,
+                                                        color = Color.White,
+                                                        modifier = Modifier.fillMaxWidth(0.7f)
+                                                )
+                                        }
+
+                                        Icon(
+                                                imageVector = Icons.Default.SubdirectoryArrowRight,
+                                                contentDescription = null,
+                                                tint = Color.White,
+                                                modifier =  Modifier.clickable {
+                                                        isPopProfile = true
+                                                }.align(Alignment.End)
+                                        )
+                                }
                         }
-
                         HorizontalDivider(modifier = Modifier.padding(10.dp))
-
                         Text(text = "Extra memory")
                 }
+
                 Spacer(modifier = Modifier.padding(12.dp))
                 //Contact Form
                 Column(
@@ -194,15 +188,31 @@ fun ProfileSection(){
                 }
         }else{
            //Text(text = "Clicked")
-                FullPersonalProfile(user = getData.userDummy, userID = getData.userDummy[0].customerId, onClose = {
-                        isPopProfile = false
-                })
+                FullPersonalProfile(
+                        user = users,
+                        userID = users[0].customerId,
+                        onClose = {
+                                isPopProfile = false
+                        },
+                        onSave = { updatedUsers ->
+                                users = updatedUsers
+                                isPopProfile = false
+                        }
+                )
         }
         
 }
+fun getProfileData(data:List<UserData>):List<UserData>{//this function will be used to get the data from the api/database/local storage
+        return data
+}
 
 @Composable
-fun FullPersonalProfile(user: List<UserData>,userID:String,onClose: () ->Unit){//This function will be displaying the profile of the user..
+fun FullPersonalProfile(
+        user: List<UserData>,
+                        userID:String,
+                        onClose: () ->Unit,
+                        onSave: (List<UserData>) -> Unit
+){//This function will be displaying the profile of the user..
         var firstname by remember { mutableStateOf("") }
         var lastname by remember { mutableStateOf("") }
         var username by remember { mutableStateOf("") }
@@ -211,6 +221,17 @@ fun FullPersonalProfile(user: List<UserData>,userID:String,onClose: () ->Unit){/
 
         var isEnable by remember { mutableStateOf(false) } //Will enable for changing details
         val context = LocalContext.current
+
+        val currentProfile = user.find { it.customerId == userID }
+
+        currentProfile?.let {
+                firstname = it.firstname
+                lastname = it.lastname
+                username = it.username
+                email = it.email
+                password = it.password
+        }
+
         Column(
                 modifier = Modifier
                         .width(650.dp)
@@ -236,68 +257,74 @@ fun FullPersonalProfile(user: List<UserData>,userID:String,onClose: () ->Unit){/
                                 .clickable {
                                         isEnable = true
                                 }
-                )//Live Edit
+                )// Live Edit
                 LazyColumn(
                         modifier = Modifier
                                 .height(400.dp)
                                 .width(400.dp)
                                 .padding(10.dp)
                 ) {
-                        items(getData.userDummy) { user ->
-                                TextField(
-                                        value = if (!isEnable) user.firstname else firstname,
-                                        onValueChange = {
-                                                if (isEnable) firstname = it else user.firstname =
-                                                        it
-                                        }, enabled = isEnable,
-                                        label = { Text(text = "Enter Firstname: ")}
-                                )
+                        currentProfile?.let {
+                                item {
+                                        TextField(
+                                                value = firstname,
+                                                onValueChange = { firstname = it },
+                                                enabled = isEnable,
+                                                label = { Text(text = "Enter Firstname: ") }
+                                        )
+                                        TextField(
+                                                value = lastname,
+                                                onValueChange = { lastname = it },
+                                                enabled = isEnable,
+                                                label = { Text(text = "Enter Lastname: ") }
+                                        )
+                                        TextField(
+                                                value = username,
+                                                onValueChange = { username = it },
+                                                enabled = isEnable,
+                                                label = { Text(text = "Enter Username: ") }
+                                        )
+                                        TextField(
+                                                value = email,
+                                                onValueChange = { email = it },
+                                                enabled = isEnable,
+                                                label = { Text(text = "Enter Email: ") }
+                                        )
+                                        TextField(
+                                                value = password,
+                                                onValueChange = { password = it },
+                                                enabled = isEnable,
+                                                label = { Text(text = "Enter Password: ") },
+                                                minLines = 2
+                                        )
 
-                                TextField(
-                                        value = if (!isEnable) user.lastname else lastname,
-                                        onValueChange = {
-                                                if (isEnable) lastname = it else user.lastname = it
-                                        }, enabled = isEnable,
-                                        label = { Text(text = "Enter Lastname: ")}
-                                )
-                                TextField(
-                                        value = if (!isEnable) user.username else username,
-                                        onValueChange = {
-                                                if (isEnable) username = it else user.username = it
-                                        }, enabled = isEnable,
-                                        label = { Text(text = "Enter Username: ")}
-                                )
-                                TextField(
-                                        value = if (!isEnable) user.email else email,
-                                        onValueChange = {
-                                                if (isEnable) email = it else user.email = it
-                                        }, enabled = isEnable,
-                                        label = { Text(text = "Enter Email: ")}
-                                )
-                                TextField(
-                                        value = if (!isEnable) user.password else password,
-                                        onValueChange = {
-                                                if (isEnable) password = it else user.password = it
-                                        }, enabled = isEnable,
-                                        label = { Text(text = "Enter Password: ")},
-                                        minLines = 2
-                                )
-
-                                Button(onClick = {
-                                        Toast.makeText(context,"Not save yet",Toast.LENGTH_LONG).show()
-                                }) {
-                                        Text(text = "Save")
-                                }
+                                        Button(onClick = {
+                                                val updatedProfile = updateUserProfile(
+                                                        userID,
+                                                        firstname,
+                                                        lastname,
+                                                        username,
+                                                        email,
+                                                        password
+                                                )
+                                                onSave(updatedProfile)
+                                                Toast.makeText(context, "Saved", Toast.LENGTH_LONG).show()
+                                                isEnable = false
+                                        }) {
+                                                Text(text = "Save")
+                                        }
 
 
                         }
                 }
         }
 }
+        }
 fun updateUserProfile(//This function will be used to update the user profile
         userId: String,
         newFirstName: String? = null,
         newLastName: String? = null,
+        newUsername: String? = null,
         newEmail: String? = null,
         newPassword: String?=null
 
@@ -307,6 +334,7 @@ fun updateUserProfile(//This function will be used to update the user profile
                         profile.copy(
                                 firstname = newFirstName ?: profile.firstname,
                                 lastname = newLastName ?: profile.lastname,
+                                username = newUsername ?: profile.username,
                                 email = newEmail ?: profile.email,
                                 password = newPassword?: profile.password
 
