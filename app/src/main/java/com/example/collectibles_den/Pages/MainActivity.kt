@@ -1,5 +1,6 @@
 package com.example.collectibles_den.Pages
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,11 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.collectibles_den.Login
 import com.example.collectibles_den.MainSearch
 import com.example.collectibles_den.Navigate.BottomNavigation
+import com.example.collectibles_den.StartActivity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,12 +29,16 @@ class MainActivity : ComponentActivity() {
         //enableEdgeToEdge()
         setContent {
             MainScreen()
+           /* val startingScreen = StartActivity()
+            startingScreen.getStarted()*/
+
+            /*val intent = Intent(this, StartActivity::class.java)
+            startActivity(intent)*/
         }
     }
 }
-/*fun ComponentActivity.enableEdgeToEdge() {
-    WindowCompat.setDecorFitsSystemWindows(window, true)
-}*/
+
+
 @Preview(showBackground = true)
 @Composable
 fun MainScreen(){

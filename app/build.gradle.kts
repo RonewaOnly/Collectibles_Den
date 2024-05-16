@@ -58,6 +58,9 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+    implementation("androidx.core:core:1.13.0-alpha05")
+    implementation ("androidx.compose.ui:ui:1.6.7")
+
     implementation("androidx.compose.material:material-icons-extended:1.6.7")
     //ML Kit document scanner
     implementation("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0-beta1")

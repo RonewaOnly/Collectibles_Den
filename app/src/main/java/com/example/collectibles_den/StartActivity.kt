@@ -9,9 +9,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 class StartActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
+    public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+       // enableEdgeToEdge()
         setContentView(R.layout.activity_start)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -21,7 +21,7 @@ class StartActivity : AppCompatActivity() {
     }
 
     //function to switch activities
-    fun getStarted(view: View) {
+    fun getStarted() {
 
         val intent = Intent(this@StartActivity, Login::class.java)
         startActivity(intent)

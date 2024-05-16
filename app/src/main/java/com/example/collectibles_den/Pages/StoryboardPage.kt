@@ -30,13 +30,16 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -57,9 +60,8 @@ import com.example.collectibles_den.DefaultValuesClass
 import com.example.collectibles_den.R
 
 @Composable
-fun  Storyboard() {
+fun Storyboard() {
     Column {
-        //Text(text = "Storyboard.")
         MaxSection()
     }
 }
@@ -71,6 +73,7 @@ fun MaxSection() {
     var isPopVisible by remember { mutableStateOf(false) }
     var isExpended by remember { mutableStateOf(false) }
     val selectedCollection = remember { mutableStateListOf<Storyboard_Stories.StoryboardLine>() }
+    val toggleStates = remember { mutableStateMapOf<String, Boolean>() }
 
     Column(
         modifier = Modifier
@@ -86,16 +89,14 @@ fun MaxSection() {
             CustomPopup(
                 onClose = { isPopVisible = false },
                 onSave = { storyboard ->
-                    selectedCollection.add(//This will be storing the storyboard created
-                        Storyboard_Stories.StoryboardLine(
-                           storyName =  storyboard.storyName, 
-                            storyDescription = storyboard.storyDescription,
-                           storyItems =  storyboard.storyItems,
-                           storyCategory =  storyboard.storyCategory,
-                           storyCovers =  storyboard.storyCovers
+                    try {
+                        selectedCollection.add(
+                            storyboard.copy(showGoalDialog = false)
                         )
-                    )
-                    Toast.makeText(context, "Saved", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Saved", Toast.LENGTH_LONG).show()
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Error saving storyboard: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
                 }
             )
         }
@@ -106,6 +107,7 @@ fun MaxSection() {
     if (selectedCollection.isNotEmpty()) {
         LazyColumn {
             items(selectedCollection) { item ->
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -118,7 +120,7 @@ fun MaxSection() {
                     } else {
                         painterResource(R.drawable.default_image)
                     }
-                    if(isExpended){
+                    if (isExpended) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Start
@@ -129,8 +131,12 @@ fun MaxSection() {
                                 Icon(imageVector = Icons.Default.Edit, contentDescription = null)
                             }
                             IconButton(onClick = {
-                                selectedCollection.remove(item)
-                                isExpended = false
+                                try {
+                                    selectedCollection.remove(item)
+                                    isExpended = false
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Error deleting item: ${e.message}", Toast.LENGTH_LONG).show()
+                                }
                             }) {
                                 Icon(imageVector = Icons.Default.Delete, contentDescription = null)
                             }
@@ -139,31 +145,40 @@ fun MaxSection() {
                             }) {
                                 Icon(imageVector = Icons.Default.Share, contentDescription = null)
                             }
-                            IconButton(onClick = { isPopVisible = true },
+                            IconButton(
+                                onClick = {
+                                    toggleStates[item.storyID] = toggleStates[item.storyID]?.not() ?: true
+                                },
                                 modifier = Modifier.width(140.dp)
-                                ) {
+                            ) {
                                 Column {
                                     Icon(imageVector = Icons.Default.BorderAll, contentDescription = null)
                                     Text(text = "Set Goal")
                                 }
                             }
                         }
-                        if (isPopVisible){
+                        if (toggleStates[item.storyID] == true) {
                             SetGoal(
                                 story = selectedCollection,
                                 storyID = item.storyID,
-                                onClose = { isPopVisible = false },
+                                toggle = toggleStates[item.storyID] ?: false, // Pass toggle state
+                                onClose = { toggleStates[item.storyID] = false },
                                 onSave = { updatedItem ->
-                                    val index = selectedCollection.indexOfFirst { it.storyID == updatedItem.storyID }
-                                    if (index != -1) {
-                                        selectedCollection[index] = updatedItem
+                                    try {
+                                        val index = selectedCollection.indexOfFirst { it.storyID == updatedItem.storyID }
+                                        if (index != -1) {
+                                            selectedCollection[index] = updatedItem
+                                        }
+                                    } catch (e: Exception) {
+                                        Toast.makeText(context, "Error setting goal: ${e.message}", Toast.LENGTH_LONG).show()
                                     }
-                                })
+                                }
+                            )
                         }
-                    }else{
+                    } else {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.Start
+                            horizontalAlignment = Alignment.End
                         ) {
                             IconButton(onClick = {
                                 isExpended = true
@@ -172,6 +187,7 @@ fun MaxSection() {
                             }
                         }
                     }
+
                     Image(
                         painter = imagePainter,
                         contentScale = ContentScale.FillWidth,
@@ -180,11 +196,31 @@ fun MaxSection() {
                             .width(200.dp)
                             .height(200.dp)
                     )
-                    Text(text = item.storyName,modifier = Modifier
+                    Text(text = item.storyName, modifier = Modifier
                         .fillMaxHeight()
                         .background(Color.LightGray))
 
+
+                    if(item.goalSet == 0){
+                        // Display nothing
+                    }else{
+                        // Progress Bar
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(text = "Progress towards goal")
+                            LinearProgressIndicator(
+                                progress = { item.getProgress() },
+                            )
+                            Text(text = "${item.currentProgress} / ${item.goalSet}")
+                        }
+                    }
+
                 }
+                Spacer(modifier = Modifier.padding(12.dp))
             }
         }
     } else {
@@ -197,30 +233,32 @@ fun MaxSection() {
         )
     }
 }
+
 @Composable
 fun CustomPopup(
     onClose: () -> Unit,
     onSave: (Storyboard_Stories.StoryboardLine) -> Unit
 ) {
+    val context = LocalContext.current
     var storyName by remember { mutableStateOf("") }
-    var storyDescription by  remember { mutableStateOf("") }
+    var storyDescription by remember { mutableStateOf("") }
     var storyCategory by remember { mutableStateOf("") }
     var coverBook by remember { mutableStateOf<List<Uri?>>(emptyList()) }
-    var imageUri by remember { mutableStateOf<Uri?>(null) }//This will be storing the uri for the image chosen from the device gallery
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        imageUri = uri //this set the uri to the imageUri
+        imageUri = uri
     }
+
     val getCollection = DefaultValuesClass()
-    var selecteItems by remember {
-        mutableStateOf<List<collectionStorage?>>(emptyList())
-    }
+    var selectedItems by remember { mutableStateOf<List<collectionStorage?>>(emptyList()) }
+
     Dialog(onDismissRequest = onClose) {
         Surface(
             modifier = Modifier
                 .width(300.dp)
                 .padding(16.dp),
-            shape = RoundedCornerShape(8.dp),
-            
+            shape = RoundedCornerShape(8.dp)
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
@@ -238,21 +276,21 @@ fun CustomPopup(
                 )
                 TextField(
                     value = storyCategory,
-                    onValueChange = {storyCategory = it},
-                    label = { Text(text = "Enter category name: ")}
+                    onValueChange = { storyCategory = it },
+                    label = { Text("Enter category name: ") }
                 )
-                selecteItems = SelectedItem(collection = getCollection.recentCollection)//This will be getting the selected collection
-                Row(
-                    modifier = Modifier.width(200.dp)
-                ) {
+
+                selectedItems = selectedItem(collection = getCollection.recentCollection, category = storyCategory)
+
+                Row(modifier = Modifier.width(200.dp)) {
                     TextButton(onClick = {
                         launcher.launch("image/*")
-                        if(imageUri != null){
+                        if (imageUri != null) {
                             coverBook = listOf(imageUri)
                         }
                     }) {
-                       Icon(imageVector = Icons.Default.FileOpen, contentDescription = "")
-                       Text(text = "Select image")
+                        Icon(imageVector = Icons.Default.FileOpen, contentDescription = null)
+                        Text(text = "Select image")
                     }
                 }
                 Row(
@@ -265,16 +303,21 @@ fun CustomPopup(
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(
                         onClick = {
-                            onSave(//It will be saving the data entered
-                                Storyboard_Stories.StoryboardLine(
-                                    storyName = storyName,
-                                    storyItems = selecteItems,
-                                    storyCategory = storyCategory,
-                                    storyDescription = storyDescription,
-                                    storyCovers = coverBook
+                            try {
+                                onSave(
+                                    Storyboard_Stories.StoryboardLine(
+                                        storyName = storyName,
+                                        storyItems = selectedItems,
+                                        storyCategory = storyCategory,
+                                        storyDescription = storyDescription,
+                                        storyCovers = coverBook,
+                                        showGoalDialog = false,
+                                    )
                                 )
-                            )
-                            onClose()
+                                onClose()
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "Error saving storyboard: ${e.message}", Toast.LENGTH_LONG).show()
+                            }
                         }
                     ) {
                         Text("Save")
@@ -284,59 +327,78 @@ fun CustomPopup(
         }
     }
 }
+
 @Composable
-fun SelectedItem(collection: List<collectionStorage>): List<collectionStorage?> {
-    val isSelected by remember { mutableStateOf(false) }
+fun selectedItem(collection: List<collectionStorage>, category: String): List<collectionStorage?> {
+    val context = LocalContext.current
+
     val selectedCollection = remember { mutableStateListOf<collectionStorage>() }
 
     Column {
-        collection.forEach { item ->
+        collection.filter { it.collectionCategory == category }.forEach { item ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
                     checked = item in selectedCollection,
                     onCheckedChange = { isChecked ->
-                        if (isChecked) {
-                            selectedCollection.add(item)
-                        } else {
-                            selectedCollection.remove(item)
+                        try {
+                            if (isChecked) {
+                                selectedCollection.add(item)
+                            } else {
+                                selectedCollection.remove(item)
+                            }
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Error selecting item: ${e.message}", Toast.LENGTH_LONG).show()
                         }
                     }
                 )
-                // Display the name of the collection
                 Text(text = item.collectionName)
             }
         }
     }
-    // Return the list of selected collections
     return selectedCollection.toList()
 }
+
 @Composable
 fun SetGoal(
     story: List<Storyboard_Stories.StoryboardLine>,
     storyID: String,
+    toggle: Boolean = false,
     onClose: () -> Unit,
     onSave: (Storyboard_Stories.StoryboardLine) -> Unit
 ) {
-    var goalSet by remember { mutableStateOf(0) }
+    val context = LocalContext.current
+    var goalSet by remember { mutableIntStateOf(0) }
 
     Dialog(onDismissRequest = onClose) {
         Surface(
             modifier = Modifier
                 .width(300.dp)
                 .padding(16.dp),
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(8.dp)
         ) {
             Column {
                 story.forEach { item ->
-                    if (item.storyID == storyID) {
+
+                    if (item.storyID == storyID && toggle) {
                         TextField(
                             value = goalSet.toString(),
-                            onValueChange = { goalSet = it.toInt() },
+                            onValueChange = {
+                                try {
+                                    goalSet = it.toInt()
+                                } catch (e: NumberFormatException) {
+                                    Toast.makeText(context, "Invalid input: ${e.message}", Toast.LENGTH_LONG).show()
+                                }
+                            },
                             label = { Text("Set goal: ") }
                         )
                         Button(onClick = {
-                            onSave(item.copy(goalSet = goalSet))
-                            onClose()
+                            try {
+                                onSave(item.copy(goalSet = goalSet))
+                                Toast.makeText(context, item.storyName, Toast.LENGTH_LONG).show()
+                                onClose()
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "Error setting goal: ${e.message}", Toast.LENGTH_LONG).show()
+                            }
                         }) {
                             Text(text = "Set Goal")
                         }
@@ -357,3 +419,4 @@ fun SetGoal(
         }
     }
 }
+
