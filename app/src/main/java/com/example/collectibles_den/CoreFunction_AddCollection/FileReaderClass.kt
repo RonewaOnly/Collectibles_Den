@@ -25,38 +25,23 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.navigation.compose.composable
 import com.example.collectibles_den.Data.NoteData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.io.OutputStreamWriter
 
 class FileReaderClass {
 
-
     @Composable
-    fun NoteForm(onClose: () -> Unit,onSave:(NoteData) -> Unit){
+    fun NoteForm(onClose: () -> Unit, onSave: (NoteData) -> Unit) {
         val context = LocalContext.current
-        var formTitle by remember {
-            mutableStateOf("")
-        }
-        var formContent by remember {
-            mutableStateOf("")
-        }
+        var formTitle by remember { mutableStateOf("") }
+        var formContent by remember { mutableStateOf("") }
 
-        Dialog(onDismissRequest = { onClose }) {
+        Dialog(onDismissRequest = onClose) {
             Surface(
                 modifier = Modifier
                     .width(500.dp)
@@ -66,19 +51,19 @@ class FileReaderClass {
                 Column {
                     TextField(
                         value = formTitle,
-                        onValueChange = {formTitle = it},
+                        onValueChange = { formTitle = it },
                         minLines = 1,
-                        maxLines = 2
-                    )//Title of the note
+                        maxLines = 2,
+                        label = { Text("Title") }
+                    )
                     Spacer(modifier = Modifier.padding(12.dp))
                     TextField(
                         value = formContent,
-                        onValueChange = {formContent = it},
+                        onValueChange = { formContent = it },
                         minLines = 30,
-                        maxLines = 90
-                    )//Content of the note
-
-
+                        maxLines = 90,
+                        label = { Text("Content") }
+                    )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
@@ -89,52 +74,37 @@ class FileReaderClass {
                         Spacer(modifier = Modifier.width(8.dp))
                         TextButton(
                             onClick = {
-                                WriteToFile(context,formTitle,formContent)//Writes
-                                onSave(// saves for dummy for now
-                                    NoteData(
-                                        formTitle,
-                                        formContent
-                                    )
-                                )
+                                WriteToFile(context, formTitle, formContent)
+                                onSave(NoteData(formTitle, formContent))
                                 onClose()
                             }
                         ) {
-                            Text("Save :)")
+                            Text("Save")
                         }
                     }
-
                 }
             }
-
         }
-
     }
-    fun WriteToFile(context: Context, title:String, content: String){//This writes and creates the file
+
+    private fun WriteToFile(context: Context, title: String, content: String) {
         val file = File(context.filesDir, title)
         try {
             val outputStreamWriter = OutputStreamWriter(FileOutputStream(file))
             outputStreamWriter.use {
                 it.write(content)
             }
-            Toast.makeText(context,"Saved Successfully", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Saved Successfully", Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
-            e.cause
-
+            e.printStackTrace()
         }
-
     }
-
-    fun ReadFroMFile(){
-
-    }
-
 
     @Composable
     fun FilePickerAndReader(onFileSelected: (Uri) -> Unit) {
         var fileUri by remember { mutableStateOf<Uri?>(null) }
         val context = LocalContext.current
 
-        // Launcher for file picker
         val filePickerLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent()
         ) { uri: Uri? ->
@@ -153,5 +123,4 @@ class FileReaderClass {
             }
         }
     }
-
 }

@@ -10,12 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -28,7 +23,10 @@ import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 class ScannerClass {
 
     @Composable
-    fun scannerDocument():Uri{
+    fun ScannerDocument(
+        onScanSuccess: (Uri) -> Unit,
+        onScanError: (String) -> Unit
+    ):Uri? {
         val options = GmsDocumentScannerOptions.Builder()
             .setGalleryImportAllowed(false)
             .setPageLimit(2)
@@ -39,45 +37,45 @@ class ScannerClass {
             .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
             .build()
 
-        //Saving the uri for the image to display
-        var scannedImageUri by remember {
-            mutableStateOf(Uri.EMPTY)
-        }
-        //Initializes the docuement scanner
+        var scannedImageUri by remember { mutableStateOf<Uri?>(null) }
+
         val scanner = GmsDocumentScanning.getClient(options)
 
-        //Scanner Launcher
         val scannerLauncher = rememberLauncherForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()
-        ) {result ->
-            if(result.resultCode == Activity.RESULT_OK){
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
                 val scanningResult = GmsDocumentScanningResult.fromActivityResultIntent(result.data)
 
-                //Getting the scanned page
                 scanningResult?.pages?.let { pages ->
-                    for (page in pages){
-                        scannedImageUri = pages.get(0).imageUri
+                    if (pages.isNotEmpty()) {
+                        scannedImageUri = pages[0].imageUri
+                        onScanSuccess(pages[0].imageUri)
+                    } else {
+                        onScanError("No pages scanned")
                     }
                 }
+            } else {
+                onScanError("Scanning cancelled or failed")
             }
         }
 
-        val activity = LocalContext.current as Activity
+        val context = LocalContext.current
+        val activity = context as Activity
 
-        //If in MainActivity simply use 'this@MainActivity'
-
-        LaunchedEffect(Unit) {//This will  launch the scanner
+        LaunchedEffect(Unit) {
             scanner.getStartScanIntent(activity)
                 .addOnSuccessListener { intentSender ->
                     scannerLauncher.launch(
                         IntentSenderRequest.Builder(intentSender).build()
                     )
                 }
-                .addOnFailureListener{
-                    Log.e("error",it.message.toString())
+                .addOnFailureListener { exception ->
+                    Log.e("ScannerClass", exception.message.toString())
+                    onScanError("Failed to start scanner: ${exception.message}")
                 }
         }
-            return  scannedImageUri
+        return scannedImageUri
     }
 
 }

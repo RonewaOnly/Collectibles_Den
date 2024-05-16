@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import coil.compose.rememberAsyncImagePainter
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -25,22 +24,12 @@ class TakePhotosClass {
         onImageCaptured: (Uri) -> Unit,
         onError: (String) -> Unit
     ): Pair<ActivityResultLauncher<Uri>, ActivityResultLauncher<String>> {
-        val file = createImageFile(context)
-        val uri = FileProvider.getUriForFile(
-            context,
-            context.packageName + ".provider",
-            file
-        )
-
         var captureImageUri by remember {
             mutableStateOf<Uri>(Uri.EMPTY)
         }
 
         val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (success) {
-                // Update the captureImageUri variable with the URI obtained after permission is granted
-                captureImageUri = uri
-                // Pass the captureImageUri variable to the onImageCaptured callback
                 onImageCaptured(captureImageUri)
             } else {
                 onError("Image capture failed")
@@ -50,16 +39,29 @@ class TakePhotosClass {
         val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
                 Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
-                // Launch the camera with the updated captureImageUri variable
-                cameraLauncher.launch(captureImageUri)
+                val uri = createImageUri(context)
+                if (uri != null) {
+                    captureImageUri = uri
+                    cameraLauncher.launch(uri)
+                } else {
+                    onError("Failed to create image file")
+                }
             } else {
                 Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
                 onError("Permission denied")
             }
         }
 
-
         return Pair(cameraLauncher, permissionLauncher)
+    }
+
+    fun createImageUri(context: Context): Uri? {
+        val file = createImageFile(context)
+        return FileProvider.getUriForFile(
+            context,
+            context.packageName + ".provider",
+            file
+        )
     }
 
     fun createImageFile(context: Context): File {

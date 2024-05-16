@@ -1,6 +1,8 @@
+
 package com.example.collectibles_den.Pages
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.widget.Toast
@@ -53,44 +55,51 @@ fun AddCollections() {
                 horizontalAlignment = Alignment.CenterHorizontally
         ) {
                 Text(text = "Add Collection")
-               val group =  MakeCollection()
+                val group = makeCollection()
                 Spacer(modifier = Modifier.padding(16.dp))
-                //Displaying stored Collection
+                // Displaying stored Collection
                 DisplayCollection(bank = group)
         }
 }
-
+@SuppressLint("MutableCollectionMutableState")
 @Composable
-fun MakeCollection():MutableList<MakeCollection> {
+fun makeCollection(): MutableList<MakeCollection> {
         val context = LocalContext.current
         var mainSwitch by remember { mutableStateOf(false) }
         var isPopClicked by remember { mutableStateOf(false) }
-        var isCameraClick by remember {
-                mutableStateOf(false)
-        }
-        var isNotesClick by remember {
-                mutableStateOf(false)
-        }
-        var isScannerClick by remember {
-                mutableStateOf(false)
-        }
-        var isFolderClick by remember {
-                mutableStateOf(false)
-        }
-        val listCollection by remember {
-                mutableStateOf(mutableListOf<MakeCollection>())
-        }
+        var isCameraClick by remember { mutableStateOf(false) }
+        var isNotesClick by remember { mutableStateOf(false) }
+        var isScannerClick by remember { mutableStateOf(false) }
+        var isFolderClick by remember { mutableStateOf(false) }
+        val listCollection by remember { mutableStateOf(mutableListOf<MakeCollection>()) }
         val noteClass = FileReaderClass()
         val scanClass = ScannerClass()
-        var imageUri by remember { mutableStateOf<Uri?>(null) }//This will be storing the Uri of the selected Image
-        var imageCameraUri by remember { mutableStateOf<Uri?>(null) }//This will be storing the Uri of the  Image taken by camera
-        var scannedUri by remember { mutableStateOf<Uri?>(null) }//This will be storing the Uri of the scanned Image
-        var notesBank by remember {//Storing the note taken
-                mutableStateOf<List<NoteData>>(emptyList())
-        }
-        var attachedFileUri by remember { mutableStateOf<Uri?>(null) }//Will be storing the Uri of the file chosen
+        var imageUri by remember { mutableStateOf<Uri?>(null) }
+        var imageCameraUri by remember { mutableStateOf<Uri?>(null) }
+        var scannedUri by remember { mutableStateOf<Uri?>(null) }
+        var notesBank by remember { mutableStateOf<List<NoteData>>(emptyList()) }
+        var attachedFileUri by remember { mutableStateOf<Uri?>(null) }
+
         val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
                 imageUri = uri
+        }
+
+        val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+                if (!success) {
+                        imageCameraUri = null
+                }
+        }
+
+        val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+                if (granted) {
+                        val uri = TakePhotosClass().createImageUri(context)
+                        imageCameraUri = uri
+                        if (uri != null) {
+                                cameraLauncher.launch(uri)
+                        }
+                } else {
+                        Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
+                }
         }
 
         IconButton(
@@ -110,7 +119,7 @@ fun MakeCollection():MutableList<MakeCollection> {
                 }
         }
 
-        if (mainSwitch){
+        if (mainSwitch) {
                 Column(
                         modifier = Modifier
                                 .width(900.dp)
@@ -138,7 +147,18 @@ fun MakeCollection():MutableList<MakeCollection> {
                         }
                         Spacer(modifier = Modifier.padding(5.dp))
                         IconButton(
-                                onClick = { isCameraClick = true },
+                                onClick = {
+                                        val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                                        if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                                                val uri = TakePhotosClass().createImageUri(context)
+                                                imageCameraUri = uri
+                                                if (uri != null) {
+                                                        cameraLauncher.launch(uri)
+                                                }
+                                        } else {
+                                                permissionLauncher.launch(Manifest.permission.CAMERA)
+                                        }
+                                },
                                 modifier = Modifier
                                         .width(200.dp)
                                         .border(1.dp, Color.Transparent, RectangleShape),
@@ -151,11 +171,7 @@ fun MakeCollection():MutableList<MakeCollection> {
                                         Text(text = "Take Image")
                                 }
                         }
-                        if (isCameraClick) {
-                                imageCameraUri = CapturingImages()
-                        }
                         Spacer(modifier = Modifier.padding(5.dp))
-
                         IconButton(
                                 onClick = { isNotesClick = true },
                                 modifier = Modifier
@@ -170,17 +186,16 @@ fun MakeCollection():MutableList<MakeCollection> {
                                         Text(text = "Take Notes")
                                 }
                         }
-                        if (isNotesClick){
-                                noteClass.NoteForm( onClose = { isNotesClick = false }, onSave = {note ->
-                                        //There will be an List that will be storing notes
-                                        notesBank = listOf(note)
+                        if (isNotesClick) {
+                                noteClass.NoteForm(onClose = { isNotesClick = false }, onSave = { note ->
+                                        notesBank = notesBank + note
                                 })
-
                         }
                         Spacer(modifier = Modifier.padding(5.dp))
-
                         IconButton(
-                                onClick = { isScannerClick = true },
+                                onClick = {
+                                        isScannerClick = true
+                                },
                                 modifier = Modifier
                                         .width(200.dp)
                                         .border(1.dp, Color.Transparent, RectangleShape),
@@ -193,11 +208,15 @@ fun MakeCollection():MutableList<MakeCollection> {
                                         Text(text = "Scan")
                                 }
                         }
-                        if (isScannerClick){
-                                scannedUri = scanClass.scannerDocument()//this return a Uri
+                        if(isScannerClick){
+
+                                scanClass.ScannerDocument(onScanSuccess = { uri ->
+                                        scannedUri = uri
+                                }, onScanError = { message ->
+                                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                })
                         }
                         Spacer(modifier = Modifier.padding(5.dp))
-
                         IconButton(
                                 onClick = { isFolderClick = true },
                                 modifier = Modifier
@@ -208,22 +227,16 @@ fun MakeCollection():MutableList<MakeCollection> {
                                 Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                        Icon(
-                                                imageVector = Icons.Filled.Attachment,
-                                                contentDescription = null
-                                        )
+                                        Icon(imageVector = Icons.Filled.Attachment, contentDescription = null)
                                         Text(text = "Attach File")
                                 }
                         }
-                        if (isFolderClick){
-                                noteClass.FilePickerAndReader{ uri ->
-                                        // Handle the selected file URI here
-                                        // For example, you can use it to display or process the file
+                        if (isFolderClick) {
+                                noteClass.FilePickerAndReader { uri ->
                                         attachedFileUri = uri
                                 }
                         }
                         Spacer(modifier = Modifier.padding(5.dp))
-
                         IconButton(
                                 onClick = { isPopClicked = true },
                                 modifier = Modifier
@@ -247,93 +260,80 @@ fun MakeCollection():MutableList<MakeCollection> {
                                         scanned = scannedUri,
                                         file = attachedFileUri,
                                         onClose = { isPopClicked = false },
-                                        onSave = {
-                                                if(imageUri != null){
+                                        onSave = { collection ->
+                                                if (imageUri != null) {
                                                         listCollection.add(
                                                                 MakeCollection(
-                                                                        makeCollectionName = it.makeCollectionName,
-                                                                        makeCollectionCategory = it.makeCollectionCategory,
-                                                                        makeCollectionImages = it.makeCollectionImages
+                                                                        makeCollectionName = collection.makeCollectionName,
+                                                                        makeCollectionCategory = collection.makeCollectionCategory,
+                                                                        makeCollectionImages = listOf(imageUri)
                                                                 )
                                                         )
-                                                        Toast.makeText(context,"${listCollection[0]}",Toast.LENGTH_LONG).show()
-                                                        mainSwitch = false
-
-                                                }else if(imageCameraUri != null){
+                                                } else if (imageCameraUri != null) {
                                                         listCollection.add(
                                                                 MakeCollection(
-                                                                        makeCollectionName = it.makeCollectionName,
-                                                                        makeCollectionCategory = it.makeCollectionCategory,
-                                                                        makeCollectionCameraImages = it.makeCollectionCameraImages
+                                                                        makeCollectionName = collection.makeCollectionName,
+                                                                        makeCollectionCategory = collection.makeCollectionCategory,
+                                                                        makeCollectionCameraImages = listOf(imageCameraUri)
                                                                 )
                                                         )
-                                                        Toast.makeText(context,"${listCollection[0]}",Toast.LENGTH_LONG).show()
-                                                        mainSwitch = false
-
-                                                }else if(notesBank.isNotEmpty()){
+                                                } else if (notesBank.isNotEmpty()) {
                                                         listCollection.add(
                                                                 MakeCollection(
-                                                                        makeCollectionName = it.makeCollectionName,
-                                                                        makeCollectionCategory = it.makeCollectionCategory,
-                                                                        makeCollectionNotes = notesBank
+                                                                        makeCollectionName = collection.makeCollectionName,
+                                                                        makeCollectionCategory = collection.makeCollectionCategory,
+                                                                        makeCollectionNotes = notesBank.toMutableList()
                                                                 )
                                                         )
-                                                        Toast.makeText(context,"${listCollection[0]}",Toast.LENGTH_LONG).show()
-                                                        mainSwitch = false
-
-                                                }else if(scannedUri != null){
+                                                } else if (scannedUri != null) {
                                                         listCollection.add(
                                                                 MakeCollection(
-                                                                        makeCollectionName = it.makeCollectionName,
-                                                                        makeCollectionCategory = it.makeCollectionCategory,
-                                                                        makeCollectionScannedItems = it.makeCollectionScannedItems
+                                                                        makeCollectionName = collection.makeCollectionName,
+                                                                        makeCollectionCategory = collection.makeCollectionCategory,
+                                                                        makeCollectionScannedItems = listOf(scannedUri)
                                                                 )
                                                         )
-                                                        mainSwitch = false
-
-                                                }else if(attachedFileUri != null){
+                                                } else if (attachedFileUri != null) {
                                                         listCollection.add(
                                                                 MakeCollection(
-                                                                        makeCollectionName = it.makeCollectionName,
-                                                                        makeCollectionCategory = it.makeCollectionCategory,
-                                                                        makeCollectionFiles = it.makeCollectionFiles
+                                                                        makeCollectionName = collection.makeCollectionName,
+                                                                        makeCollectionCategory = collection.makeCollectionCategory,
+                                                                        makeCollectionFiles = listOf(attachedFileUri)
                                                                 )
                                                         )
-                                                        Toast.makeText(context,"${listCollection[0]}",Toast.LENGTH_LONG).show()
-                                                        mainSwitch = false
-
-                                                }else{//Saves everything
+                                                } else {
+                                                        // Save everything if none of the specific conditions match
                                                         listCollection.add(
                                                                 MakeCollection(
-                                                                        makeCollectionName = it.makeCollectionName,
-                                                                        makeCollectionCategory = it.makeCollectionCategory,
-                                                                        makeCollectionImages = it.makeCollectionImages,
-                                                                        makeCollectionCameraImages = it.makeCollectionCameraImages,
-                                                                        makeCollectionNotes = it.makeCollectionNotes,
-                                                                        makeCollectionScannedItems = it.makeCollectionScannedItems,
-                                                                        makeCollectionFiles = it.makeCollectionFiles,
-
-                                                                        )
+                                                                        makeCollectionName = collection.makeCollectionName,
+                                                                        makeCollectionCategory = collection.makeCollectionCategory,
+                                                                        makeCollectionImages = listOfNotNull(imageUri),
+                                                                        makeCollectionCameraImages = listOfNotNull(imageCameraUri),
+                                                                        makeCollectionNotes = notesBank.toMutableList(),
+                                                                        makeCollectionScannedItems = listOfNotNull(scannedUri),
+                                                                        makeCollectionFiles = listOfNotNull(attachedFileUri)
+                                                                )
                                                         )
-                                                        Toast.makeText(context,"${listCollection[0]}",Toast.LENGTH_LONG).show()
-                                                        mainSwitch = false
                                                 }
-
+                                                Toast.makeText(context, "Collection saved", Toast.LENGTH_LONG).show()
+                                                mainSwitch = false
+                                                isPopClicked = false
                                         }
                                 )
                         }
                 }
         }
+
         return listCollection
 }
+
 @Composable
-fun DisplayCollection(bank: MutableList<MakeCollection>){
-        
-        if (bank.isNotEmpty()){
+fun DisplayCollection(bank: MutableList<MakeCollection>) {
+        if (bank.isNotEmpty()) {
                 LazyColumn(
                         modifier = Modifier.height(1500.dp)
                 ) {
-                        items(bank){teller ->
+                        items(bank) { collection ->
                                 Column(
                                         modifier = Modifier
                                                 .width(550.dp)
@@ -342,18 +342,16 @@ fun DisplayCollection(bank: MutableList<MakeCollection>){
                                         horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                         Image(
-                                                painter = 
-                                                if(teller.makeCollectionImages[0] != null) rememberAsyncImagePainter(teller.makeCollectionImages[0]) 
-                                                else painterResource(R.drawable.default_image), 
+                                                painter = rememberAsyncImagePainter(collection.makeCollectionImages.getOrNull(0) ?: ""),
                                                 contentDescription = null,
                                                 modifier = Modifier
                                                         .width(200.dp)
-                                                        .height(200.dp), // Ensure the image has a specific height
+                                                        .height(200.dp),
                                                 contentScale = ContentScale.Fit,
                                         )
                                         Text(
-                                                text = teller.makeCollectionName, 
-                                                fontWeight = FontWeight.SemiBold, 
+                                                text = collection.makeCollectionName,
+                                                fontWeight = FontWeight.SemiBold,
                                                 textAlign = TextAlign.Center,
                                                 modifier = Modifier
                                                         .fillMaxWidth()
@@ -361,21 +359,21 @@ fun DisplayCollection(bank: MutableList<MakeCollection>){
                                                         .height(50.dp)
                                                         .padding(top = 15.dp)
                                         )
-                                        
                                 }
                                 Spacer(modifier = Modifier.padding(12.dp))
                         }
                 }
-        }else{
-                Text(text = "No Collections Found , You have not added any collection")
+        } else {
+                Text(text = "No Collections Found, You have not added any collection")
         }
 }
+
 @Composable
 fun SaveCollection(
-        getImage: Uri? = Uri.EMPTY,
-        takeImage: Uri? = Uri.EMPTY,
+        getImage: Uri? = null,
+        takeImage: Uri? = null,
         notes: List<NoteData> = emptyList(),
-        scanned: Uri? = Uri.EMPTY,
+        scanned: Uri? = null,
         file: Uri? = null,
         onClose: () -> Unit,
         onSave: (MakeCollection) -> Unit
@@ -421,11 +419,11 @@ fun SaveCollection(
                                                                 MakeCollection(
                                                                         makeCollectionName = collectionName,
                                                                         makeCollectionCategory = collectionCategory,
-                                                                        makeCollectionFiles = listOf(file),
-                                                                        makeCollectionImages =  listOf(getImage) ,
-                                                                        makeCollectionCameraImages = listOf(takeImage),
-                                                                        makeCollectionNotes = notes,
-                                                                        makeCollectionScannedItems = listOf(scanned)
+                                                                        makeCollectionFiles = listOfNotNull(file),
+                                                                        makeCollectionImages = listOfNotNull(getImage),
+                                                                        makeCollectionCameraImages = listOfNotNull(takeImage),
+                                                                        makeCollectionNotes = notes.toMutableList(),
+                                                                        makeCollectionScannedItems = listOfNotNull(scanned)
                                                                 )
                                                         )
                                                         onClose()
@@ -438,10 +436,11 @@ fun SaveCollection(
                 }
         }
 }
+
 @Composable
-fun CapturingImages():Uri {
+fun capturingImages(): Uri? {
         val context = LocalContext.current
-        var capturedImageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
+        var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
 
         val get = TakePhotosClass()
 
@@ -454,11 +453,16 @@ fun CapturingImages():Uri {
         LaunchedEffect(Unit) {
                 val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
                 if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                        cameraLauncher.launch(capturedImageUri)
+                        val uri = get.createImageUri(context)
+                        capturedImageUri = uri
+                        if (uri != null) {
+                                cameraLauncher.launch(uri)
+                        }
                 } else {
                         permissionLauncher.launch(Manifest.permission.CAMERA)
                 }
         }
+
         return capturedImageUri
 }
 
