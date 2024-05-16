@@ -5,12 +5,12 @@
 
         <shape android:shape="rectangle">
 
+
             <gradient
                 android:startColor="@color/g_1"
                 android:centerColor="@color/g_2"
                 android:endColor="@color/g_3"
-                android:angle="135" /> <!-- Adjusted angle to be a multiple of 45 -->
-
+                android:angle="139" />
         </shape>
 
     </item>

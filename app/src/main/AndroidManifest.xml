@@ -22,6 +22,7 @@
             android:name=".Login"
             android:theme="@style/Theme.AppCompat.Light"
             android:exported="false" />
+
         <activity
             android:name=".StartActivity"
             android:theme="@style/Theme.AppCompat.Light"
