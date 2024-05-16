@@ -21,7 +21,7 @@ class StartActivity : AppCompatActivity() {
     }
 
     //function to switch activities
-    fun getStarted() {
+    fun getStarted(view:View) {
 
         val intent = Intent(this@StartActivity, Login::class.java)
         startActivity(intent)
