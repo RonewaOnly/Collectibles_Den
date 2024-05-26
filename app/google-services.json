@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "620459100755",
+    "firebase_url": "https://collectionibledendb-default-rtdb.firebaseio.com",
+    "project_id": "collectionibledendb",
+    "storage_bucket": "collectionibledendb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:620459100755:android:ec7b83837b51dcb44c14a6",
+        "android_client_info": {
+          "package_name": "com.example.collectibles_den"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1ccYAoX2cB2krzZ1Kyh5z18_nbpbWZTs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
