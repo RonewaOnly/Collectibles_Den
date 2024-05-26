@@ -1,5 +1,6 @@
 package com.example.collectibles_den.Logic
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,25 +11,31 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class AuthorizationViewModel : ViewModel() {
+class AuthorizationViewModel(private val context: Context) : ViewModel() {
+     var databaseViewModel = DatabaseViewModel(context)
+
     private val _loginResult = MutableLiveData<Boolean>()
     val loginResult: LiveData<Boolean> = _loginResult
+
     private val _registerResult = MutableLiveData<Boolean>()
     val registerResult: LiveData<Boolean> = _registerResult
+
     private val _loginState = MutableStateFlow<LoginState>(LoginState.IDLE)
     val loginState: StateFlow<LoginState> = _loginState
+
     private val _registerState = MutableStateFlow<LoginState>(LoginState.IDLE)
     val registerState: StateFlow<LoginState> = _registerState
 
-    // Calling the class for the database
-    private val dataClass = DatabaseViewModel()
-
+    // Parameterized constructor
+    constructor(context: Context, databaseViewModel: DatabaseViewModel) : this(context) {
+        this.databaseViewModel = databaseViewModel
+    }
     fun login(email: String, password: String) {
         viewModelScope.launch {
             _loginState.value = LoginState.LOADING
-
             delay(2000)
-            dataClass.loginValidation(email, password, object : DatabaseViewModel.LoginValidationCallback {
+
+            databaseViewModel.loginValidation(email, password, object : DatabaseViewModel.LoginValidationCallback {
                 override fun onUserFound() {
                     _loginState.value = LoginState.SUCCESS
                     _loginResult.value = true
@@ -50,12 +57,10 @@ class AuthorizationViewModel : ViewModel() {
     fun registration(firstname: String, lastname: String, email: String, password: String, confirmPassword: String) {
         viewModelScope.launch {
             _registerState.value = LoginState.LOADING
-
             delay(2000)
 
             if (password == confirmPassword) {
-                // Save to database
-                dataClass.registrationTaker(firstname, lastname, email, password)
+                databaseViewModel.registrationTaker(firstname, lastname, email, password)
                 _registerState.value = LoginState.SUCCESS
                 _registerResult.value = true
             } else {
@@ -65,6 +70,7 @@ class AuthorizationViewModel : ViewModel() {
         }
     }
 }
+
 sealed class LoginState {
     object IDLE : LoginState()
     object LOADING : LoginState()

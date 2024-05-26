@@ -1,5 +1,6 @@
 package com.example.collectibles_den
 
+import com.example.collectibles_den.Logic.AuthorizationViewModel
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,8 +11,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.example.collectibles_den.Logic.AuthorizationViewModel
-import com.example.collectibles_den.Pages.MainActivity
 
 
 class RegisterTabFragment : Fragment() {

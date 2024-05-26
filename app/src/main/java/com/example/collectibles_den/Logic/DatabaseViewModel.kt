@@ -1,17 +1,35 @@
 package com.example.collectibles_den.Logic
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.collectibles_den.Data.UserData
-import com.google.firebase.Firebase
+import com.example.collectibles_den.collectiblesDenApp
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.database
+import kotlinx.coroutines.launch
 
-class DatabaseViewModel {
+class DatabaseViewModel(private val context: Context) : ViewModel() {
 
-    private val database: DatabaseReference = Firebase.database.reference
+    private val database: DatabaseReference = FirebaseDatabase.getInstance().reference
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+
+    private var _userID = MutableLiveData<String?>()
+    val userID: LiveData<String?>
+        get() = _userID
+
+    init {
+        // Load the userID from SharedPreferences when the ViewModel is created
+        _userID.value = sharedPreferences.getString("user_id", null)
+    }
 
     interface LoginValidationCallback {
         fun onUserFound()
@@ -24,17 +42,15 @@ class DatabaseViewModel {
             override fun onDataChange(snapshot: DataSnapshot) {
                 var isUserFound = false
                 for (loginSnapshot in snapshot.children) {
-                    // Retrieve user data as a Map
                     val userDataMap = loginSnapshot.value as? Map<*, *>
-
-                    // Check if userDataMap is not null and contains required fields
                     if (userDataMap != null && userDataMap.containsKey("email") && userDataMap.containsKey("password")) {
                         val email = userDataMap["email"] as String
                         val password = userDataMap["password"] as String
-
-                        // Check if email and password match
                         if (email == userEmail && password == userPassword) {
                             isUserFound = true
+                            val id = userDataMap["id"] as String
+                            _userID.value = id
+                            saveUserID(id)
                             break
                         }
                     }
@@ -52,11 +68,17 @@ class DatabaseViewModel {
         })
     }
 
+    private fun saveUserID(id: String) {
+        viewModelScope.launch {
+            sharedPreferences.edit().putString("user_id", id).apply()
+            collectiblesDenApp.setUserID(id)
+        }
+    }
+
 
     fun registrationTaker(firstname: String, lastname: String, email: String, password: String) {
         val key = database.child("Users").push().key
         val registerDetails = UserData(key, firstname, lastname, email, email, password)
-
         key?.let {
             database.child("Users").child(it).setValue(registerDetails)
                 .addOnSuccessListener {
