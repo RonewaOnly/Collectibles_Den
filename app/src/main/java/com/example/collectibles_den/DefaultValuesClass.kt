@@ -69,7 +69,7 @@ class DefaultValuesClass {
 
     var userDummy = listOf(
         UserData(
-                customerId = "43djdk_w",
+                id = "43djdk_w",
                 firstname = "OneKim",
                 lastname = "Lim",
                 username = "Tom",

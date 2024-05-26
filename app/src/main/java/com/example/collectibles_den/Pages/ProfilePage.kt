@@ -92,25 +92,31 @@ fun ProfileSection(){
                                                 verticalArrangement = Arrangement.Center,
                                                 horizontalAlignment = Alignment.CenterHorizontally
                                         ) {//The circle
-                                                Text(
-                                                        text = it.username.substring(0,2),
-                                                        color = Color.White,
-                                                        textAlign = TextAlign.Center,
-                                                        modifier = Modifier
-                                                                .clip(RoundedCornerShape(50))
-                                                )
+                                                it.username?.let { it1 ->
+                                                        Text(
+                                                                text = it1.substring(0,2),
+                                                                color = Color.White,
+                                                                textAlign = TextAlign.Center,
+                                                                modifier = Modifier
+                                                                        .clip(RoundedCornerShape(50))
+                                                        )
+                                                }
                                         }
                                         Column(
                                                 modifier = Modifier.padding(10.dp).width(295.dp)
                                         ) {
-                                                Text(text = it.username,
-                                                        color = Color.White,
-                                                )
-                                                Text(
-                                                        text = it.email,
-                                                        color = Color.White,
-                                                        modifier = Modifier.fillMaxWidth(0.7f)
-                                                )
+                                                it.username?.let { it1 ->
+                                                        Text(text = it1,
+                                                                color = Color.White,
+                                                        )
+                                                }
+                                                it.email?.let { it1 ->
+                                                        Text(
+                                                                text = it1,
+                                                                color = Color.White,
+                                                                modifier = Modifier.fillMaxWidth(0.7f)
+                                                        )
+                                                }
                                         }
 
                                         Icon(
@@ -188,17 +194,19 @@ fun ProfileSection(){
                 }
         }else{
            //Text(text = "Clicked")
-                FullPersonalProfile(
-                        user = users,
-                        userID = users[0].customerId,
-                        onClose = {
-                                isPopProfile = false
-                        },
-                        onSave = { updatedUsers ->
-                                users = updatedUsers
-                                isPopProfile = false
-                        }
-                )
+                users[0].id?.let {
+                        FullPersonalProfile(
+                                user = users,
+                                userID = it,
+                                onClose = {
+                                        isPopProfile = false
+                                },
+                                onSave = { updatedUsers ->
+                                        users = updatedUsers
+                                        isPopProfile = false
+                                }
+                        )
+                }
         }
         
 }
@@ -222,14 +230,14 @@ fun FullPersonalProfile(
         var isEnable by remember { mutableStateOf(false) } //Will enable for changing details
         val context = LocalContext.current
 
-        val currentProfile = user.find { it.customerId == userID }
+        val currentProfile = user.find { it.id == userID }
 
         currentProfile?.let {
-                firstname = it.firstname
-                lastname = it.lastname
-                username = it.username
-                email = it.email
-                password = it.password
+                firstname = it.firstname.toString()
+                lastname = it.lastname.toString()
+                username = it.username.toString()
+                email = it.email.toString()
+                password = it.password.toString()
         }
 
         Column(
@@ -330,7 +338,7 @@ fun updateUserProfile(//This function will be used to update the user profile
 
 ): List<UserData> {
         return getData.userDummy.map { profile ->
-                if (profile.customerId == userId) {
+                if (profile.id == userId) {
                         profile.copy(
                                 firstname = newFirstName ?: profile.firstname,
                                 lastname = newLastName ?: profile.lastname,

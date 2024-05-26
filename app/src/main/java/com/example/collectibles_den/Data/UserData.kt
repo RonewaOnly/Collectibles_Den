@@ -1,10 +1,13 @@
 package com.example.collectibles_den.Data
 
 data class UserData(
-    val customerId: String ="",
-    var firstname: String="",
-    var lastname: String="",
-    var username: String,
-    var email: String,
-    var password: String,
-)
+    var id: String? = null,
+    var firstname: String? = null,
+    var lastname: String? = null,
+    var email: String? = null,
+    var username: String? = null,
+    var password: String? = null
+) {
+    constructor() : this("", "", "", "", "", "")
+}
+
