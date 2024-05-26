@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    // Add the Google services Gradle plugin
+    id("com.google.gms.google-services")
+
 }
 
 android {
@@ -58,6 +61,13 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0-alpha10")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.0")
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.0")
+    implementation("androidx.fragment:fragment-ktx:1.7.0-alpha10")
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+
     implementation("androidx.core:core:1.13.0-alpha05")
     implementation ("androidx.compose.ui:ui:1.6.7")
 
@@ -73,6 +83,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.firebase.database)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
