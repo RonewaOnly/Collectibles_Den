@@ -9,14 +9,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
-import java.util.Calendar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,11 +28,12 @@ import androidx.compose.ui.unit.sp
 import com.example.collectibles_den.Data.collectionStorage
 import com.example.collectibles_den.DefaultValuesClass
 import java.sql.Timestamp
+import java.util.Calendar
 
 @Preview
 @Composable
 fun Homepage(){
-   var getCollection = DefaultValuesClass()
+   val getCollection = DefaultValuesClass()
    Column(
       modifier = Modifier.verticalScroll(rememberScrollState(),true)
    ) {
