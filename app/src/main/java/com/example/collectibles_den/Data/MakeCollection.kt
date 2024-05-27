@@ -1,16 +1,36 @@
 package com.example.collectibles_den.Data
 
-import android.net.Uri
+import com.google.firebase.database.ServerValue
 import java.sql.Timestamp
 
 data class MakeCollection(
-    val makeCollectionID: String ="",
-    var makeCollectionName:String,
-    var makeCollectionCategory: String,
-    var makeCollectionImages: List<Uri?> = emptyList(),
-    var makeCollectionCameraImages: List<Uri?> = emptyList(),
-    var makeCollectionNotes: List<NoteData> = emptyList(),
-    var makeCollectionScannedItems: List<Uri?> = emptyList(),
-    var makeCollectionFiles: List<Uri?> = emptyList(),
-    var makeCollectionDate: Timestamp = Timestamp(System.currentTimeMillis())
+    val makeCollectionID: String = "",
+    val makeCollectionName: String,
+    val makeCollectionDescription: String,
+    val makeCollectionCategory: String,
+    val makeCollectionImages: List<String> = emptyList(), // Changed to List<String>
+    val makeCollectionCameraImages: List<String> = emptyList(), // Changed to List<String>
+    val makeCollectionNotes: List<NoteData> = emptyList(),
+    val makeCollectionScannedItems: List<String> = emptyList(), // Changed to List<String>
+    val makeCollectionFiles: List<String> = emptyList(), // Changed to List<String>
+    val userAssigned: String,
+    var makeCollectionDate: Any = ServerValue.TIMESTAMP // Use ServerValue.TIMESTAMP here
     )
+{
+
+        // No-argument constructor
+        constructor() : this(
+        "",
+        "",
+        "",
+        "",
+        emptyList(),
+        emptyList(),
+        emptyList(),
+        emptyList(),
+        emptyList(),
+        "",
+        Timestamp(System.currentTimeMillis())
+        )
+
+}
