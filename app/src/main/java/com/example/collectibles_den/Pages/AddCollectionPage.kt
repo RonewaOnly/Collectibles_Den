@@ -1,4 +1,3 @@
-
 package com.example.collectibles_den.Pages
 
 import android.Manifest
@@ -11,24 +10,46 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Attachment
+import androidx.compose.material.icons.filled.Camera
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.NoteAlt
+import androidx.compose.material.icons.filled.Scanner
 import androidx.compose.material.icons.sharp.OpenInBrowser
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,16 +57,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.collectibles_den.CoreFunction_AddCollection.FileReaderClass
 import com.example.collectibles_den.CoreFunction_AddCollection.ScannerClass
 import com.example.collectibles_den.CoreFunction_AddCollection.TakePhotosClass
 import com.example.collectibles_den.Data.MakeCollection
 import com.example.collectibles_den.Data.NoteData
-import com.example.collectibles_den.R
+import com.example.collectibles_den.Logic.DatabaseViewModel
+import com.example.collectibles_den.Logic.DatabaseViewModelFactory
+import com.example.collectibles_den.collectiblesDenApp
+
 @Preview
 @Composable
-fun AddCollections() {
+fun AddCollections(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewModelFactory(context = LocalContext.current))) {
+        val userID = collectiblesDenApp.getUserID()
+        val collectionsState = remember { mutableStateOf<List<MakeCollection>>(emptyList()) }
+
         Column(
                 modifier = Modifier
                         .width(1200.dp)
@@ -56,15 +84,16 @@ fun AddCollections() {
                 horizontalAlignment = Alignment.CenterHorizontally
         ) {
                 Text(text = "Add Collection")
-                val group = makeCollection()
+                val group = makeCollection(collectionsState.value, viewModel, userID)
                 Spacer(modifier = Modifier.padding(16.dp))
                 // Displaying stored Collection
                 DisplayCollection(bank = group)
         }
 }
+
 @SuppressLint("MutableCollectionMutableState")
 @Composable
-fun makeCollection(): MutableList<MakeCollection> {
+fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, userID: String?): MutableList<MakeCollection> {
         val context = LocalContext.current
         var mainSwitch by remember { mutableStateOf(false) }
         var isPopClicked by remember { mutableStateOf(false) }
@@ -209,8 +238,7 @@ fun makeCollection(): MutableList<MakeCollection> {
                                         Text(text = "Scan")
                                 }
                         }
-                        if(isScannerClick){
-
+                        if (isScannerClick) {
                                 scanClass.ScannerDocument(onScanSuccess = { uri ->
                                         scannedUri = uri
                                 }, onScanError = { message ->
@@ -247,6 +275,7 @@ fun makeCollection(): MutableList<MakeCollection> {
                         ) {
                                 Row(
                                         verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceAround
                                 ) {
                                         Icon(imageVector = Icons.Filled.Add, contentDescription = null)
                                         Text(text = "Create Board")
@@ -255,6 +284,7 @@ fun makeCollection(): MutableList<MakeCollection> {
 
                         if (isPopClicked) {
                                 SaveCollection(
+                                        user = userID,
                                         getImage = imageUri,
                                         takeImage = imageCameraUri,
                                         notes = notesBank,
@@ -262,63 +292,24 @@ fun makeCollection(): MutableList<MakeCollection> {
                                         file = attachedFileUri,
                                         onClose = { isPopClicked = false },
                                         onSave = { collection ->
-                                                if (imageUri != null) {
-                                                        listCollection.add(
-                                                                MakeCollection(
-                                                                        makeCollectionName = collection.makeCollectionName,
-                                                                        makeCollectionCategory = collection.makeCollectionCategory,
-                                                                        makeCollectionImages = listOf(imageUri)
-                                                                )
-                                                        )
-                                                } else if (imageCameraUri != null) {
-                                                        listCollection.add(
-                                                                MakeCollection(
-                                                                        makeCollectionName = collection.makeCollectionName,
-                                                                        makeCollectionCategory = collection.makeCollectionCategory,
-                                                                        makeCollectionCameraImages = listOf(imageCameraUri)
-                                                                )
-                                                        )
-                                                } else if (notesBank.isNotEmpty()) {
-                                                        listCollection.add(
-                                                                MakeCollection(
-                                                                        makeCollectionName = collection.makeCollectionName,
-                                                                        makeCollectionCategory = collection.makeCollectionCategory,
-                                                                        makeCollectionNotes = notesBank.toMutableList()
-                                                                )
-                                                        )
-                                                } else if (scannedUri != null) {
-                                                        listCollection.add(
-                                                                MakeCollection(
-                                                                        makeCollectionName = collection.makeCollectionName,
-                                                                        makeCollectionCategory = collection.makeCollectionCategory,
-                                                                        makeCollectionScannedItems = listOf(scannedUri)
-                                                                )
-                                                        )
-                                                } else if (attachedFileUri != null) {
-                                                        listCollection.add(
-                                                                MakeCollection(
-                                                                        makeCollectionName = collection.makeCollectionName,
-                                                                        makeCollectionCategory = collection.makeCollectionCategory,
-                                                                        makeCollectionFiles = listOf(attachedFileUri)
-                                                                )
-                                                        )
-                                                } else {
-                                                        // Save everything if none of the specific conditions match
-                                                        listCollection.add(
-                                                                MakeCollection(
-                                                                        makeCollectionName = collection.makeCollectionName,
-                                                                        makeCollectionCategory = collection.makeCollectionCategory,
-                                                                        makeCollectionImages = listOfNotNull(imageUri),
-                                                                        makeCollectionCameraImages = listOfNotNull(imageCameraUri),
-                                                                        makeCollectionNotes = notesBank.toMutableList(),
-                                                                        makeCollectionScannedItems = listOfNotNull(scannedUri),
-                                                                        makeCollectionFiles = listOfNotNull(attachedFileUri)
-                                                                )
-                                                        )
+                                                if (userID != null) {
+                                                        viewModel.setCollections(
+                                                                collectionName = collection.makeCollectionName,
+                                                                collectionDesc = collection.makeCollectionDescription,
+                                                                category = collection.makeCollectionCategory,
+                                                                images = listOfNotNull(imageUri),
+                                                                cameraImages = listOfNotNull(imageCameraUri),
+                                                                notes = notesBank,
+                                                                scannedItems = listOfNotNull(scannedUri),
+                                                                files = listOfNotNull(attachedFileUri),
+                                                                user = userID
+                                                        ) { savedCollection ->
+                                                                listCollection.add(savedCollection)
+                                                                Toast.makeText(context, "Collection saved", Toast.LENGTH_LONG).show()
+                                                                mainSwitch = false
+                                                                isPopClicked = false
+                                                        }
                                                 }
-                                                Toast.makeText(context, "Collection saved", Toast.LENGTH_LONG).show()
-                                                mainSwitch = false
-                                                isPopClicked = false
                                         }
                                 )
                         }
@@ -371,6 +362,7 @@ fun DisplayCollection(bank: MutableList<MakeCollection>) {
 
 @Composable
 fun SaveCollection(
+        user: String?,
         getImage: Uri? = null,
         takeImage: Uri? = null,
         notes: List<NoteData> = emptyList(),
@@ -380,6 +372,7 @@ fun SaveCollection(
         onSave: (MakeCollection) -> Unit
 ) {
         var collectionName by remember { mutableStateOf("") }
+        var collectionDescription by remember { mutableStateOf("") }
         var collectionCategory by remember { mutableStateOf("") }
 
         Dialog(onDismissRequest = { onClose() }) {
@@ -391,12 +384,18 @@ fun SaveCollection(
                 ) {
                         Column(
                                 modifier = Modifier.padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                                verticalArrangement =  Arrangement.spacedBy(8.dp)
                         ) {
                                 TextField(
                                         value = collectionName,
                                         onValueChange = { collectionName = it },
                                         label = { Text(text = "Enter Board Name:") }
+                                )
+                                Spacer(modifier = Modifier.padding(10.dp))
+                                TextField(
+                                        value = collectionDescription,
+                                        onValueChange = { collectionDescription = it },
+                                        label = { Text(text = "Enter Board Description:") }
                                 )
                                 Spacer(modifier = Modifier.padding(10.dp))
 
@@ -416,17 +415,23 @@ fun SaveCollection(
                                         Spacer(modifier = Modifier.width(8.dp))
                                         TextButton(
                                                 onClick = {
-                                                        onSave(
+                                                        user?.let {
                                                                 MakeCollection(
                                                                         makeCollectionName = collectionName,
+                                                                        makeCollectionDescription = collectionDescription,
                                                                         makeCollectionCategory = collectionCategory,
-                                                                        makeCollectionFiles = listOfNotNull(file),
-                                                                        makeCollectionImages = listOfNotNull(getImage),
-                                                                        makeCollectionCameraImages = listOfNotNull(takeImage),
+                                                                        makeCollectionFiles = listOfNotNull(file.toString()),
+                                                                        makeCollectionImages = listOfNotNull(getImage.toString()),
+                                                                        makeCollectionCameraImages = listOfNotNull(takeImage.toString()),
                                                                         makeCollectionNotes = notes.toMutableList(),
-                                                                        makeCollectionScannedItems = listOfNotNull(scanned)
+                                                                        makeCollectionScannedItems = listOfNotNull(scanned.toString()),
+                                                                        userAssigned = it
                                                                 )
-                                                        )
+                                                        }?.let {
+                                                                onSave(
+                                                                        it
+                                                                )
+                                                        }
                                                         onClose()
                                                 }
                                         ) {
@@ -436,34 +441,5 @@ fun SaveCollection(
                         }
                 }
         }
-}
-
-@Composable
-fun capturingImages(): Uri? {
-        val context = LocalContext.current
-        var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
-
-        val get = TakePhotosClass()
-
-        val (cameraLauncher, permissionLauncher) = get.setupCameraLauncher(
-                context = context,
-                onImageCaptured = { uri -> capturedImageUri = uri },
-                onError = { message -> Toast.makeText(context, message, Toast.LENGTH_SHORT).show() }
-        )
-
-        LaunchedEffect(Unit) {
-                val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
-                if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                        val uri = get.createImageUri(context)
-                        capturedImageUri = uri
-                        if (uri != null) {
-                                cameraLauncher.launch(uri)
-                        }
-                } else {
-                        permissionLauncher.launch(Manifest.permission.CAMERA)
-                }
-        }
-
-        return capturedImageUri
 }
 
