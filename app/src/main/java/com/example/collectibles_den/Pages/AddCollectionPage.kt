@@ -40,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,6 +67,7 @@ import com.example.collectibles_den.Data.MakeCollection
 import com.example.collectibles_den.Data.NoteData
 import com.example.collectibles_den.Logic.DatabaseViewModel
 import com.example.collectibles_den.Logic.DatabaseViewModelFactory
+import com.example.collectibles_den.Logic.TakePhotosViewModel
 import com.example.collectibles_den.collectiblesDenApp
 
 @Preview
@@ -95,6 +97,9 @@ fun AddCollections(viewModel: DatabaseViewModel = viewModel(factory = DatabaseVi
 @Composable
 fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, userID: String?): MutableList<MakeCollection> {
         val context = LocalContext.current
+        val takePhotosClass = remember { TakePhotosClass() }
+        val PhotoViewModel: TakePhotosViewModel = viewModel()
+
         var mainSwitch by remember { mutableStateOf(false) }
         var isPopClicked by remember { mutableStateOf(false) }
         var isCameraClick by remember { mutableStateOf(false) }
@@ -105,7 +110,7 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
         val noteClass = FileReaderClass()
         val scanClass = ScannerClass()
         var imageUri by remember { mutableStateOf<Uri?>(null) }
-        var imageCameraUri by remember { mutableStateOf<Uri?>(null) }
+        //var imageCameraUri by remember { mutableStateOf<Uri?>(null) }
         var scannedUri by remember { mutableStateOf<Uri?>(null) }
         var notesBank by remember { mutableStateOf<List<NoteData>>(emptyList()) }
         var attachedFileUri by remember { mutableStateOf<Uri?>(null) }
@@ -113,24 +118,18 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
         val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
                 imageUri = uri
         }
-
-        val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-                if (!success) {
-                        imageCameraUri = null
+        // Setup camera and permission launchers
+        val (cameraLauncher, permissionLauncher) = takePhotosClass.setupCameraLauncher(
+                viewModel = PhotoViewModel,
+                onImageCaptured = { uri ->
+                        Toast.makeText(context, "Image captured: $uri", Toast.LENGTH_SHORT).show()
+                },
+                onError = { error ->
+                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
                 }
-        }
+        )
+        var imageCameraUri by remember { mutableStateOf<Uri?>(null) }
 
-        val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-                if (granted) {
-                        val uri = TakePhotosClass().createImageUri(context)
-                        imageCameraUri = uri
-                        if (uri != null) {
-                                cameraLauncher.launch(uri)
-                        }
-                } else {
-                        Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
-                }
-        }
 
         IconButton(
                 onClick = { mainSwitch = true },
@@ -178,11 +177,14 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
                         Spacer(modifier = Modifier.padding(5.dp))
                         IconButton(
                                 onClick = {
-                                        val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                                        val permissionCheckResult = ContextCompat.checkSelfPermission(
+                                                context,
+                                                Manifest.permission.CAMERA
+                                        )
                                         if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                                                val uri = TakePhotosClass().createImageUri(context)
-                                                imageCameraUri = uri
+                                                val uri = takePhotosClass.createImageUri(context)
                                                 if (uri != null) {
+                                                        PhotoViewModel.setImageUri(uri)
                                                         cameraLauncher.launch(uri)
                                                 }
                                         } else {
@@ -201,6 +203,7 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
                                         Text(text = "Take Image")
                                 }
                         }
+
                         Spacer(modifier = Modifier.padding(5.dp))
                         IconButton(
                                 onClick = { isNotesClick = true },
@@ -261,8 +264,19 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
                                 }
                         }
                         if (isFolderClick) {
-                                noteClass.FilePickerAndReader { uri ->
+                                noteClass.FilePickerAndReader(onFileSelected = { uri ->
                                         attachedFileUri = uri
+                                        val uriString = uri.toString()
+                                        if (uriString.isNotEmpty()) {
+                                                val parsedUri = Uri.parse(uriString)
+                                                // Proceed with using `parsedUri`
+                                        } else {
+                                                // Handle the case where `uriString` is empty
+                                        }
+                                })
+                                attachedFileUri?.let { uri ->
+                                        // Use the selected file URI
+                                        Text(text = "Selected file URI: $uri")
                                 }
                         }
                         Spacer(modifier = Modifier.padding(5.dp))
@@ -281,12 +295,14 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
                                         Text(text = "Create Board")
                                 }
                         }
+// Display captured image
+                        val Uri by PhotoViewModel.imageUri.collectAsState()
 
                         if (isPopClicked) {
                                 SaveCollection(
                                         user = userID,
                                         getImage = imageUri,
-                                        takeImage = imageCameraUri,
+                                        takeImage = Uri,
                                         notes = notesBank,
                                         scanned = scannedUri,
                                         file = attachedFileUri,
@@ -298,7 +314,7 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
                                                                 collectionDesc = collection.makeCollectionDescription,
                                                                 category = collection.makeCollectionCategory,
                                                                 images = listOfNotNull(imageUri),
-                                                                cameraImages = listOfNotNull(imageCameraUri),
+                                                                cameraImages = listOfNotNull(Uri),
                                                                 notes = notesBank,
                                                                 scannedItems = listOfNotNull(scannedUri),
                                                                 files = listOfNotNull(attachedFileUri),
@@ -333,8 +349,16 @@ fun DisplayCollection(bank: MutableList<MakeCollection>) {
                                         verticalArrangement = Arrangement.Center,
                                         horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
+                                        val imageUriString = collection.makeCollectionImages.getOrNull(0)
+                                        val scannedUriString = collection.makeCollectionScannedItems.getOrNull(0)
+                                        val painter = when {
+                                                !imageUriString.isNullOrEmpty() -> rememberAsyncImagePainter(Uri.parse(imageUriString))
+                                                !scannedUriString.isNullOrEmpty() -> rememberAsyncImagePainter(Uri.parse(scannedUriString))
+                                                else -> rememberAsyncImagePainter(Uri.parse("https://media.istockphoto.com/id/1550540247/photo/decision-thinking-and-asian-man-in-studio-with-glasses-questions-and-brainstorming-on-grey.jpg?s=1024x1024&w=is&k=20&c=M4QZ9PB4fVixyNIrWTgJjIQNPgr2TxX1wlYbyRK40dE=")) // or use a placeholder image
+                                        }
+
                                         Image(
-                                                painter = rememberAsyncImagePainter(collection.makeCollectionImages.getOrNull(0) ?: ""),
+                                                painter = painter,
                                                 contentDescription = null,
                                                 modifier = Modifier
                                                         .width(200.dp)

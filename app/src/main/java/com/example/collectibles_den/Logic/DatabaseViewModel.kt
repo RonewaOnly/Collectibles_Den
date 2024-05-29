@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.collectibles_den.Data.MakeCollection
 import com.example.collectibles_den.Data.NoteData
+import com.example.collectibles_den.Data.Storyboard_Stories
 import com.example.collectibles_den.Data.UserData
 import com.example.collectibles_den.collectiblesDenApp
 import com.google.firebase.database.DataSnapshot
@@ -93,7 +94,37 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
                 }
         }
     }
+    fun getUser(userId: String, onSuccess: (List<UserData>) -> Unit){
+        database.child("Users").addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val user = mutableListOf<UserData>()
 
+                for (usersnapshot in snapshot.children){
+                    //get the values
+                    val loggedValue = usersnapshot.getValue() as? Map<String,Any>
+                    if (loggedValue != null && loggedValue["id"]!= null && userId == loggedValue["id"].toString()){
+                        val loggedIn = UserData(
+                            id = loggedValue["id"] as? String ?: "",
+                            firstname = loggedValue["firstname"] as? String ?: "",
+                            lastname = loggedValue["lastname"]as? String ?: "",
+                            username = loggedValue["username"] as? String ?: "",
+                            email = loggedValue["email"] as? String ?: "",
+                            password = loggedValue["passsword"] as? String ?: ""
+                        )
+
+                        user.add(loggedIn)
+                    }
+                }
+                onSuccess(user)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("getUser", error.details)
+
+            }
+
+        })
+    }
     //The function will be getting and setting collections saved by the user..
 
     @Suppress("UNCHECKED_CAST")
@@ -176,5 +207,84 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
                     Log.e("MakeCollectionActivity", "MakeCollectionActivity Failed: $error")
                 }
         }
+    }
+
+    fun setStoryboard(
+        storyboardLine: Storyboard_Stories.StoryboardLine,
+        onSave: (Storyboard_Stories.StoryboardLine) -> Unit
+    ){
+        val storyKey = database.child("Storyboard").push().key
+
+        val storyboard = storyKey?.let {
+            storyboardLine.copy(storyID = it)
+        }
+        storyKey?.let {
+            database.child("Storyboard").child(it).setValue(storyboard)
+                .addOnSuccessListener {
+                    Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
+                    storyboard?.let(onSave)
+                    Log.e("StoryboardActivity", "We saved")
+                }.addOnFailureListener { error ->
+                    Log.e("StoryboardActivity", "StoryboardActivity Failed: $error")
+                }
+        }
+    }
+
+    fun getStoryboard(userID: String, onResult: (List<Storyboard_Stories.StoryboardLine>) -> Unit ){
+        val databaseRef = FirebaseDatabase.getInstance().getReference("Storyboard")
+        databaseRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val storyboards = mutableListOf<Storyboard_Stories.StoryboardLine>()
+
+                //val storyboards = dataSnapshot.children.mapNotNull { it.getValue(Storyboard_Stories.StoryboardLine::class.java) }
+                for(storyboardsnapshot in dataSnapshot.children) {
+                    // Retrieve the value from the snapshot
+                    val dataMap = storyboardsnapshot.getValue() as? Map<String, Any>
+                    if (dataMap != null && dataMap["user"] != null && userID == dataMap["user"].toString()) {
+                       val storyboard = Storyboard_Stories.StoryboardLine(
+                            storyID = dataMap["storyID"] as? String ?: "",
+                           storyName = dataMap["storyName"] as? String ?: "",
+                           storyItems = dataMap["storyItems"] as? List<MakeCollection> ?: emptyList(),
+                           storyCategory = dataMap["storyCategory"] as? String ?: "",
+                           storyDescription = dataMap["storyDescription"] as? String ?: "",
+                           storyCovers = dataMap["storyCovers"] as? List<String> ?: emptyList(),
+                           showGoalDialog = dataMap["showGoalDialog"] as? Boolean ?: false,
+                           goalSet = dataMap["goalSet"] as? Int ?: 0,
+                           currentProgress = dataMap["currentProgress"] as? Int ?: 0,
+                        )
+                        storyboards.add(storyboard)
+                    }
+                }
+                onResult(storyboards)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.e("StoryboardActivity", "Failed to load storyboards: ${databaseError.message}")
+            }
+        })
+    }
+    fun updateStoryboard(userId: String, updatedStoryboardLine: Storyboard_Stories.StoryboardLine, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        val storyboardId = updatedStoryboardLine.storyID // Assuming storyboard ID is used as the key
+        val storyboardRef = database.child("storyboards").child(userId).child(storyboardId)
+
+        storyboardRef.setValue(updatedStoryboardLine)
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                onError(e.message ?: "Unknown error occurred")
+            }
+    }
+
+    fun deleteStoryboard(userId: String, storyboardId: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        val storyboardRef = database.child("storyboards").child(userId).child(storyboardId)
+
+        storyboardRef.removeValue()
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                onError(e.message ?: "Unknown error occurred")
+            }
     }
 }
