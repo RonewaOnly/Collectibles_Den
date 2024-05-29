@@ -1,20 +1,22 @@
 package com.example.collectibles_den.Data
 
-import android.net.Uri
-import java.sql.Timestamp
+import com.example.collectibles_den.collectiblesDenApp
 
 class Storyboard_Stories {
+    //private val userID = collectiblesDenApp.getUserID()
 
     data class StoryboardLine(
         val storyID: String ="",
         val storyName: String,
-        val storyItems: List<collectionStorage?> = emptyList(),
+        val storyItems: List<MakeCollection?> = emptyList(),
         val storyCategory: String,
         val storyDescription: String ="",
-        val storyCovers: List<Uri?> = emptyList(),
+        val storyCovers: List<String> = emptyList(),
         val showGoalDialog: Boolean,
         val goalSet: Int = 0,
-        val currentProgress: Int = if(storyItems.isNotEmpty()) storyItems.count() else 0
+        val currentProgress: Int = if(storyItems.isNotEmpty()) storyItems.count() else 0,
+        val user: String? = collectiblesDenApp.getUserID(),
+
     ) {
         fun getProgress(): Float {
             return if (goalSet > 0) currentProgress / goalSet.toFloat() else 0f
