@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,29 +44,41 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.collectibles_den.Data.UserData
 import com.example.collectibles_den.DefaultValuesClass
+import com.example.collectibles_den.Logic.DatabaseViewModel
+import com.example.collectibles_den.Logic.DatabaseViewModelFactory
+import com.example.collectibles_den.collectiblesDenApp
 
 var getData = DefaultValuesClass()//This variable used to call the list with the data
 @Preview(showBackground = true)
 @Composable
-fun ProfileAccount(){
+fun ProfileAccount(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewModelFactory(context = LocalContext.current))) {
+        val userID = collectiblesDenApp.getUserID()
+        val collectionsState = remember { mutableStateOf<List<UserData>>(emptyList()) }
+
+        LaunchedEffect(userID) {
+                userID?.let { uid ->
+                        viewModel.getUser(uid) { user ->
+                                collectionsState.value = user
+                        }
+                }
+        }
+
         Column(
-                modifier = Modifier.verticalScroll(rememberScrollState(),true)
+                modifier = Modifier.verticalScroll(rememberScrollState(), true)
         ) {
                 Text(text = "Account")
-                ProfileSection()
-                //FullPersonalProfile(user = getData.userDummy, userID = getData.userDummy[0].customerId)
+                ProfileSection(collectionsState.value)
         }
 }
-@Composable
-fun ProfileSection(){
-        var isPopProfile by remember {
-                mutableStateOf(false)
-        }
-        var users by remember { mutableStateOf(getData.userDummy) }
 
-        if (!isPopProfile){
+@Composable
+fun ProfileSection(users: List<UserData>) {
+        var isPopProfile by remember { mutableStateOf(false) }
+
+        if (!isPopProfile) {
                 Column(
                         modifier = Modifier
                                 .fillMaxWidth()
@@ -78,23 +91,20 @@ fun ProfileSection(){
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                                items(users){
-
+                                items(users) { user ->
                                         Column(
                                                 modifier = Modifier
                                                         .clip(RoundedCornerShape(50))
                                                         .border(2.dp, Color.White)
                                                         .width(55.dp)
                                                         .height(55.dp)
-                                                        .background(
-                                                                Color.LightGray
-                                                        ),
+                                                        .background(Color.LightGray),
                                                 verticalArrangement = Arrangement.Center,
                                                 horizontalAlignment = Alignment.CenterHorizontally
                                         ) {//The circle
-                                                it.username?.let { it1 ->
+                                                user.username?.let { username ->
                                                         Text(
-                                                                text = it1.substring(0,2),
+                                                                text = username.substring(0, 2),
                                                                 color = Color.White,
                                                                 textAlign = TextAlign.Center,
                                                                 modifier = Modifier
@@ -103,16 +113,16 @@ fun ProfileSection(){
                                                 }
                                         }
                                         Column(
-                                                modifier = Modifier.padding(10.dp).width(295.dp)
+                                                modifier = Modifier
+                                                        .padding(10.dp)
+                                                        .width(295.dp)
                                         ) {
-                                                it.username?.let { it1 ->
-                                                        Text(text = it1,
-                                                                color = Color.White,
-                                                        )
+                                                user.firstname?.let { username ->
+                                                        Text(text = username, color = Color.White)
                                                 }
-                                                it.email?.let { it1 ->
+                                                user.email?.let { email ->
                                                         Text(
-                                                                text = it1,
+                                                                text = email,
                                                                 color = Color.White,
                                                                 modifier = Modifier.fillMaxWidth(0.7f)
                                                         )
@@ -123,9 +133,11 @@ fun ProfileSection(){
                                                 imageVector = Icons.Default.SubdirectoryArrowRight,
                                                 contentDescription = null,
                                                 tint = Color.White,
-                                                modifier =  Modifier.clickable {
-                                                        isPopProfile = true
-                                                }.align(Alignment.End)
+                                                modifier = Modifier
+                                                        .clickable {
+                                                                isPopProfile = true
+                                                        }
+                                                        .align(Alignment.End)
                                         )
                                 }
                         }
@@ -192,53 +204,46 @@ fun ProfileSection(){
 
                         Text(text = "Video's will be coming soon")
                 }
-        }else{
-           //Text(text = "Clicked")
-                users[0].id?.let {
+
+        } else {
+                //Text(text = "Clicked")
+                val currentUser = users.firstOrNull()
+                currentUser?.let { user ->
                         FullPersonalProfile(
-                                user = users,
-                                userID = it,
+                                user = user,
+                                userID = user.id ?: "",
                                 onClose = {
                                         isPopProfile = false
                                 },
-                                onSave = { updatedUsers ->
-                                        users = updatedUsers
-                                        isPopProfile = false
+                                onSave = { updatedUser ->
+                                        // Update the user in the list
+                                        val index = users.indexOfFirst { it.id == updatedUser.id }
+                                        if (index != -1) {
+                                                val updatedUsers = users.toMutableList()
+                                                updatedUsers[index] = updatedUser
+                                                isPopProfile = false
+                                        }
                                 }
                         )
                 }
         }
-        
-}
-fun getProfileData(data:List<UserData>):List<UserData>{//this function will be used to get the data from the api/database/local storage
-        return data
 }
 
 @Composable
 fun FullPersonalProfile(
-        user: List<UserData>,
-                        userID:String,
-                        onClose: () ->Unit,
-                        onSave: (List<UserData>) -> Unit
-){//This function will be displaying the profile of the user..
-        var firstname by remember { mutableStateOf("") }
-        var lastname by remember { mutableStateOf("") }
-        var username by remember { mutableStateOf("") }
-        var email by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
+        user: UserData,
+        userID: String,
+        onClose: () -> Unit,
+        onSave: (UserData) -> Unit
+) {
+        var firstname by remember { mutableStateOf(user.firstname ?: "") }
+        var lastname by remember { mutableStateOf(user.lastname ?: "") }
+        var username by remember { mutableStateOf(user.username ?: "") }
+        var email by remember { mutableStateOf(user.email ?: "") }
+        var password by remember { mutableStateOf(user.password ?: "") }
 
         var isEnable by remember { mutableStateOf(false) } //Will enable for changing details
         val context = LocalContext.current
-
-        val currentProfile = user.find { it.id == userID }
-
-        currentProfile?.let {
-                firstname = it.firstname.toString()
-                lastname = it.lastname.toString()
-                username = it.username.toString()
-                email = it.email.toString()
-                password = it.password.toString()
-        }
 
         Column(
                 modifier = Modifier
@@ -252,7 +257,8 @@ fun FullPersonalProfile(
                         contentDescription = null,
                         tint = Color.Black,
                         modifier = Modifier
-                                .align(Alignment.Start).clickable {
+                                .align(Alignment.Start)
+                                .clickable {
                                         onClose()
                                 }
                 )//Close
@@ -272,86 +278,77 @@ fun FullPersonalProfile(
                                 .width(400.dp)
                                 .padding(10.dp)
                 ) {
-                        currentProfile?.let {
-                                item {
-                                        TextField(
-                                                value = firstname,
-                                                onValueChange = { firstname = it },
-                                                enabled = isEnable,
-                                                label = { Text(text = "Enter Firstname: ") }
-                                        )
-                                        TextField(
-                                                value = lastname,
-                                                onValueChange = { lastname = it },
-                                                enabled = isEnable,
-                                                label = { Text(text = "Enter Lastname: ") }
-                                        )
-                                        TextField(
-                                                value = username,
-                                                onValueChange = { username = it },
-                                                enabled = isEnable,
-                                                label = { Text(text = "Enter Username: ") }
-                                        )
-                                        TextField(
-                                                value = email,
-                                                onValueChange = { email = it },
-                                                enabled = isEnable,
-                                                label = { Text(text = "Enter Email: ") }
-                                        )
-                                        TextField(
-                                                value = password,
-                                                onValueChange = { password = it },
-                                                enabled = isEnable,
-                                                label = { Text(text = "Enter Password: ") },
-                                                minLines = 2
-                                        )
+                        item {
+                                TextField(
+                                        value = firstname,
+                                        onValueChange = { firstname = it },
+                                        enabled = isEnable,
+                                        label = { Text(text = "Enter Firstname: ") }
+                                )
+                                TextField(
+                                        value = lastname,
+                                        onValueChange = { lastname = it },
+                                        enabled = isEnable,
+                                        label = { Text(text = "Enter Lastname: ") }
+                                )
+                                TextField(
+                                        value = username,
+                                        onValueChange = { username = it },
+                                        enabled = isEnable,
+                                        label = { Text(text = "Enter Username: ") }
+                                )
+                                TextField(
+                                        value = email,
+                                        onValueChange = { email = it },
+                                        enabled = isEnable,
+                                        label = { Text(text = "Enter Email: ") }
+                                )
+                                TextField(
+                                        value = password,
+                                        onValueChange = { password = it },
+                                        enabled = isEnable,
+                                        label = { Text(text = "Enter Password: ") },
+                                        minLines = 2
+                                )
 
-                                        Button(onClick = {
-                                                val updatedProfile = updateUserProfile(
-                                                        userID,
-                                                        firstname,
-                                                        lastname,
-                                                        username,
-                                                        email,
-                                                        password
-                                                )
-                                                onSave(updatedProfile)
-                                                Toast.makeText(context, "Saved", Toast.LENGTH_LONG).show()
-                                                isEnable = false
-                                        }) {
-                                                Text(text = "Save")
-                                        }
-
-
+                                Button(onClick = {
+                                        val updatedProfile = updateUserProfile(
+                                                userID,
+                                                firstname,
+                                                lastname,
+                                                username,
+                                                email,
+                                                password
+                                        )
+                                        onSave(updatedProfile)
+                                        Toast.makeText(context, "Saved", Toast.LENGTH_LONG).show()
+                                        isEnable = false
+                                }) {
+                                        Text(text = "Save")
+                                }
                         }
                 }
         }
 }
-        }
-fun updateUserProfile(//This function will be used to update the user profile
+
+fun updateUserProfile(
         userId: String,
         newFirstName: String? = null,
         newLastName: String? = null,
         newUsername: String? = null,
         newEmail: String? = null,
-        newPassword: String?=null
-
-): List<UserData> {
-        return getData.userDummy.map { profile ->
-                if (profile.id == userId) {
-                        profile.copy(
-                                firstname = newFirstName ?: profile.firstname,
-                                lastname = newLastName ?: profile.lastname,
-                                username = newUsername ?: profile.username,
-                                email = newEmail ?: profile.email,
-                                password = newPassword?: profile.password
-
-                        )
-                } else {
-                        profile
-                }
-        }
+        newPassword: String? = null
+): UserData {
+        return UserData(
+                id = userId,
+                firstname = newFirstName,
+                lastname = newLastName,
+                username = newUsername,
+                email = newEmail,
+                password = newPassword
+        )
 }
+
 /*//This is an example of a card
 @Composable
 fun CardExample() {
