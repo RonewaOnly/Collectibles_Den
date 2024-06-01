@@ -31,6 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginTop="20dp"
+            app:boxBackgroundColor="@color/c_2"
             app:boxStrokeColor="@color/black"
             android:textColorHint="@color/black">
 
