@@ -1,6 +1,5 @@
 package com.example.collectibles_den
 
-import com.example.collectibles_den.Logic.AuthorizationViewModel
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,11 +9,16 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import com.example.collectibles_den.Logic.AuthorizationViewModel
+import com.example.collectibles_den.Logic.AuthorizationViewModelFactory
+import com.example.collectibles_den.Logic.DatabaseViewModel
+import com.example.collectibles_den.Logic.DatabaseViewModelFactory
 
 
 class RegisterTabFragment : Fragment() {
-    private val registerViewModel: AuthorizationViewModel by viewModels()
+    private lateinit var  registerViewModel: AuthorizationViewModel
+    private lateinit var databaseViewModel: DatabaseViewModel
 
 
     override fun onCreateView(
@@ -28,6 +32,14 @@ class RegisterTabFragment : Fragment() {
         val email = view.findViewById<EditText>(R.id.signup_email)
         val password = view.findViewById<EditText>(R.id.signup_password)
         val confirmPassword = view.findViewById<EditText>(R.id.signup_confirm)
+
+        // Initialize the ViewModels
+        val factory = DatabaseViewModelFactory(requireContext())
+        databaseViewModel = ViewModelProvider(this, factory).get(DatabaseViewModel::class.java)
+        registerViewModel = ViewModelProvider(
+            this,
+            AuthorizationViewModelFactory(requireContext(), databaseViewModel)
+        )[AuthorizationViewModel::class.java]
         // onclick function
         view.findViewById<Button>(R.id.signup_button).setOnClickListener {
             val firstnameInput = firstname.text.toString()
