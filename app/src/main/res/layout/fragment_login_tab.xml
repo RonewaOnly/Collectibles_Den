@@ -71,7 +71,7 @@
                 android:text="Login"
                 android:textColor="@color/black"
                 android:textSize="18sp"
-                tools:ignore="HardcodedText,TextContrastCheck,DuplicateSpeakableTextCheck" />
+                tools:ignore="HardcodedText,TextContrastCheck,DuplicateSpeakableTextCheck,TextSizeCheck" />
         </LinearLayout>
     </LinearLayout>
 
