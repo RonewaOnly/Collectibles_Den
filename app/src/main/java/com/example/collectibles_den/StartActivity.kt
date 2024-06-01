@@ -14,6 +14,9 @@ class StartActivity : AppCompatActivity() {
        // enableEdgeToEdge()
         setContentView(R.layout.activity_start)
 
+        //hiding action bar
+        supportActionBar?.hide()
+
     }
 
     //function to switch activities

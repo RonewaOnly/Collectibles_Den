@@ -27,6 +27,9 @@ class Login : AppCompatActivity() {
 
             viewPager2.adapter = adapter
 
+            //hiding toolbar
+            supportActionBar?.hide()
+
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
 
