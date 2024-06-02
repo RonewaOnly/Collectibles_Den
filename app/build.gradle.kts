@@ -23,6 +23,11 @@ android {
         }
     }
 
+    buildFeatures{
+
+        viewBinding = true
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -75,8 +80,8 @@ dependencies {
     //ML Kit document scanner
     implementation("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0-beta1")
     //Displays the scanned image
-    implementation("io.coil-kt:coil-compose:2.5.0")
-    implementation ("io.coil-kt:coil-compose:2.5.0") // For image loading
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation ("io.coil-kt:coil-compose:2.6.0") // For image loading
 
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)

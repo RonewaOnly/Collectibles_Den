@@ -21,7 +21,7 @@ class RegisterTabFragment : Fragment() {
 //        val lastname = view.findViewById<EditText>(R.id.signup_lastName)
 //        val email = view.findViewById<EditText>(R.id.signup_email)
 //        val password = view.findViewById<EditText>(R.id.signup_password)
-//        val confirmPassword = view.findViewById<EditText>(R.id.signup_confirm)
+//        val confirmPassword = view.findViewById<EditText>(R.id.signup_confirm_password)
         // onclick function
 //        view.findViewById<Button>(R.id.signup_button).setOnClickListener {
 //            val firstnameInput = firstname.text.toString()
