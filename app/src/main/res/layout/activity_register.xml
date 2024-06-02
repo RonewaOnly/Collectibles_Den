@@ -5,38 +5,49 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background"
     tools:context=".Register">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="75dp"
+        android:text="Welcome, Collector"
+        android:textColor="@color/black"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText" />
+
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="390dp"
+        android:layout_height="695dp"
+        android:layout_marginTop="120dp"
+        android:background="@drawable/view_account"
+        android:elevation="20dp"
         android:orientation="vertical"
-        android:layout_marginTop="0dp"
+        android:padding="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="UselessLeaf">
+        tools:ignore="UselessLeaf,TextSizeCheck,VisualLintBounds">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Welcome, Collector"
-            android:textColor="@color/black"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="20dp"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/signup_firstName_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:helperTextTextColor="@color/darkRed"
-            android:layout_marginTop="30dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="0dp"
             app:helperText="Required"
-            android:layout_marginHorizontal="20dp">
+            app:helperTextTextColor="@color/darkRed">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/signup_firstName"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:hint="First Name"
@@ -46,14 +57,16 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/signup_lastName_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:helperTextTextColor="@color/darkRed"
+            android:layout_marginHorizontal="20dp"
             android:layout_marginTop="20dp"
             app:helperText="Required"
-            android:layout_marginHorizontal="20dp">
+            app:helperTextTextColor="@color/darkRed">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/signup_lastName"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:hint="Last Name"
@@ -63,14 +76,16 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/signup_email_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:helperTextTextColor="@color/darkRed"
+            android:layout_marginHorizontal="20dp"
             android:layout_marginTop="20dp"
             app:helperText="Required"
-            android:layout_marginHorizontal="20dp">
+            app:helperTextTextColor="@color/darkRed">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/signup_email"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:hint="Email"
@@ -80,86 +95,100 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/signup_password_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:helperTextTextColor="@color/darkRed"
+            android:layout_marginHorizontal="20dp"
             android:layout_marginTop="30dp"
-            app:helperText="Required"
             app:counterEnabled="true"
             app:counterMaxLength="16"
-            app:passwordToggleEnabled="true"
-            android:layout_marginHorizontal="20dp">
+            app:helperText="Required"
+            app:helperTextTextColor="@color/darkRed"
+            app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/signup_password"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:hint="Password"
-                android:maxLength="16"
                 android:inputType="textPassword"
                 android:lines="1"
+                android:maxLength="16"
                 tools:ignore="HardcodedText,TouchTargetSizeCheck,VisualLintTextFieldSize" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/signup_confirm_password_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:helperTextTextColor="@color/darkRed"
+            android:layout_marginHorizontal="20dp"
             android:layout_marginTop="30dp"
-            app:passwordToggleEnabled="true"
-            app:helperText="Required"
             app:counterEnabled="true"
             app:counterMaxLength="16"
-            android:layout_marginHorizontal="20dp">
+            app:helperText="Required"
+            app:helperTextTextColor="@color/darkRed"
+            app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/signup_confirm_password"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:hint="Confirm Password"
                 android:inputType="textPassword"
-                android:maxLength="16"
                 android:lines="1"
+                android:maxLength="16"
                 tools:ignore="HardcodedText,TouchTargetSizeCheck,VisualLintTextFieldSize" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/signup_button"
             android:layout_width="250dp"
             android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/btn_create_account"
             android:text="Create Account"
-            android:layout_marginTop="40dp"
-            android:textSize="16sp"
-           android:layout_gravity="center"
             android:textColor="@color/black"
+            android:textSize="16sp"
             tools:ignore="HardcodedText" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="20dp"
-            android:orientation="horizontal"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="1dp"
+            android:orientation="horizontal"
+            android:padding="20dp"
+            tools:ignore="VisualLintBounds">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
-                android:text="Already have an account?"
-                android:layout_marginStart="40dp"
                 android:layout_gravity="center"
+                android:layout_marginStart="10dp"
+                android:text="Already have an account?"
                 android:textColor="@color/black"
                 android:textSize="20sp"
-                tools:ignore="HardcodedText" />
+                android:layout_marginTop="2dp"
+                tools:ignore="HardcodedText,TextSizeCheck,VisualLintBounds" />
 
             <TextView
+                android:id="@+id/btn_login"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
-                android:text="Login"
+                android:layout_gravity="center"
                 android:layout_marginStart="10dp"
-                android:textColor="@color/blue"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="Login"
+                android:layout_marginTop="2dp"
+                android:textAllCaps="true"
+                android:textColor="#283593"
                 android:textSize="20sp"
-                tools:ignore="HardcodedText" />
-
+                android:textStyle="bold"
+                tools:ignore="HardcodedText,TextSizeCheck,VisualLintBounds,TouchTargetSizeCheck" />
 
 
         </LinearLayout>
