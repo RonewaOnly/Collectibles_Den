@@ -3,10 +3,7 @@ package com.example.collectibles_den
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
 class StartActivity : AppCompatActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,10 +16,20 @@ class StartActivity : AppCompatActivity() {
 
     }
 
-    //function to switch activities
-    fun getStarted(view:View) {
+    //onclick function to navigate to register activity
+    fun getStarted(@Suppress("UNUSED_PARAMETER") view:View) {
 
+        //using intent class to switch activities
+        val intent = Intent(this@StartActivity, Register::class.java)
+        startActivity(intent)
+    }
+
+    //onclick function to navigate to login activity
+    fun userLogin(@Suppress("UNUSED_PARAMETER") view: View) {
+
+        //using intent class to switch activities
         val intent = Intent(this@StartActivity, Login::class.java)
         startActivity(intent)
+
     }
 }
