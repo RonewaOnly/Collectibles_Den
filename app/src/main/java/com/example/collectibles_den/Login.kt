@@ -11,6 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.collectibles_den.R.id.login_password
+import com.example.collectibles_den.logic.AuthorizationViewModel
 import com.example.collectibles_den.logic.DatabaseViewModel
 import com.example.collectibles_den.logic.DatabaseViewModelFactory
 import com.google.android.material.textfield.TextInputEditText
@@ -18,9 +19,9 @@ import com.google.android.material.textfield.TextInputEditText
 class Login : AppCompatActivity() {
 
     //declaring variables
-    //private lateinit var loginViewModel: AuthorizationViewModel
+    private lateinit var loginViewModel: AuthorizationViewModel
     private lateinit var databaseViewModel: DatabaseViewModel
-    //private lateinit var id: String
+    private lateinit var id: String
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +49,8 @@ class Login : AppCompatActivity() {
         // Initialize the ViewModels
         val factory = DatabaseViewModelFactory(this)
         databaseViewModel = ViewModelProvider(this, factory)[DatabaseViewModel::class.java]
-        //loginViewModel = ViewModelProvider(this, AuthorizationViewModel(this, databaseViewModel))[AuthorizationViewModel::class.java]
+        //loginViewModel = ViewModelProvider(AuthorizationViewModel(this, databaseViewModel))[AuthorizationViewModel::class.java]
+
 
         //set onclick function for login button
         loginBtn.setOnClickListener {
