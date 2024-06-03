@@ -1,4 +1,4 @@
-package com.example.collectibles_den.Pages
+package com.example.collectibles_den.pages
 
 import android.net.Uri
 import androidx.compose.foundation.Image
@@ -32,9 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.collectibles_den.Data.MakeCollection
-import com.example.collectibles_den.Logic.DatabaseViewModel
-import com.example.collectibles_den.Logic.DatabaseViewModelFactory
+import com.example.collectibles_den.data.MakeCollection
+import com.example.collectibles_den.logic.DatabaseViewModel
+import com.example.collectibles_den.logic.DatabaseViewModelFactory
 import com.example.collectibles_den.collectiblesDenApp
 import java.sql.Timestamp
 import java.util.Calendar

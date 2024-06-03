@@ -1,4 +1,4 @@
-package com.example.collectibles_den.CoreFunction_AddCollection
+package com.example.collectibles_den.coreFunction_AddCollection
 
 import android.content.Context
 import android.net.Uri
@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.collectibles_den.Logic.TakePhotosViewModel
+import com.example.collectibles_den.logic.TakePhotosViewModel
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date

@@ -1,4 +1,4 @@
-package com.example.collectibles_den.Pages
+package com.example.collectibles_den.pages
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -60,14 +60,14 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.collectibles_den.CoreFunction_AddCollection.FileReaderClass
-import com.example.collectibles_den.CoreFunction_AddCollection.ScannerClass
-import com.example.collectibles_den.CoreFunction_AddCollection.TakePhotosClass
-import com.example.collectibles_den.Data.MakeCollection
-import com.example.collectibles_den.Data.NoteData
-import com.example.collectibles_den.Logic.DatabaseViewModel
-import com.example.collectibles_den.Logic.DatabaseViewModelFactory
-import com.example.collectibles_den.Logic.TakePhotosViewModel
+import com.example.collectibles_den.coreFunction_AddCollection.FileReaderClass
+import com.example.collectibles_den.coreFunction_AddCollection.ScannerClass
+import com.example.collectibles_den.coreFunction_AddCollection.TakePhotosClass
+import com.example.collectibles_den.data.MakeCollection
+import com.example.collectibles_den.data.NoteData
+import com.example.collectibles_den.logic.DatabaseViewModel
+import com.example.collectibles_den.logic.DatabaseViewModelFactory
+import com.example.collectibles_den.logic.TakePhotosViewModel
 import com.example.collectibles_den.collectiblesDenApp
 
 @Preview

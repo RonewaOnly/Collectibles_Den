@@ -1,4 +1,4 @@
-package com.example.collectibles_den.Logic
+package com.example.collectibles_den.logic
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel

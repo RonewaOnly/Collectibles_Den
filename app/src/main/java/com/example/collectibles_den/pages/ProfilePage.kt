@@ -1,4 +1,4 @@
-package com.example.collectibles_den.Pages
+package com.example.collectibles_den.pages
 
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
@@ -45,10 +45,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.collectibles_den.Data.UserData
+import com.example.collectibles_den.data.UserData
 import com.example.collectibles_den.DefaultValuesClass
-import com.example.collectibles_den.Logic.DatabaseViewModel
-import com.example.collectibles_den.Logic.DatabaseViewModelFactory
+import com.example.collectibles_den.logic.DatabaseViewModel
+import com.example.collectibles_den.logic.DatabaseViewModelFactory
 import com.example.collectibles_den.collectiblesDenApp
 
 var getData = DefaultValuesClass()//This variable used to call the list with the data

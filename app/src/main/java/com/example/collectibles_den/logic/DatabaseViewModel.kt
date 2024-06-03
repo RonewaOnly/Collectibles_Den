@@ -1,4 +1,4 @@
-package com.example.collectibles_den.Logic
+package com.example.collectibles_den.logic
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -9,10 +9,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.collectibles_den.Data.MakeCollection
-import com.example.collectibles_den.Data.NoteData
-import com.example.collectibles_den.Data.Storyboard_Stories
-import com.example.collectibles_den.Data.UserData
+import com.example.collectibles_den.data.MakeCollection
+import com.example.collectibles_den.data.NoteData
+import com.example.collectibles_den.data.Storyboard_Stories
+import com.example.collectibles_den.data.UserData
 import com.example.collectibles_den.collectiblesDenApp
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError

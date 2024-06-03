@@ -1,4 +1,4 @@
-package com.example.collectibles_den.Data
+package com.example.collectibles_den.data
 
 import com.google.firebase.database.ServerValue
 import java.sql.Timestamp

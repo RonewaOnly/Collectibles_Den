@@ -1,4 +1,4 @@
-package com.example.collectibles_den.Data
+package com.example.collectibles_den.data
 
 data class NoteData(
     val noteId: String = "",

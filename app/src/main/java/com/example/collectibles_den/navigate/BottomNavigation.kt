@@ -1,4 +1,4 @@
-package com.example.collectibles_den.Navigate
+package com.example.collectibles_den.navigate
 
 import android.widget.Toast
 import androidx.compose.material.icons.Icons

@@ -1,4 +1,4 @@
-package com.example.collectibles_den.Pages
+package com.example.collectibles_den.pages
 
 import android.net.Uri
 import android.widget.Toast
@@ -56,10 +56,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.collectibles_den.Data.MakeCollection
-import com.example.collectibles_den.Data.Storyboard_Stories
-import com.example.collectibles_den.Logic.DatabaseViewModel
-import com.example.collectibles_den.Logic.DatabaseViewModelFactory
+import com.example.collectibles_den.data.MakeCollection
+import com.example.collectibles_den.data.Storyboard_Stories
+import com.example.collectibles_den.logic.DatabaseViewModel
+import com.example.collectibles_den.logic.DatabaseViewModelFactory
 import com.example.collectibles_den.R
 import com.example.collectibles_den.collectiblesDenApp
 
