@@ -6,16 +6,18 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.collectibles_den.databinding.ActivityRegisterBinding
+import com.example.collectibles_den.logic.AuthorizationViewModel
 import com.google.android.material.textfield.TextInputEditText
 import android.util.Patterns as Patterns
 
 class Register : AppCompatActivity() {
 
     //register model
-    //private val registerViewModel: AuthorizationViewModel by viewModels()
+    private val registerViewModel: AuthorizationViewModel by viewModels()
 
     //binding
     private lateinit var binding:ActivityRegisterBinding
@@ -104,7 +106,7 @@ class Register : AppCompatActivity() {
 
 
                 Toast.makeText(this, "hey $firstnameInput $lastnameInput", Toast.LENGTH_SHORT).show()
-                //registerViewModel.registration(firstnameInput,lastnameInput,emailInput,passwordInput,confirmPasswordInput)
+                registerViewModel.registration(firstnameInput,lastnameInput,emailInput,passwordInput,confirmPasswordInput)
             }
         }
 
@@ -117,8 +119,8 @@ class Register : AppCompatActivity() {
 
         }
 
-        // Observe the Registration result
-//        registerViewModel.registerResult.observe(viewLifecycleOwner){ isSuccess ->
+//        // Observe the Registration result
+//        registerViewModel.registerResult.observe(this){ isSuccess ->
 //
 //            if(isSuccess) {
 //
@@ -127,7 +129,7 @@ class Register : AppCompatActivity() {
 //
 //                    setTitle("Registration Success")
 //                    setMessage("Welcome!!!, $firstnameInput $lastnameInput To Collectables Den, login with your registered account and\nStart creating memories")
-//                    setPositiveButton("OK"){_,_, ->
+//                    setPositiveButton("OK") { _, _ ->
 //
 //                        //navigate to login class
 //                        val intent = Intent(this@Register, Login::class.java)
