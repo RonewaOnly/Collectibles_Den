@@ -3,13 +3,14 @@ package com.example.collectibles_den
 import android.app.Application
 import android.content.Context
 
-class collectiblesDenApp: Application() {
+class CollectiblesDenApp: Application() {
     companion object {
-        private lateinit var instance: collectiblesDenApp
+        private lateinit var instance: CollectiblesDenApp
         private const val PREF_NAME = "user_prefs"
         private const val USER_ID_KEY = "user_id"
 
-        fun getInstance(): collectiblesDenApp {
+        @Suppress("unused")
+        fun getInstance(): CollectiblesDenApp {
             return instance
         }
 
