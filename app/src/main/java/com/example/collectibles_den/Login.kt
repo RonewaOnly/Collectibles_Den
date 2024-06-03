@@ -12,8 +12,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.collectibles_den.R.id.login_password
 import com.example.collectibles_den.logic.AuthorizationViewModel
+import com.example.collectibles_den.logic.AuthorizationViewModelFactory
 import com.example.collectibles_den.logic.DatabaseViewModel
 import com.example.collectibles_den.logic.DatabaseViewModelFactory
+import com.example.collectibles_den.pages.MainActivity
 import com.google.android.material.textfield.TextInputEditText
 
 class Login : AppCompatActivity() {
@@ -33,7 +35,7 @@ class Login : AppCompatActivity() {
         supportActionBar?.hide()
 
         //user id
-       // val userID = CollectiblesDenApp.getUserID()
+        val userID = CollectiblesDenApp.getUserID()
 
         //declaring input fields
         val email = findViewById<TextInputEditText>(R.id.login_email)
@@ -46,11 +48,13 @@ class Login : AppCompatActivity() {
         Log.d("Login", "Email TextInputEditText: $email")
         Log.d("Login","Password TextInputEditText: $password")
 
-        // Initialize the ViewModels
-        val factory = DatabaseViewModelFactory(this)
-        databaseViewModel = ViewModelProvider(this, factory)[DatabaseViewModel::class.java]
-        //loginViewModel = ViewModelProvider(AuthorizationViewModel(this, databaseViewModel))[AuthorizationViewModel::class.java]
+        // Initialize the DatabaseViewModel
+        val databaseFactory = DatabaseViewModelFactory(this)
+        databaseViewModel = ViewModelProvider(this, databaseFactory)[DatabaseViewModel::class.java]
 
+        // Initialize the AuthorizationViewModel with factory
+        val authFactory = AuthorizationViewModelFactory(this, databaseViewModel)
+        loginViewModel = ViewModelProvider(this, authFactory)[AuthorizationViewModel::class.java]
 
         //set onclick function for login button
         loginBtn.setOnClickListener {
@@ -74,14 +78,10 @@ class Login : AppCompatActivity() {
                     show()
 
                 }
-            }
-            else{
-
+            } else {
                 //model to login
-                //loginViewModel.login(emailInput, passwordInput)
+                loginViewModel.login(emailInput, passwordInput)
             }
-
-
         }
 
         //set onclick function for register button
@@ -100,60 +100,48 @@ class Login : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // Uncomment and adjust the following section if needed to observe the login result
 
-//        // Observe the login result
-//        loginViewModel.loginResult.observe(viewLifecycleOwner) { isSuccess ->
-//            if (isSuccess) {
-//                // Redirect to MainActivity upon successful login
-//                val intent = Intent(this@Login, MainActivity::class.java)
-//                startActivity(intent)
-//
-//                // Observe userID directly
-//                loginViewModel.databaseViewModel.userID.observe(viewLifecycleOwner) { userID ->
-//                    if (userID != null) {
-//                        id = userID
-//                    }
-//
-//                    //alert dialog to notify user
-//                AlertDialog.Builder(this).apply {
-//
-//                    setTitle("Success")
-//                    setMessage("Hi welcome to Collectable Den\n" +
-//                            "Logged in successfully: ID's: $userID\n" +
-//                            "I took : $userID")
-//                    setPositiveButton("OK"){_, _, ->
-//
-//                        //intent to switch activities
-//                        val intent = Intent(this@Login,MainActivity::class.java)
-//                        startActivity(intent)
-//                    }
-//
-//                    //creates and show the dialog box
-//                    create()
-//                    show()
-//
-//                }
-//
-//                }
-//            } else {
-//
-//                //alert dialog to notify user
-//                AlertDialog.Builder(this).apply {
-//
-//                    setTitle("Login Failed")
-//                    setMessage("Email or Password is incorrect")
-//                    setPositiveButton("OK", null)
-//
-//                    //creates and show the dialog box
-//                    create()
-//                    show()
-//
-//                }
-//            }
-//        }
+        // // Observe the login result
+         loginViewModel.loginResult.observe(this) { isSuccess ->
+             if (isSuccess) {
+                 // Redirect to MainActivity upon successful login
+                 val intent = Intent(this@Login, MainActivity::class.java)
+                 startActivity(intent)
 
+                 // Observe userID directly
+                 loginViewModel.databaseViewModel.userID.observe(this) { userID ->
+                     if (userID != null) {
+                         id = userID
+                     }
 
+                     //alert dialog to notify user
+                     AlertDialog.Builder(this).apply {
+                         setTitle("Success")
+                         setMessage("Hi welcome to Collectable Den\n" +
+                                 "Logged in successfully: ID's: $userID\n" +
+                                 "I took : $userID")
+                         setPositiveButton("OK") { _, _ ->
+                             //intent to switch activities
+                             val intent = Intent(this@Login, MainActivity::class.java)
+                             startActivity(intent)
+                         }
+                         //creates and show the dialog box
+                         create()
+                         show()
+                     }
+                 }
+             } else {
+                 //alert dialog to notify user
+                 AlertDialog.Builder(this).apply {
+                     setTitle("Login Failed")
+                     setMessage("Email or Password is incorrect")
+                     setPositiveButton("OK", null)
+                     //creates and show the dialog box
+                     create()
+                     show()
+                 }
+             }
+         }
     }
-
 }
-

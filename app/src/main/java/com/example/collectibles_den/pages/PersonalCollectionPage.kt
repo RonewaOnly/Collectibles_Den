@@ -30,10 +30,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.example.collectibles_den.CollectiblesDenApp
 import com.example.collectibles_den.data.MakeCollection
 import com.example.collectibles_den.logic.DatabaseViewModel
 import com.example.collectibles_den.logic.DatabaseViewModelFactory
-import com.example.collectibles_den.CollectiblesDenApp
 
 @Preview
 @Composable
@@ -57,7 +57,6 @@ fun PersonalCollection(viewModel: DatabaseViewModel = viewModel(factory = Databa
 
 
 @Composable
-
 fun ShowCollectionByCategories(collection: List<MakeCollection>) {
         LazyColumn(
                 modifier = Modifier
@@ -82,7 +81,7 @@ fun ShowCollectionByCategories(collection: List<MakeCollection>) {
                                         modifier = Modifier
                                                 .width(200.dp)
                                                 .height(200.dp),
-                                        contentScale = ContentScale.FillWidth,
+                                        contentScale = ContentScale.FillBounds,
                                         contentDescription = null
                                 )
                                 Text(
@@ -98,5 +97,9 @@ fun ShowCollectionByCategories(collection: List<MakeCollection>) {
         }
 }
 
+@Composable
+fun CollectSameCategories(collection: List<MakeCollection>){
+
+}
 
 

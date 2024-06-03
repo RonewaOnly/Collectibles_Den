@@ -16,3 +16,4 @@ class AuthorizationViewModelFactory(
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+
