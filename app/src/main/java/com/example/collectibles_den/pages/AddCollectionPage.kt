@@ -68,12 +68,12 @@ import com.example.collectibles_den.data.NoteData
 import com.example.collectibles_den.logic.DatabaseViewModel
 import com.example.collectibles_den.logic.DatabaseViewModelFactory
 import com.example.collectibles_den.logic.TakePhotosViewModel
-import com.example.collectibles_den.collectiblesDenApp
+import com.example.collectibles_den.CollectiblesDenApp
 
 @Preview
 @Composable
 fun AddCollections(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewModelFactory(context = LocalContext.current))) {
-        val userID = collectiblesDenApp.getUserID()
+        val userID = CollectiblesDenApp.getUserID()
         val collectionsState = remember { mutableStateOf<List<MakeCollection>>(emptyList()) }
 
         Column(

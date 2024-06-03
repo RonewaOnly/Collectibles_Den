@@ -32,7 +32,7 @@ class Login : AppCompatActivity() {
         supportActionBar?.hide()
 
         //user id
-       // val userID = collectiblesDenApp.getUserID()
+       // val userID = CollectiblesDenApp.getUserID()
 
         //declaring input fields
         val email = findViewById<TextInputEditText>(R.id.login_email)

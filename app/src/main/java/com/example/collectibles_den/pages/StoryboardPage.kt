@@ -61,11 +61,11 @@ import com.example.collectibles_den.data.Storyboard_Stories
 import com.example.collectibles_den.logic.DatabaseViewModel
 import com.example.collectibles_den.logic.DatabaseViewModelFactory
 import com.example.collectibles_den.R
-import com.example.collectibles_den.collectiblesDenApp
+import com.example.collectibles_den.CollectiblesDenApp
 
 @Composable
 fun Storyboard(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewModelFactory(context = LocalContext.current))) {
-    val userID = collectiblesDenApp.getUserID()
+    val userID = CollectiblesDenApp.getUserID()
     val collectionsState = remember { mutableStateOf<List<Storyboard_Stories.StoryboardLine>>(emptyList()) }
     // Load data from Firebase
     LaunchedEffect(Unit) {

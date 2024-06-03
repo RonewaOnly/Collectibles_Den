@@ -13,7 +13,7 @@ import com.example.collectibles_den.data.MakeCollection
 import com.example.collectibles_den.data.NoteData
 import com.example.collectibles_den.data.Storyboard_Stories
 import com.example.collectibles_den.data.UserData
-import com.example.collectibles_den.collectiblesDenApp
+import com.example.collectibles_den.CollectiblesDenApp
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -77,7 +77,7 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
     private fun saveUserID(id: String) {
         viewModelScope.launch {
             sharedPreferences.edit().putString("user_id", id).apply()
-            collectiblesDenApp.setUserID(id)
+            CollectiblesDenApp.setUserID(id)
         }
     }
 

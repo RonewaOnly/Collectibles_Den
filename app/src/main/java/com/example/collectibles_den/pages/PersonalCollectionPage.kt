@@ -33,14 +33,14 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.collectibles_den.data.MakeCollection
 import com.example.collectibles_den.logic.DatabaseViewModel
 import com.example.collectibles_den.logic.DatabaseViewModelFactory
-import com.example.collectibles_den.collectiblesDenApp
+import com.example.collectibles_den.CollectiblesDenApp
 
 @Preview
 @Composable
 fun PersonalCollection(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewModelFactory(context = LocalContext.current))){
         //Text(text = "Personal Collection")
         val context = LocalContext.current
-        val userID = collectiblesDenApp.getUserID()
+        val userID = CollectiblesDenApp.getUserID()
         val collectionsState = remember { mutableStateOf<List<MakeCollection>>(emptyList()) }
         val coroutineScope = rememberCoroutineScope()
 

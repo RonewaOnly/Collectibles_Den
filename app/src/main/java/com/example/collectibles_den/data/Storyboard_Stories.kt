@@ -1,9 +1,9 @@
 package com.example.collectibles_den.data
 
-import com.example.collectibles_den.collectiblesDenApp
+import com.example.collectibles_den.CollectiblesDenApp
 
 class Storyboard_Stories {
-    //private val userID = collectiblesDenApp.getUserID()
+    //private val userID = CollectiblesDenApp.getUserID()
 
     data class StoryboardLine(
         val storyID: String ="",
@@ -15,9 +15,9 @@ class Storyboard_Stories {
         val showGoalDialog: Boolean,
         val goalSet: Int = 0,
         val currentProgress: Int = if(storyItems.isNotEmpty()) storyItems.count() else 0,
-        val user: String? = collectiblesDenApp.getUserID(),
+        val user: String? = CollectiblesDenApp.getUserID(),
 
-    ) {
+        ) {
         fun getProgress(): Float {
             return if (goalSet > 0) currentProgress / goalSet.toFloat() else 0f
         }
