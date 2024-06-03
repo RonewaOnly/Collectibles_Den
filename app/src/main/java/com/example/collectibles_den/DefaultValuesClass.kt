@@ -1,8 +1,8 @@
 package com.example.collectibles_den
 
-import com.example.collectibles_den.Data.UserData
-import com.example.collectibles_den.Data.collectionStorage
-import com.example.collectibles_den.Pages.getBeginningOfPastMonth
+import com.example.collectibles_den.data.UserData
+import com.example.collectibles_den.data.collectionStorage
+import com.example.collectibles_den.pages.getBeginningOfPastMonth
 import java.sql.Timestamp
 
 class DefaultValuesClass {

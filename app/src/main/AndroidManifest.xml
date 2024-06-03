@@ -46,7 +46,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Pages.MainActivity"
+            android:name=".pages.MainActivity"
             android:exported="false"
             android:theme="@style/Theme.AppCompat.Light" />
 
