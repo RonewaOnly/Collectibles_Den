@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.collectibles_den.CollectiblesDenApp
@@ -82,7 +83,7 @@ fun ShowCollectionByCategories(collection: List<MakeCollection>) {
                         Column(
                                 modifier = Modifier
                                         .width(450.dp)
-                                        .border(1.dp, Color.Black),
+                                        .border(1.dp, Color.Blue),
                                 verticalArrangement = Arrangement.Center,
                                 horizontalAlignment = Alignment.CenterHorizontally
                         ) {
@@ -139,10 +140,11 @@ fun CollectSameCategories(collection: List<MakeCollection>) {
                                                                 expandedCategories + category
                                                         }
                                                 }
-                                                .border(1.dp, Color.Gray)
+                                                .border(1.dp, Color.Blue)
                                 ) {
                                         Text(
-                                                text = category,
+                                                "Category: " + category.uppercase(),
+                                                fontSize = 15.sp,
                                                 style = MaterialTheme.typography.labelSmall,
                                                 modifier = Modifier
                                                         .fillMaxWidth()
@@ -157,10 +159,10 @@ fun CollectSameCategories(collection: List<MakeCollection>) {
                                                                         .padding(8.dp)
                                                                         .border(
                                                                                 1.dp,
-                                                                                Color.LightGray
+                                                                                Color.Blue
                                                                         )
                                                         ) {
-                                                                Text(text = item.makeCollectionName, style = MaterialTheme.typography.bodySmall)
+                                                                Text(text = item.makeCollectionName.uppercase(), style = MaterialTheme.typography.bodySmall)
                                                                 Text(
                                                                         text = item.makeCollectionDescription.ifEmpty { "No description" },
                                                                         style = MaterialTheme.typography.bodyMedium
@@ -186,7 +188,7 @@ fun CollectSameCategories(collection: List<MakeCollection>) {
                                                         modifier = Modifier
                                                                 .fillMaxWidth()
                                                                 .padding(8.dp)
-                                                                .border(1.dp, Color.LightGray)
+                                                                .border(1.dp, Color.Blue)
                                                 ) {
                                                         Text(text = item.makeCollectionName, style = MaterialTheme.typography.bodySmall)
                                                         Text(
