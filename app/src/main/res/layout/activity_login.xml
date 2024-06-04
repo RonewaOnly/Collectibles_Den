@@ -76,7 +76,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="30dp"
             android:background="@drawable/btn_create_account"
-            android:text="Create Account"
+            android:text="Login"
             android:textColor="@color/black"
             android:textSize="16sp"
             tools:ignore="HardcodedText" />
