@@ -6,7 +6,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -98,7 +97,7 @@ fun MainSection(recentCollection: List<MakeCollection>) {
 
    if (currentMonthItems.isNotEmpty()) {
       LazyColumn(
-         modifier = Modifier.fillMaxHeight()
+         modifier = Modifier.height(3000.dp)
       ) {
          items(currentMonthItems) { collect ->
             CollectionItem(collect)
@@ -125,7 +124,7 @@ fun PastSection(lateCollection: List<MakeCollection>) {
 
    if (pastMonthItems.isNotEmpty()) {
       LazyColumn(
-         modifier = Modifier.fillMaxHeight()
+         modifier = Modifier.height(3000.dp)
       ) {
          items(pastMonthItems) { collect ->
             CollectionItem(collect)

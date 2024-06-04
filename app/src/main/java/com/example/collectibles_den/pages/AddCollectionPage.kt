@@ -60,6 +60,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.example.collectibles_den.CollectiblesDenApp
 import com.example.collectibles_den.coreFunction_AddCollection.FileReaderClass
 import com.example.collectibles_den.coreFunction_AddCollection.ScannerClass
 import com.example.collectibles_den.coreFunction_AddCollection.TakePhotosClass
@@ -68,7 +69,6 @@ import com.example.collectibles_den.data.NoteData
 import com.example.collectibles_den.logic.DatabaseViewModel
 import com.example.collectibles_den.logic.DatabaseViewModelFactory
 import com.example.collectibles_den.logic.TakePhotosViewModel
-import com.example.collectibles_den.CollectiblesDenApp
 
 @Preview
 @Composable
@@ -118,6 +118,7 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
         val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
                 imageUri = uri
         }
+
         // Setup camera and permission launchers
         val (cameraLauncher, permissionLauncher) = takePhotosClass.setupCameraLauncher(
                 viewModel = PhotoViewModel,
@@ -177,19 +178,25 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
                         Spacer(modifier = Modifier.padding(5.dp))
                         IconButton(
                                 onClick = {
+                                        // Check camera permissions
                                         val permissionCheckResult = ContextCompat.checkSelfPermission(
                                                 context,
                                                 Manifest.permission.CAMERA
                                         )
                                         if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                                                // Launch camera
                                                 val uri = takePhotosClass.createImageUri(context)
                                                 if (uri != null) {
-                                                        PhotoViewModel.setImageUri(uri)
                                                         cameraLauncher.launch(uri)
+                                                } else {
+                                                        // Handle error
+                                                        Toast.makeText(context, "Failed to create image file", Toast.LENGTH_SHORT).show()
                                                 }
                                         } else {
+                                                // Request camera permissions
                                                 permissionLauncher.launch(Manifest.permission.CAMERA)
                                         }
+                                
                                 },
                                 modifier = Modifier
                                         .width(200.dp)
