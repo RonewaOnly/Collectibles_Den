@@ -9,11 +9,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.collectibles_den.CollectiblesDenApp
 import com.example.collectibles_den.data.MakeCollection
 import com.example.collectibles_den.data.NoteData
 import com.example.collectibles_den.data.Storyboard_Stories
 import com.example.collectibles_den.data.UserData
-import com.example.collectibles_den.CollectiblesDenApp
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -212,23 +212,26 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
     fun setStoryboard(
         storyboardLine: Storyboard_Stories.StoryboardLine,
         onSave: (Storyboard_Stories.StoryboardLine) -> Unit
-    ){
+    ) {
         val storyKey = database.child("Storyboard").push().key
+        if (storyKey == null) {
+            Log.e("StoryboardActivity", "Failed to generate a story key")
+            return
+        }
 
-        val storyboard = storyKey?.let {
-            storyboardLine.copy(storyID = it)
-        }
-        storyKey?.let {
-            database.child("Storyboard").child(it).setValue(storyboard)
-                .addOnSuccessListener {
-                    Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
-                    storyboard?.let(onSave)
-                    Log.e("StoryboardActivity", "We saved")
-                }.addOnFailureListener { error ->
-                    Log.e("StoryboardActivity", "StoryboardActivity Failed: $error")
-                }
-        }
+        val storyboard = storyboardLine.copy(storyID = storyKey)
+        Log.d("StoryboardActivity", "Generated Storyboard: $storyboard")
+
+        database.child("Storyboard").child(storyKey).setValue(storyboard)
+            .addOnSuccessListener {
+                Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
+                storyboard.let(onSave)
+                Log.e("StoryboardActivity", "Storyboard saved successfully")
+            }.addOnFailureListener { error ->
+                Log.e("StoryboardActivity", "Storyboard saving failed: $error")
+            }
     }
+
 
     fun getStoryboard(userID: String, onResult: (List<Storyboard_Stories.StoryboardLine>) -> Unit ){
         val databaseRef = FirebaseDatabase.getInstance().getReference("Storyboard")
@@ -263,9 +266,9 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
             }
         })
     }
-    fun updateStoryboard(userId: String, updatedStoryboardLine: Storyboard_Stories.StoryboardLine, onSuccess: () -> Unit, onError: (String) -> Unit) {
-        val storyboardId = updatedStoryboardLine.storyID // Assuming storyboard ID is used as the key
-        val storyboardRef = database.child("storyboards").child(userId).child(storyboardId)
+    fun updateStoryboard(storyboardId: String, updatedStoryboardLine: Storyboard_Stories.StoryboardLine, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        //val storyboardId = updatedStoryboardLine.storyID // Assuming storyboard ID is used as the key
+        val storyboardRef = database.child("Storyboard").child(storyboardId)
 
         storyboardRef.setValue(updatedStoryboardLine)
             .addOnSuccessListener {
@@ -276,8 +279,8 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
             }
     }
 
-    fun deleteStoryboard(userId: String, storyboardId: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
-        val storyboardRef = database.child("storyboards").child(userId).child(storyboardId)
+    fun deleteStoryboard( storyboardId: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        val storyboardRef = database.child("Storyboard").child(storyboardId)
 
         storyboardRef.removeValue()
             .addOnSuccessListener {
@@ -285,6 +288,18 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
             }
             .addOnFailureListener { e ->
                 onError(e.message ?: "Unknown error occurred")
+            }
+    }
+
+    fun updateGoalSet(storyID: String, newGoalSet: Int) {
+        database.child(storyID).child("goalSet").setValue(newGoalSet)
+            .addOnSuccessListener {
+                // Handle success if needed
+
+            }
+            .addOnFailureListener { e ->
+                // Handle failure if needed
+                throw Exception("Error updating goalSet in database: ${e.message}")
             }
     }
 }
