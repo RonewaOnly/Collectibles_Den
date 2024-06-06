@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -67,11 +68,13 @@ fun Homepage(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewMode
       Text(
          text = "Recent Additions",
          textAlign = TextAlign.Center,
-         fontSize = 40.sp,
+         fontSize = 30.sp,
          modifier = Modifier
             .fillMaxWidth()
             .height(50.dp)
             .background(Color.LightGray)
+            .padding(5.dp)
+
       )
       MainSection(collectionsState)
 
@@ -147,7 +150,7 @@ fun CollectionItem(collect: MakeCollection) {
       modifier = Modifier
          .fillMaxWidth()
          .padding(8.dp)
-         .border(1.dp, Color.Black),
+         .border(1.dp, Color.Blue),
       verticalAlignment = Alignment.CenterVertically
    ) {
       Image(
@@ -155,12 +158,13 @@ fun CollectionItem(collect: MakeCollection) {
          contentDescription = null,
          modifier = Modifier
             .size(100.dp)
+            .border(1.dp, color = Color.Blue, shape = RectangleShape)
             .padding(8.dp),
          contentScale = ContentScale.Crop
       )
       Spacer(modifier = Modifier.width(8.dp))
       Column {
-         Text(text = collect.makeCollectionName)
+         Text(text = collect.makeCollectionName.uppercase())
          Text(text = collect.makeCollectionDescription.ifEmpty { "No description" })
          Text(text = "${collect.makeCollectionDate}")
       }

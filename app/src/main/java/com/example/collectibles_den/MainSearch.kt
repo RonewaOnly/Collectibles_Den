@@ -1,6 +1,7 @@
 package com.example.collectibles_den
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -44,7 +45,7 @@ fun MainSearch(){
     ) {
         //Logo
         Column(
-            modifier = Modifier.width(130.dp).border(1.dp,Color.Transparent).height(60.dp)
+            modifier = Modifier.width(130.dp).border(1.dp,Color.Blue).height(60.dp)
         ) {
             Image(
                 painter = painterResource(R.drawable.logo_removebg),
@@ -57,13 +58,13 @@ fun MainSearch(){
         Row(
             modifier = Modifier
                 .width(350.dp)
-                .border(1.dp, Color.Black, RectangleShape),
+                .border(1.dp, Color.Blue, RectangleShape),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
         ) {
             IconButton(
                 onClick = { /*TODO*/ },
-                modifier = Modifier.border(1.dp, Color.Black, RectangleShape).height(60.dp)
+                modifier = Modifier.border(1.dp, Color.Blue, RectangleShape).height(60.dp)
             ) {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = null)
             }
@@ -71,7 +72,9 @@ fun MainSearch(){
                 value = searchValue,
                 onValueChange = { searchValue = it },
                 placeholder = { Text(text = "Search Collection") },
-                modifier = Modifier.fillMaxWidth().height(60.dp)
+                modifier = Modifier.fillMaxWidth().height(60.dp).border(
+                    1.dp, Color.Blue, RectangleShape
+                )
             )
         }
     }
