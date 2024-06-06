@@ -12,7 +12,7 @@ class Storyboard_Stories {
         val storyCategory: String,
         val storyDescription: String ="",
         val storyCovers: List<String> = emptyList(),
-        val showGoalDialog: Boolean,
+        val showGoalDialog: Boolean = false,
         val goalSet: Int = 0,
         val currentProgress: Int = if(storyItems.isNotEmpty()) storyItems.count() else 0,
         val user: String? = CollectiblesDenApp.getUserID(),

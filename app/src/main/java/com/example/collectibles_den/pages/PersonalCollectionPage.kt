@@ -122,6 +122,7 @@ fun ShowCollectionByCategories(collection: List<MakeCollection>) {
 fun CollectSameCategories(collection: List<MakeCollection>) {
         var expandedCategories by remember { mutableStateOf<Set<String>>(emptySet()) }
         val categoryGroups = collection.groupBy { it.makeCollectionCategory }
+        val image = "https://media.istockphoto.com/id/1550540247/photo/decision-thinking-and-asian-man-in-studio-with-glasses-questions-and-brainstorming-on-grey.jpg?s=1024x1024&w=is&k=20&c=M4QZ9PB4fVixyNIrWTgJjIQNPgr2TxX1wlYbyRK40dE="
 
         LazyColumn(modifier = Modifier.height(20000.dp)) {
                 categoryGroups.forEach { (category, items) ->
@@ -160,15 +161,9 @@ fun CollectSameCategories(collection: List<MakeCollection>) {
                                                                                 Color.LightGray
                                                                         )
                                                         ) {
-                                                                Text(text = item.makeCollectionName, style = MaterialTheme.typography.bodySmall)
-                                                                Text(
-                                                                        text = item.makeCollectionDescription.ifEmpty { "No description" },
-                                                                        style = MaterialTheme.typography.bodyMedium
-                                                                )
                                                                 if (item.makeCollectionImages.isNotEmpty()) {
                                                                         Image(
-                                                                                painter = rememberAsyncImagePainter(
-                                                                                        Uri.parse(item.makeCollectionImages[0])),
+                                                                                painter = rememberAsyncImagePainter(image),
                                                                                 contentDescription = null,
                                                                                 modifier = Modifier
                                                                                         .fillMaxWidth()
@@ -176,33 +171,37 @@ fun CollectSameCategories(collection: List<MakeCollection>) {
                                                                                 contentScale = ContentScale.Crop
                                                                         )
                                                                 }
+                                                                Text(text = item.makeCollectionName, style = MaterialTheme.typography.bodySmall)
+                                                                Text(
+                                                                        text ="Description ${item.makeCollectionDescription.ifEmpty { "No description" }}",
+                                                                        style = MaterialTheme.typography.bodyMedium
+                                                                )
                                                                 Spacer(modifier = Modifier.height(8.dp))
                                                         }
                                                 }
                                         } else {
                                                 val item = items.first()
-                                                var image = remember{ mutableStateOf("") }
                                                 Column(
                                                         modifier = Modifier
                                                                 .fillMaxWidth()
                                                                 .padding(8.dp)
                                                                 .border(1.dp, Color.LightGray)
                                                 ) {
+                                                        Image(
+                                                                painter = rememberAsyncImagePainter(
+                                                                        Uri.parse(image)),
+                                                                contentDescription = null,
+                                                                modifier = Modifier
+                                                                        .fillMaxWidth()
+                                                                        .height(200.dp),
+                                                                contentScale = ContentScale.Crop
+                                                        )
                                                         Text(text = item.makeCollectionName, style = MaterialTheme.typography.bodySmall)
                                                         Text(
                                                                 text ="Description ${item.makeCollectionDescription.ifEmpty { "No description" }}",
                                                                 style = MaterialTheme.typography.bodyMedium
                                                         )
-                                                        if (item.makeCollectionCameraImages.isNotEmpty()) {
-                                                                Image(
-                                                                        painter = rememberAsyncImagePainter(Uri.parse(item.makeCollectionCameraImages[0])),
-                                                                        contentDescription = null,
-                                                                        modifier = Modifier
-                                                                                .fillMaxWidth()
-                                                                                .height(200.dp),
-                                                                        contentScale = ContentScale.Crop
-                                                                )
-                                                        }
+
                                                 }
                                         }
                                 }

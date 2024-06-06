@@ -1,10 +1,10 @@
 package com.example.collectibles_den.pages
 
+import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,36 +56,41 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
+import com.example.collectibles_den.CollectiblesDenApp
+import com.example.collectibles_den.R
 import com.example.collectibles_den.data.MakeCollection
 import com.example.collectibles_den.data.Storyboard_Stories
 import com.example.collectibles_den.logic.DatabaseViewModel
 import com.example.collectibles_den.logic.DatabaseViewModelFactory
-import com.example.collectibles_den.R
-import com.example.collectibles_den.CollectiblesDenApp
 
 @Composable
 fun Storyboard(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewModelFactory(context = LocalContext.current))) {
     val userID = CollectiblesDenApp.getUserID()
     val collectionsState = remember { mutableStateOf<List<Storyboard_Stories.StoryboardLine>>(emptyList()) }
+    val getCollectionsState = remember { mutableStateOf<List<MakeCollection>>(emptyList()) }
+
     // Load data from Firebase
     LaunchedEffect(Unit) {
-        userID?.let {id ->
-            viewModel.getStoryboard(id){storyboardLines ->
+        userID?.let { id ->
+            viewModel.getStoryboard(id) { storyboardLines ->
                 collectionsState.value = storyboardLines
-
             }
-
+            viewModel.getCollections(id){
+                getCollectionsState.value = it
+            }
         }
     }
+
     Column {
-        MaxSection(collectionsState.value, viewModel, userID)
+        MaxSection(collectionsState.value, getCollectionsState.value ,viewModel, userID)
     }
 }
 
 @Composable
 fun MaxSection(
     stories: List<Storyboard_Stories.StoryboardLine>,
+    collections: List<MakeCollection>,
     viewModel: DatabaseViewModel,
     userID: String?
 ) {
@@ -105,19 +111,32 @@ fun MaxSection(
         }
         if (isPopVisible) {
             CustomPopup(
+                collections,
                 onClose = { isPopVisible = false },
-                userID,
+                userID = userID,
                 onSave = { storyboard ->
-                    try {
+                    // Check if the storyboard already exists
+                    val existingStoryboard = selectedCollection.firstOrNull { it.storyName == storyboard.storyName }
+                    if (existingStoryboard != null) {
+                        // Update the existing storyboard
+                        viewModel.updateStoryboard(existingStoryboard.storyID, storyboard,
+                            onSuccess = {
+                                selectedCollection[selectedCollection.indexOf(existingStoryboard)] = storyboard
+                                Toast.makeText(context, "Updated", Toast.LENGTH_LONG).show()
+                            },
+                            onError = { errorMessage ->
+                                Toast.makeText(context, "Error updating item: $errorMessage", Toast.LENGTH_LONG).show()
+                            }
+                        )
+                    } else {
+                        // Save the new storyboard
                         viewModel.setStoryboard(
                             storyboardLine = storyboard,
                             onSave = { newStoryboard ->
                                 selectedCollection.add(newStoryboard)
+                                Toast.makeText(context, "Saved", Toast.LENGTH_LONG).show()
                             }
                         )
-                        Toast.makeText(context, "Saved", Toast.LENGTH_LONG).show()
-                    } catch (e: Exception) {
-                        Toast.makeText(context, "Error saving storyboard: ${e.message}", Toast.LENGTH_LONG).show()
                     }
                 }
             )
@@ -127,8 +146,8 @@ fun MaxSection(
     HorizontalDivider(modifier = Modifier.padding(10.dp))
 
     LazyColumn {
-        items(if (selectedCollection.isNotEmpty()) selectedCollection else stories) { item ->
-            StoryboardItem(item, selectedCollection, toggleStates,viewModel, userID)
+        items(selectedCollection.ifEmpty { stories }) { item ->
+            StoryboardItem(item, selectedCollection, toggleStates, viewModel, userID)
         }
 
         if (stories.isEmpty() && selectedCollection.isEmpty()) {
@@ -145,10 +164,9 @@ fun MaxSection(
     }
 }
 
-
-
 @Composable
 fun CustomPopup(
+    collections: List<MakeCollection>,
     onClose: () -> Unit,
     userID: String?,
     onSave: (Storyboard_Stories.StoryboardLine) -> Unit
@@ -191,6 +209,24 @@ fun CustomPopup(
                     onValueChange = { storyCategory = it },
                     label = { Text("Enter category name: ") }
                 )
+                val relevantCollections = collections.filter { it.makeCollectionCategory == storyCategory }
+                relevantCollections.forEach { collection ->
+                    Row {
+                        Checkbox(
+                            checked = selectedItems.any { it?.makeCollectionID == collection.makeCollectionID },
+                            onCheckedChange = { checked ->
+                                val newSelectedItems = if (checked) {
+                                    selectedItems + collection
+                                } else {
+                                    selectedItems.filterNot { it?.makeCollectionID == collection.makeCollectionID }
+                                }
+                                selectedItems = newSelectedItems
+                            },
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                        Text(text = collection.makeCollectionName)
+                    }
+                }
 
                 Row(modifier = Modifier.width(200.dp)) {
                     TextButton(onClick = {
@@ -212,22 +248,18 @@ fun CustomPopup(
                     TextButton(
                         onClick = {
                             try {
-                                userID?.let {
+                                val storyboard = userID?.let {
                                     Storyboard_Stories.StoryboardLine(
                                         storyName = storyName,
-                                        storyItems = selectedItems,
+                                        storyItems = selectedItems.filterNotNull(),
                                         storyCategory = storyCategory,
                                         storyDescription = storyDescription,
-                                        storyCovers = if (imageUri != null) listOf(imageUri.toString()) else emptyList(),
-                                        showGoalDialog = false,
-                                        goalSet = 0,
-                                        currentProgress = 0,
+                                        storyCovers = if (imageUri != null) listOf(imageUri.toString()) else listOf("https://media.istockphoto.com/id/1550540247/photo/decision-thinking-and-asian-man-in-studio-with-glasses-questions-and-brainstorming-on-grey.jpg?s=1024x1024&w=is&k=20&c=M4QZ9PB4fVixyNIrWTgJjIQNPgr2TxX1wlYbyRK40dE="),
                                         user = it
                                     )
-                                }?.let {
-                                    onSave(
-                                        it
-                                    )
+                                }
+                                if (storyboard != null) {
+                                    onSave(storyboard)
                                 }
                                 onClose()
                             } catch (e: Exception) {
@@ -244,7 +276,6 @@ fun CustomPopup(
 }
 
 
-
 @Composable
 fun StoryboardItem(
     item: Storyboard_Stories.StoryboardLine,
@@ -255,6 +286,10 @@ fun StoryboardItem(
 ) {
     val context = LocalContext.current
     var isExpanded by remember { mutableStateOf(false) }
+    val editView = remember { mutableStateOf(false) }
+    val shareView = remember { mutableStateOf(false) }
+
+    val selectedStoryId = remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -263,10 +298,10 @@ fun StoryboardItem(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val imagePainter = if (item.storyCovers.isNotEmpty() && item.storyCovers[0] != null) {
-            rememberAsyncImagePainter(item.storyCovers[0])
+        val imagePainter = if (item.storyCovers.isNotEmpty()) {
+            item.storyCovers[0]
         } else {
-            painterResource(R.drawable.default_image)
+            "https://media.istockphoto.com/id/1550540247/photo/decision-thinking-and-asian-man-in-studio-with-glasses-questions-and-brainstorming-on-grey.jpg?s=1024x1024&w=is&k=20&c=M4QZ9PB4fVixyNIrWTgJjIQNPgr2TxX1wlYbyRK40dE="
         }
 
         if (isExpanded) {
@@ -274,16 +309,20 @@ fun StoryboardItem(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start
             ) {
-                IconButton(onClick = { isExpanded = false }) {
+                IconButton(onClick = {
+                    editView.value = true
+                    selectedStoryId.value = item.storyID
+                }) {
                     Icon(imageVector = Icons.Default.Edit, contentDescription = null)
                 }
                 IconButton(onClick = {
                     try {
                         selectedCollection.remove(item)
                         if (userID != null) {
-                            viewModel.deleteStoryboard(userID, item.storyID,
+                            viewModel.deleteStoryboard(item.storyID,
                                 onSuccess = {
-                                    // Handle success if needed
+
+                                    Toast.makeText(context, "Deleted :) ", Toast.LENGTH_LONG).show()
                                 },
                                 onError = { errorMessage ->
                                     Toast.makeText(context, "Error deleting item: $errorMessage", Toast.LENGTH_LONG).show()
@@ -297,7 +336,7 @@ fun StoryboardItem(
                 }) {
                     Icon(imageVector = Icons.Default.Delete, contentDescription = null)
                 }
-                IconButton(onClick = { isExpanded = false }) {
+                IconButton(onClick = { shareView.value = true }) {
                     Icon(imageVector = Icons.Default.Share, contentDescription = null)
                 }
                 IconButton(
@@ -318,6 +357,7 @@ fun StoryboardItem(
                     story = selectedCollection,
                     storyID = item.storyID,
                     toggle = toggleStates[item.storyID] ?: false,
+                    viewModel,
                     onClose = { toggleStates[item.storyID] = false },
                     onSave = { updatedItem ->
                         try {
@@ -325,21 +365,47 @@ fun StoryboardItem(
                             if (index != -1) {
                                 selectedCollection[index] = updatedItem
                                 if (userID != null) {
-                                    viewModel.updateStoryboard(userID, updatedItem,
+                                    viewModel.updateStoryboard(item.storyID, updatedItem,
                                         onSuccess = {
-                                            // Handle success if needed
+                                            Toast.makeText(context, "Updated", Toast.LENGTH_LONG).show()
                                         },
                                         onError = { errorMessage ->
                                             Toast.makeText(context, "Error updating item: $errorMessage", Toast.LENGTH_LONG).show()
                                         }
                                     )
                                 }
+                            } else {
+                                Toast.makeText(context, "Item not found in collection", Toast.LENGTH_LONG).show()
                             }
                         } catch (e: Exception) {
                             Toast.makeText(context, "Error setting goal: ${e.message}", Toast.LENGTH_LONG).show()
                         }
                     }
                 )
+            }else if (editView.value && selectedStoryId.value == item.storyID) {
+                EditBoard(
+                    //storyID = item.storyID,
+                    viewModel,
+                    storyboardItem = item,
+                    onSave = { updatedItem ->
+                        try {
+                            viewModel.updateStoryboard(item.storyID, updatedItem,
+                                onSuccess = {
+                                    Toast.makeText(context, "Updated", Toast.LENGTH_LONG).show()
+                                },
+                                onError = { errorMessage ->
+                                    Toast.makeText(context, "Error updating item: $errorMessage", Toast.LENGTH_LONG).show()
+                                }
+                            )
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Error updating storyboard: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+                    },
+                    onClose = { editView.value = false }
+                )
+            }
+            else if(shareView.value && selectedStoryId.value == item.storyID){
+                ShareStoryboard(item,item.storyID)
             }
         } else {
             Column(
@@ -351,11 +417,10 @@ fun StoryboardItem(
                 }
             }
         }
-
-        Image(
-            painter = imagePainter,
-            contentScale = ContentScale.FillWidth,
+        AsyncImage(
+            model = imagePainter,
             contentDescription = null,
+            contentScale = ContentScale.FillWidth,
             modifier = Modifier
                 .width(200.dp)
                 .height(200.dp)
@@ -364,10 +429,7 @@ fun StoryboardItem(
             .fillMaxHeight()
             .background(Color.LightGray))
 
-        if (item.goalSet == 0) {
-            // Display nothing
-        } else {
-            // Progress Bar
+        if (item.goalSet > 0) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -388,14 +450,18 @@ fun StoryboardItem(
 
 @Composable
 fun SetGoal(
-    story: List<Storyboard_Stories.StoryboardLine>,
+    story: SnapshotStateList<Storyboard_Stories.StoryboardLine>,
     storyID: String,
     toggle: Boolean = false,
+    viewModel: DatabaseViewModel,
     onClose: () -> Unit,
     onSave: (Storyboard_Stories.StoryboardLine) -> Unit
 ) {
     val context = LocalContext.current
     var goalSet by remember { mutableIntStateOf(0) }
+
+    // Find the item in the list with the specified storyID
+    val item = story.firstOrNull { it.storyID == storyID }
 
     Dialog(onDismissRequest = onClose) {
         Surface(
@@ -404,10 +470,14 @@ fun SetGoal(
                 .padding(16.dp),
             shape = RoundedCornerShape(8.dp)
         ) {
-            Column {
-                story.forEach { item ->
-
-                    if (item.storyID == storyID && toggle) {
+            Column(
+                modifier = Modifier.padding(8.dp)
+            ) {
+                // Check if toggle is true and item is not null
+                if (toggle && item != null) {
+                    if (item.goalSet > 0) {
+                        Text(text = "Current goal: ${item.goalSet}")
+                    } else {
                         TextField(
                             value = goalSet.toString(),
                             onValueChange = {
@@ -417,34 +487,138 @@ fun SetGoal(
                                     Toast.makeText(context, "Invalid input: ${e.message}", Toast.LENGTH_LONG).show()
                                 }
                             },
-                            label = { Text("Set goal: ") }
+                            label = { Text("Set goal: ") },
+                            modifier = Modifier.fillMaxWidth()
                         )
                         Button(onClick = {
                             try {
+                                viewModel.updateGoalSet(item.storyID,goalSet)
                                 onSave(item.copy(goalSet = goalSet))
-                                Toast.makeText(context, item.storyName, Toast.LENGTH_LONG).show()
+
+                                Toast.makeText(context, "Goal set for ${item.storyName}", Toast.LENGTH_LONG).show()
                                 onClose()
                             } catch (e: Exception) {
                                 Toast.makeText(context, "Error setting goal: ${e.message}", Toast.LENGTH_LONG).show()
                             }
-                        }) {
+                        }, modifier = Modifier.align(Alignment.End)) {
                             Text(text = "Set Goal")
                         }
-                    } else {
-                        Text(text = "Can't Set a Goal")
                     }
                 }
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(onClick = onClose) {
-                    Text("Cancel")
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onClose) {
+                        Text("Cancel")
+                    }
                 }
-                Spacer(modifier = Modifier.width(8.dp))
             }
         }
     }
 }
 
+@Composable
+fun EditBoard(
+    viewModel: DatabaseViewModel,
+    storyboardItem: Storyboard_Stories.StoryboardLine,
+    onSave: (Storyboard_Stories.StoryboardLine) -> Unit,
+    onClose: () -> Unit
+) {
+    val context = LocalContext.current
+    var newStoryName by remember { mutableStateOf(storyboardItem.storyName) }
+    var newStoryDescription by remember { mutableStateOf(storyboardItem.storyDescription) }
+    var newStoryCategory by remember { mutableStateOf(storyboardItem.storyCategory) }
+    val remainingItems = remember { mutableStateListOf<MakeCollection>() }
+
+    Dialog(onDismissRequest = { onClose() }) {
+        Surface(
+            modifier = Modifier
+                .width(300.dp)
+                .padding(16.dp),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(8.dp)
+            ) {
+                TextField(
+                    value = newStoryName,
+                    onValueChange = { newStoryName = it },
+                    label = { Text("Storyboard Name") }
+                )
+                Spacer(modifier = Modifier.padding(10.dp))
+                TextField(
+                    value = newStoryDescription,
+                    onValueChange = { newStoryDescription = it },
+                    label = { Text("Description") }
+                )
+                Spacer(modifier = Modifier.padding(10.dp))
+                TextField(
+                    value = newStoryCategory,
+                    onValueChange = { newStoryCategory = it },
+                    label = { Text("Category") }
+                )
+                Spacer(modifier = Modifier.padding(10.dp))
+                // Display remaining items
+                remainingItems.forEach { collection ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = !storyboardItem.storyItems.contains(collection),
+                            onCheckedChange = null,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Text(text = collection.makeCollectionName)
+                    }
+                }
+
+                Spacer(modifier = Modifier.padding(10.dp))
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Button(onClick = {
+                        viewModel.updateStoryboard(storyboardItem.storyID,
+                            Storyboard_Stories.StoryboardLine(storyName = newStoryName, storyDescription = newStoryDescription, storyCategory = newStoryCategory),
+                            onSuccess = {
+                                        Toast.makeText(context,"Changed",Toast.LENGTH_SHORT).show()
+                            },
+                            onError = {
+                                Toast.makeText(context,"Problem",Toast.LENGTH_LONG).show()
+                            }
+                        )
+                    }) {
+                        Text("Save")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = onClose) {
+                        Text("Close")
+                    }
+                }
+            }
+        }
+    }
+}
+@Composable
+fun ShareStoryboard(selectedCollection: Storyboard_Stories.StoryboardLine, storyID: String) {
+    val context = LocalContext.current
+
+    val storyboardToShare = listOf(selectedCollection)
+    storyboardToShare.forEach {
+        if(it.storyID == storyID){
+            val content = it.storyName+"\n"+it.storyCategory+"\n"+it.storyDescription
+            val sendIntent = remember {
+                Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, content)
+                    type = "text/plain"
+                }
+            }
+
+            val shareIntent = Intent.createChooser(sendIntent, null)
+            context.startActivity(shareIntent)
+        }
+    }
+}
