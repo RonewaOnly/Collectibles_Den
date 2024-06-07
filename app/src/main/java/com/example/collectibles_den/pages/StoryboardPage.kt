@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BorderAll
 import androidx.compose.material.icons.filled.Delete
@@ -38,7 +39,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -52,6 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -147,7 +148,7 @@ fun MaxSection(
 
     LazyColumn {
         items(selectedCollection.ifEmpty { stories }) { item ->
-            StoryboardItem(item, selectedCollection, toggleStates, viewModel, userID)
+            StoryboardItem(item, collections,selectedCollection, toggleStates, viewModel, userID)
         }
 
         if (stories.isEmpty() && selectedCollection.isEmpty()) {
@@ -279,6 +280,7 @@ fun CustomPopup(
 @Composable
 fun StoryboardItem(
     item: Storyboard_Stories.StoryboardLine,
+    collections: List<MakeCollection>,
     selectedCollection: SnapshotStateList<Storyboard_Stories.StoryboardLine>,
     toggleStates: SnapshotStateMap<String, Boolean>,
     viewModel: DatabaseViewModel,
@@ -321,7 +323,6 @@ fun StoryboardItem(
                         if (userID != null) {
                             viewModel.deleteStoryboard(item.storyID,
                                 onSuccess = {
-
                                     Toast.makeText(context, "Deleted :) ", Toast.LENGTH_LONG).show()
                                 },
                                 onError = { errorMessage ->
@@ -382,9 +383,10 @@ fun StoryboardItem(
                         }
                     }
                 )
-            }else if (editView.value && selectedStoryId.value == item.storyID) {
+            } else if (editView.value && selectedStoryId.value == item.storyID) {
                 EditBoard(
-                    //storyID = item.storyID,
+                    storyID = item.storyID,
+                    collections,
                     viewModel,
                     storyboardItem = item,
                     onSave = { updatedItem ->
@@ -403,9 +405,8 @@ fun StoryboardItem(
                     },
                     onClose = { editView.value = false }
                 )
-            }
-            else if(shareView.value && selectedStoryId.value == item.storyID){
-                ShareStoryboard(item,item.storyID)
+            } else if (shareView.value && selectedStoryId.value == item.storyID) {
+                ShareStoryboard(item, item.storyID)
             }
         } else {
             Column(
@@ -438,7 +439,7 @@ fun StoryboardItem(
             ) {
                 Text(text = "Progress towards goal")
                 LinearProgressIndicator(
-                    progress = { item.getProgress() },
+                    progress = item.getProgress(),
                 )
                 Text(text = "${item.currentProgress} / ${item.goalSet}")
             }
@@ -458,7 +459,7 @@ fun SetGoal(
     onSave: (Storyboard_Stories.StoryboardLine) -> Unit
 ) {
     val context = LocalContext.current
-    var goalSet by remember { mutableIntStateOf(0) }
+    var goalSet by remember { mutableStateOf("") }
 
     // Find the item in the list with the specified storyID
     val item = story.firstOrNull { it.storyID == storyID }
@@ -479,26 +480,30 @@ fun SetGoal(
                         Text(text = "Current goal: ${item.goalSet}")
                     } else {
                         TextField(
-                            value = goalSet.toString(),
-                            onValueChange = {
-                                try {
-                                    goalSet = it.toInt()
-                                } catch (e: NumberFormatException) {
-                                    Toast.makeText(context, "Invalid input: ${e.message}", Toast.LENGTH_LONG).show()
+                            value = goalSet,
+                            onValueChange = { newValue ->
+                                if (newValue.all { it.isDigit() }) {
+                                    goalSet = newValue
                                 }
                             },
                             label = { Text("Set goal: ") },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )
                         Button(onClick = {
-                            try {
-                                viewModel.updateGoalSet(item.storyID,goalSet)
-                                onSave(item.copy(goalSet = goalSet))
+                            val goalValue = goalSet.toIntOrNull()
+                            if (goalValue != null) {
+                                try {
+                                    viewModel.updateGoalSet(item.storyID, goalValue)
+                                    onSave(item.copy(goalSet = goalValue))
 
-                                Toast.makeText(context, "Goal set for ${item.storyName}", Toast.LENGTH_LONG).show()
-                                onClose()
-                            } catch (e: Exception) {
-                                Toast.makeText(context, "Error setting goal: ${e.message}", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "Goal set for ${item.storyName}", Toast.LENGTH_LONG).show()
+                                    onClose()
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Error setting goal: ${e.message}", Toast.LENGTH_LONG).show()
+                                }
+                            } else {
+                                Toast.makeText(context, "Invalid goal value", Toast.LENGTH_LONG).show()
                             }
                         }, modifier = Modifier.align(Alignment.End)) {
                             Text(text = "Set Goal")
@@ -521,6 +526,8 @@ fun SetGoal(
 
 @Composable
 fun EditBoard(
+    storyID: String,
+    collections: List<MakeCollection>,
     viewModel: DatabaseViewModel,
     storyboardItem: Storyboard_Stories.StoryboardLine,
     onSave: (Storyboard_Stories.StoryboardLine) -> Unit,
@@ -530,7 +537,20 @@ fun EditBoard(
     var newStoryName by remember { mutableStateOf(storyboardItem.storyName) }
     var newStoryDescription by remember { mutableStateOf(storyboardItem.storyDescription) }
     var newStoryCategory by remember { mutableStateOf(storyboardItem.storyCategory) }
-    val remainingItems = remember { mutableStateListOf<MakeCollection>() }
+
+    // Initialize selectedItems with items from storyboardItem
+    // Assuming storyboardItem.storyItems is a list of MakeCollection
+    val selectedItems = remember {
+        mutableStateListOf<String>().apply {
+            addAll(storyboardItem.storyItems.mapNotNull { it?.makeCollectionName })
+        }
+    }
+
+
+    // Filter collections to display only those of the same category and not already selected
+    val filteredCollections = collections.filter {
+        it.makeCollectionCategory == storyboardItem.storyCategory && !selectedItems.contains(it.makeCollectionName)
+    }
 
     Dialog(onDismissRequest = { onClose() }) {
         Surface(
@@ -547,46 +567,72 @@ fun EditBoard(
                     onValueChange = { newStoryName = it },
                     label = { Text("Storyboard Name") }
                 )
-                Spacer(modifier = Modifier.padding(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 TextField(
                     value = newStoryDescription,
                     onValueChange = { newStoryDescription = it },
                     label = { Text("Description") }
                 )
-                Spacer(modifier = Modifier.padding(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 TextField(
                     value = newStoryCategory,
                     onValueChange = { newStoryCategory = it },
                     label = { Text("Category") }
                 )
-                Spacer(modifier = Modifier.padding(10.dp))
-                // Display remaining items
-                remainingItems.forEach { collection ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Checkbox(
-                            checked = !storyboardItem.storyItems.contains(collection),
-                            onCheckedChange = null,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
-                        Text(text = collection.makeCollectionName)
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Display filtered collections
+                if (filteredCollections.isNotEmpty()) {
+                    Text("Available Collections:")
+                    filteredCollections.forEach { collection ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                        ) {
+                            Checkbox(
+                                checked = selectedItems.contains(collection.makeCollectionName),
+                                onCheckedChange = { isChecked ->
+                                    if (isChecked) {
+                                        selectedItems.add(collection.makeCollectionName)
+                                    } else {
+                                        selectedItems.remove(collection.makeCollectionName)
+                                    }
+                                },
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Text(text = collection.makeCollectionName)
+                        }
                     }
+                } else {
+                    Text("No available collections.")
                 }
 
-                Spacer(modifier = Modifier.padding(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 Row(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Button(onClick = {
-                        viewModel.updateStoryboard(storyboardItem.storyID,
-                            Storyboard_Stories.StoryboardLine(storyName = newStoryName, storyDescription = newStoryDescription, storyCategory = newStoryCategory),
+                        val updatedStoryboardItem = storyboardItem.copy(
+                            storyName = newStoryName,
+                            storyDescription = newStoryDescription,
+                            storyCategory = newStoryCategory,
+                            storyItems = selectedItems.map { itemName ->
+                                collections.find { it.makeCollectionName == itemName }
+                            }.filterNotNull() // Remove nulls resulting from find // Update storyItems with selectedItems
+                        )
+                        viewModel.updateStoryboard(
+                            storyboardItem.storyID,
+                            updatedStoryboardItem,
                             onSuccess = {
-                                        Toast.makeText(context,"Changed",Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Changes saved", Toast.LENGTH_SHORT).show()
+                                onSave(updatedStoryboardItem)
+                                onClose()
                             },
                             onError = {
-                                Toast.makeText(context,"Problem",Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, "Problem saving changes", Toast.LENGTH_LONG).show()
                             }
                         )
                     }) {
@@ -601,12 +647,15 @@ fun EditBoard(
         }
     }
 }
+
+
+
 @Composable
 fun ShareStoryboard(selectedCollection: Storyboard_Stories.StoryboardLine, storyID: String) {
     val context = LocalContext.current
 
     val storyboardToShare = listOf(selectedCollection)
-    storyboardToShare.forEach {
+    storyboardToShare.forEach { 
         if(it.storyID == storyID){
             val content = it.storyName+"\n"+it.storyCategory+"\n"+it.storyDescription
             val sendIntent = remember {
