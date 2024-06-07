@@ -16,11 +16,9 @@ class Storyboard_Stories {
         val goalSet: Int = 0,
         val currentProgress: Int = if(storyItems.isNotEmpty()) storyItems.count() else 0,
         val user: String? = CollectiblesDenApp.getUserID(),
-
         ) {
         fun getProgress(): Float {
             return if (goalSet > 0) currentProgress / goalSet.toFloat() else 0f
         }
     }
-
 }

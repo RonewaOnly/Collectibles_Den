@@ -223,7 +223,6 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
             Log.e("StoryboardActivity", "Failed to generate a story key")
             return
         }
-
         val storyboard = storyboardLine.copy(storyID = storyKey)
         Log.d("StoryboardActivity", "Generated Storyboard: $storyboard")
 
@@ -288,11 +287,20 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
         })
     }
 
-    fun updateStoryboard(storyboardId: String, updatedStoryboardLine: Storyboard_Stories.StoryboardLine, onSuccess: () -> Unit, onError: (String) -> Unit) {
-        //val storyboardId = updatedStoryboardLine.storyID // Assuming storyboard ID is used as the key
+    fun updateStoryboard(storyboardId: String, goal:Int ,updatedStoryboardLine: Storyboard_Stories.StoryboardLine, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        // Calculate goalSet based on the length of selected items
+        val goalSet = goal
+
+        // Update both currentProgress and goalSet
+        val updatedLineWithProgressAndGoalSet = updatedStoryboardLine.copy(
+            goalSet = goalSet,
+            currentProgress = updatedStoryboardLine.currentProgress // Update the progress if necessary
+        )
+
+        // Update the storyboard
         val storyboardRef = database.child("Storyboard").child(storyboardId)
 
-        storyboardRef.setValue(updatedStoryboardLine)
+        storyboardRef.setValue(updatedLineWithProgressAndGoalSet)
             .addOnSuccessListener {
                 onSuccess()
             }

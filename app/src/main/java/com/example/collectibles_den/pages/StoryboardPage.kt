@@ -37,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -77,13 +78,14 @@ fun Storyboard(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewMo
             viewModel.getStoryboard(id) { storyboardLines ->
                 collectionsState.value = storyboardLines
             }
-            viewModel.getCollections(id){
+            viewModel.getCollections(id) {
                 getCollectionsState.value = it
             }
         }
     }
-
-    Column {
+    val achievement = AchievementBlock()
+    Column(modifier = Modifier.width(1200.dp).height(3500.dp)) {
+        achievement.ViewPage()
         MaxSection(collectionsState.value, getCollectionsState.value ,viewModel, userID)
     }
 }
@@ -120,7 +122,7 @@ fun MaxSection(
                     val existingStoryboard = selectedCollection.firstOrNull { it.storyName == storyboard.storyName }
                     if (existingStoryboard != null) {
                         // Update the existing storyboard
-                        viewModel.updateStoryboard(existingStoryboard.storyID, storyboard,
+                        viewModel.updateStoryboard(existingStoryboard.storyID,existingStoryboard.goalSet ,storyboard,
                             onSuccess = {
                                 selectedCollection[selectedCollection.indexOf(existingStoryboard)] = storyboard
                                 Toast.makeText(context, "Updated", Toast.LENGTH_LONG).show()
@@ -366,7 +368,7 @@ fun StoryboardItem(
                             if (index != -1) {
                                 selectedCollection[index] = updatedItem
                                 if (userID != null) {
-                                    viewModel.updateStoryboard(item.storyID, updatedItem,
+                                    viewModel.updateStoryboard(item.storyID,item.goalSet ,updatedItem,
                                         onSuccess = {
                                             Toast.makeText(context, "Updated", Toast.LENGTH_LONG).show()
                                         },
@@ -391,7 +393,7 @@ fun StoryboardItem(
                     storyboardItem = item,
                     onSave = { updatedItem ->
                         try {
-                            viewModel.updateStoryboard(item.storyID, updatedItem,
+                            viewModel.updateStoryboard(item.storyID, item.goalSet ,updatedItem,
                                 onSuccess = {
                                     Toast.makeText(context, "Updated", Toast.LENGTH_LONG).show()
                                 },
@@ -439,7 +441,7 @@ fun StoryboardItem(
             ) {
                 Text(text = "Progress towards goal")
                 LinearProgressIndicator(
-                    progress = item.getProgress(),
+                    progress = { item.getProgress() },
                 )
                 Text(text = "${item.currentProgress} / ${item.goalSet}")
             }
@@ -496,7 +498,6 @@ fun SetGoal(
                                 try {
                                     viewModel.updateGoalSet(item.storyID, goalValue)
                                     onSave(item.copy(goalSet = goalValue))
-
                                     Toast.makeText(context, "Goal set for ${item.storyName}", Toast.LENGTH_LONG).show()
                                     onClose()
                                 } catch (e: Exception) {
@@ -539,15 +540,31 @@ fun EditBoard(
     var newStoryCategory by remember { mutableStateOf(storyboardItem.storyCategory) }
 
     // Initialize selectedItems with items from storyboardItem
-    // Assuming storyboardItem.storyItems is a list of MakeCollection
-    val selectedItems = remember {
-        mutableStateListOf<String>().apply {
-            addAll(storyboardItem.storyItems.mapNotNull { it?.makeCollectionName })
+    var selectedItems by remember { mutableStateOf(storyboardItem.storyItems.mapNotNull { it?.makeCollectionName }) }
+
+    // Initialize goalSet outside remember block
+    var newGoalSet by remember { mutableStateOf(storyboardItem.goalSet) }
+
+    // Calculate current progress
+    val currentProgress = selectedItems.size
+
+    // Update storyboardItem with new progress and selected items
+    val updatedStoryboardItem = storyboardItem.copy(
+        goalSet = newGoalSet,
+        currentProgress = currentProgress,
+        storyItems = selectedItems.map { makeCollectionName ->
+            collections.find { it.makeCollectionName == makeCollectionName }
+        }
+    )
+
+    // Update progress and goalSet in database when the user interacts with the collections
+    DisposableEffect(selectedItems) {
+        onDispose {
+            // Update the database when this effect is disposed
+            viewModel.updateStoryboard(storyID, newGoalSet, updatedStoryboardItem, onSuccess = {}, onError = {})
         }
     }
 
-
-    // Filter collections to display only those of the same category and not already selected
     val filteredCollections = collections.filter {
         it.makeCollectionCategory == storyboardItem.storyCategory && !selectedItems.contains(it.makeCollectionName)
     }
@@ -580,8 +597,26 @@ fun EditBoard(
                     label = { Text("Category") }
                 )
                 Spacer(modifier = Modifier.height(10.dp))
+                TextField(
+                    value = newGoalSet.toString(),
+                    onValueChange = { newValue ->
+                        if (newValue.all { it.isDigit() }) {
+                            newGoalSet = newValue.toInt()
+                        }
+                    },
+                    label = { Text("Set goal: ") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+                Spacer(modifier = Modifier.height(10.dp))
 
-                // Display filtered collections
+                // Display progress bar
+                LinearProgressIndicator(
+                    progress = {
+                        storyboardItem.getProgress() // Get progress percentage
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
                 if (filteredCollections.isNotEmpty()) {
                     Text("Available Collections:")
                     filteredCollections.forEach { collection ->
@@ -595,9 +630,9 @@ fun EditBoard(
                                 checked = selectedItems.contains(collection.makeCollectionName),
                                 onCheckedChange = { isChecked ->
                                     if (isChecked) {
-                                        selectedItems.add(collection.makeCollectionName)
+                                        selectedItems = selectedItems + collection.makeCollectionName
                                     } else {
-                                        selectedItems.remove(collection.makeCollectionName)
+                                        selectedItems = selectedItems - collection.makeCollectionName
                                     }
                                 },
                                 modifier = Modifier.padding(end = 8.dp)
@@ -615,16 +650,10 @@ fun EditBoard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Button(onClick = {
-                        val updatedStoryboardItem = storyboardItem.copy(
-                            storyName = newStoryName,
-                            storyDescription = newStoryDescription,
-                            storyCategory = newStoryCategory,
-                            storyItems = selectedItems.map { itemName ->
-                                collections.find { it.makeCollectionName == itemName }
-                            }.filterNotNull() // Remove nulls resulting from find // Update storyItems with selectedItems
-                        )
+                        // Update the storyboard with the new changes
                         viewModel.updateStoryboard(
                             storyboardItem.storyID,
+                            newGoalSet,
                             updatedStoryboardItem,
                             onSuccess = {
                                 Toast.makeText(context, "Changes saved", Toast.LENGTH_SHORT).show()
@@ -650,12 +679,14 @@ fun EditBoard(
 
 
 
+
+
 @Composable
 fun ShareStoryboard(selectedCollection: Storyboard_Stories.StoryboardLine, storyID: String) {
     val context = LocalContext.current
 
     val storyboardToShare = listOf(selectedCollection)
-    storyboardToShare.forEach { 
+    storyboardToShare.forEach {
         if(it.storyID == storyID){
             val content = it.storyName+"\n"+it.storyCategory+"\n"+it.storyDescription
             val sendIntent = remember {
