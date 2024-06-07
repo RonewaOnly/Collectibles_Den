@@ -23,13 +23,4 @@ class Storyboard_Stories {
         }
     }
 
-
-    data class Settings(//This data class will be
-        val storyId : StoryboardLine,
-        val onEdit: () -> Unit,
-        val onDelete: () -> Unit,
-        val onShare: () -> Unit,
-        val onSave: () -> Unit
-    )
-
 }
