@@ -272,9 +272,10 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
                             storyDescription = dataMap["storyDescription"] as? String ?: "",
                             storyCovers = dataMap["storyCovers"] as? List<String> ?: emptyList(),
                             showGoalDialog = dataMap["showGoalDialog"] as? Boolean ?: false,
-                            goalSet = dataMap["goalSet"] as? Int ?: 0,
-                            currentProgress = dataMap["currentProgress"] as? Int ?: 0
+                            goalSet = dataMap["goalSet"] as? String ?: "",
+                            currentProgress = dataMap["currentProgress"] as? String ?: ""
                         )
+                        Log.d("StoryboardActivity", "Storyboard fetched: $storyboard")
                         storyboards.add(storyboard)
                     }
                 }
@@ -287,20 +288,15 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
         })
     }
 
-    fun updateStoryboard(storyboardId: String, goal:Int ,updatedStoryboardLine: Storyboard_Stories.StoryboardLine, onSuccess: () -> Unit, onError: (String) -> Unit) {
-        // Calculate goalSet based on the length of selected items
-        val goalSet = goal
-
-        // Update both currentProgress and goalSet
-        val updatedLineWithProgressAndGoalSet = updatedStoryboardLine.copy(
-            goalSet = goalSet,
-            currentProgress = updatedStoryboardLine.currentProgress // Update the progress if necessary
-        )
-
-        // Update the storyboard
+    fun updateStoryboard(
+        storyboardId: String,
+        updatedStoryboardLine: Storyboard_Stories.StoryboardLine,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
         val storyboardRef = database.child("Storyboard").child(storyboardId)
 
-        storyboardRef.setValue(updatedLineWithProgressAndGoalSet)
+        storyboardRef.setValue(updatedStoryboardLine)
             .addOnSuccessListener {
                 onSuccess()
             }
