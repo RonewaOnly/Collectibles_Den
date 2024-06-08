@@ -173,14 +173,14 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
                                 modifier = Modifier
                                         .width(200.dp)
                                         .border(1.dp, Color.Transparent, RectangleShape),
-                                colors = IconButtonDefaults.iconButtonColors(colorResource(id = R.color.french_grey))
+                                colors = IconButtonDefaults.iconButtonColors(colorResource(id = R.color.blue))
                         ) {
                                 Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.Start
                                 ) {
-                                        Icon(imageVector = Icons.Filled.Image, contentDescription = null, modifier = Modifier.padding(5.dp))
-                                        Text(text = "Get Image")
+                                        Icon(imageVector = Icons.Filled.Image, tint = Color.Red, contentDescription = null, modifier = Modifier.padding(5.dp))
+                                        Text(text = "Get Image", color = Color.Black)
                                 }
                         }
                         Spacer(modifier = Modifier.padding(5.dp))
@@ -209,12 +209,12 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
                                 modifier = Modifier
                                         .width(200.dp)
                                         .border(1.dp, Color.Transparent, RectangleShape),
-                                colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
+                                colors = IconButtonDefaults.iconButtonColors(colorResource(id = R.color.blue))
                         ) {
                                 Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                        Icon(imageVector = Icons.Filled.Camera, contentDescription = null, modifier = Modifier.padding(5.dp))
+                                        Icon(imageVector = Icons.Filled.Camera, tint = Color.Red, contentDescription = null, modifier = Modifier.padding(5.dp))
                                         Text(text = "Take Image")
                                 }
                         }
@@ -225,12 +225,12 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
                                 modifier = Modifier
                                         .width(200.dp)
                                         .border(1.dp, Color.Transparent, RectangleShape),
-                                colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
+                                colors = IconButtonDefaults.iconButtonColors(colorResource(id = R.color.blue))
                         ) {
                                 Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                        Icon(imageVector = Icons.Filled.NoteAlt, contentDescription = null, modifier = Modifier.padding(5.dp))
+                                        Icon(imageVector = Icons.Filled.NoteAlt, tint = Color.Red, contentDescription = null, modifier = Modifier.padding(5.dp))
                                         Text(text = "Take Notes")
                                 }
                         }
@@ -247,12 +247,12 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
                                 modifier = Modifier
                                         .width(200.dp)
                                         .border(1.dp, Color.Transparent, RectangleShape),
-                                colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
+                                colors = IconButtonDefaults.iconButtonColors(colorResource(id = R.color.blue))
                         ) {
                                 Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                        Icon(imageVector = Icons.Filled.Scanner, contentDescription = null, modifier = Modifier.padding(5.dp))
+                                        Icon(imageVector = Icons.Filled.Scanner, tint = Color.Red, contentDescription = null, modifier = Modifier.padding(5.dp))
                                         Text(text = "Scan")
                                 }
                         }
@@ -269,12 +269,12 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
                                 modifier = Modifier
                                         .width(200.dp)
                                         .border(1.dp, Color.Transparent, RectangleShape),
-                                colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
+                                colors = IconButtonDefaults.iconButtonColors(colorResource(id = R.color.blue))
                         ) {
                                 Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                        Icon(imageVector = Icons.Filled.Attachment, contentDescription = null, modifier = Modifier.padding(5.dp))
+                                        Icon(imageVector = Icons.Filled.Attachment, tint = Color.Red, contentDescription = null, modifier = Modifier.padding(5.dp))
                                         Text(text = "Attach File")
                                 }
                         }
@@ -300,13 +300,13 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
                                 modifier = Modifier
                                         .width(200.dp)
                                         .border(1.dp, Color.Transparent, RectangleShape),
-                                colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
+                                colors = IconButtonDefaults.iconButtonColors(colorResource(id = R.color.blue))
                         ) {
                                 Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.SpaceAround
                                 ) {
-                                        Icon(imageVector = Icons.Filled.Add, contentDescription = null, modifier = Modifier.padding(5.dp))
+                                        Icon(imageVector = Icons.Filled.Add, tint = Color.Red, contentDescription = null, modifier = Modifier.padding(5.dp))
                                         Text(text = "Create Board")
                                 }
                         }
