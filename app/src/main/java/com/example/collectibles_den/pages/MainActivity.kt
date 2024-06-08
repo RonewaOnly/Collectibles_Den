@@ -23,6 +23,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.collectibles_den.MainSearch
+import com.example.collectibles_den.R
 import com.example.collectibles_den.navigate.BottomNavigation
 
 class MainActivity : ComponentActivity() {
@@ -52,6 +53,18 @@ fun MainScreen(){
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .background(
+                    brush = Brush.linearGradient(
+
+                        colors = listOf(
+                            colorResource(id = R.color.g_1), colorResource(
+                                id = R.color.g_2
+                            ), colorResource(id = R.color.g_3)
+                        ),
+                        start = Offset(0f, 0f),
+                        end = Offset(1000f, 1000f)
+                    )
+                )
         ) {
             HorizontalDivider(
                 thickness = 1.dp,

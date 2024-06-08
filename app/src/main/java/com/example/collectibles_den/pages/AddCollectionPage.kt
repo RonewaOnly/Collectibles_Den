@@ -34,7 +34,6 @@ import androidx.compose.material.icons.sharp.OpenInBrowser
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -51,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,6 +61,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.collectibles_den.CollectiblesDenApp
+import com.example.collectibles_den.R
 import com.example.collectibles_den.coreFunction_AddCollection.FileReaderClass
 import com.example.collectibles_den.coreFunction_AddCollection.ScannerClass
 import com.example.collectibles_den.coreFunction_AddCollection.TakePhotosClass
@@ -85,9 +86,9 @@ fun AddCollections(viewModel: DatabaseViewModel = viewModel(factory = DatabaseVi
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
         ) {
-                Text(text = "Add Collection")
+                Text(text = "Add Collection", fontSize = 25.sp, color = Color.Black, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(10.dp))
                 val group = makeCollection(collectionsState.value, viewModel, userID)
-                Spacer(modifier = Modifier.padding(16.dp))
+                Spacer(modifier = Modifier.padding(20.dp))
                 // Displaying stored Collection
                 DisplayCollection(bank = group)
         }
@@ -95,14 +96,14 @@ fun AddCollections(viewModel: DatabaseViewModel = viewModel(factory = DatabaseVi
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
-fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, userID: String?): MutableList<MakeCollection> {
+fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, viewModel: DatabaseViewModel, userID: String?): MutableList<MakeCollection> {
         val context = LocalContext.current
         val takePhotosClass = remember { TakePhotosClass() }
-        val PhotoViewModel: TakePhotosViewModel = viewModel()
+        @Suppress("LocalVariableName") val PhotoViewModel: TakePhotosViewModel = viewModel()
 
         var mainSwitch by remember { mutableStateOf(false) }
         var isPopClicked by remember { mutableStateOf(false) }
-        var isCameraClick by remember { mutableStateOf(false) }
+        @Suppress("UNUSED_VARIABLE") var isCameraClick by remember { mutableStateOf(false) }
         var isNotesClick by remember { mutableStateOf(false) }
         var isScannerClick by remember { mutableStateOf(false) }
         var isFolderClick by remember { mutableStateOf(false) }
@@ -129,35 +130,42 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
                         Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
                 }
         )
-        var imageCameraUri by remember { mutableStateOf<Uri?>(null) }
+        @Suppress("UNUSED_VARIABLE") var imageCameraUri by remember { mutableStateOf<Uri?>(null) }
 
 
         IconButton(
                 onClick = { mainSwitch = true },
                 modifier = Modifier
-                        .border(1.dp, Color.Black, RoundedCornerShape(25.dp))
-                        .width(150.dp)
+                        .width(250.dp)
                         .height(60.dp),
-                colors = IconButtonDefaults.iconButtonColors(MaterialTheme.colorScheme.inversePrimary)
+                colors = IconButtonDefaults.iconButtonColors(colorResource(id = R.color.blue))
         ) {
                 Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                        Icon(imageVector = Icons.Sharp.OpenInBrowser, contentDescription = null)
-                        Text(text = "Make a Collection")
+                        Icon(imageVector = Icons.Sharp.OpenInBrowser, contentDescription = null, modifier = Modifier.padding(5.dp))
+                        Text(text = "Make Collection")
                 }
+
         }
+        Spacer(modifier = Modifier.padding(15.dp))
 
         if (mainSwitch) {
+
                 Column(
+
                         modifier = Modifier
-                                .width(900.dp)
-                                .border(1.dp, Color.Black)
-                                .background(Color.DarkGray),
+                                .border(1.dp, Color.Blue, shape = RoundedCornerShape(15.dp))
+                                .width(370.dp)
+                                .background(
+                                        colorResource(id = R.color.Thistle),
+                                        shape = RoundedCornerShape(15.dp)
+                                ),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                        Spacer(modifier = Modifier.padding(5.dp))
                         Text(text = "Add Items", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
                         Spacer(modifier = Modifier.padding(12.dp))
                         IconButton(
@@ -165,13 +173,13 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
                                 modifier = Modifier
                                         .width(200.dp)
                                         .border(1.dp, Color.Transparent, RectangleShape),
-                                colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
+                                colors = IconButtonDefaults.iconButtonColors(colorResource(id = R.color.french_grey))
                         ) {
                                 Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.Start
                                 ) {
-                                        Icon(imageVector = Icons.Filled.Image, contentDescription = null)
+                                        Icon(imageVector = Icons.Filled.Image, contentDescription = null, modifier = Modifier.padding(5.dp))
                                         Text(text = "Get Image")
                                 }
                         }
@@ -206,7 +214,7 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
                                 Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                        Icon(imageVector = Icons.Filled.Camera, contentDescription = null)
+                                        Icon(imageVector = Icons.Filled.Camera, contentDescription = null, modifier = Modifier.padding(5.dp))
                                         Text(text = "Take Image")
                                 }
                         }
@@ -222,7 +230,7 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
                                 Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                        Icon(imageVector = Icons.Filled.NoteAlt, contentDescription = null)
+                                        Icon(imageVector = Icons.Filled.NoteAlt, contentDescription = null, modifier = Modifier.padding(5.dp))
                                         Text(text = "Take Notes")
                                 }
                         }
@@ -244,7 +252,7 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
                                 Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                        Icon(imageVector = Icons.Filled.Scanner, contentDescription = null)
+                                        Icon(imageVector = Icons.Filled.Scanner, contentDescription = null, modifier = Modifier.padding(5.dp))
                                         Text(text = "Scan")
                                 }
                         }
@@ -266,7 +274,7 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
                                 Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                        Icon(imageVector = Icons.Filled.Attachment, contentDescription = null)
+                                        Icon(imageVector = Icons.Filled.Attachment, contentDescription = null, modifier = Modifier.padding(5.dp))
                                         Text(text = "Attach File")
                                 }
                         }
@@ -275,7 +283,7 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
                                         attachedFileUri = uri
                                         val uriString = uri.toString()
                                         if (uriString.isNotEmpty()) {
-                                                val parsedUri = Uri.parse(uriString)
+                                                @Suppress("UNUSED_VARIABLE") val parsedUri = Uri.parse(uriString)
                                                 // Proceed with using `parsedUri`
                                         } else {
                                                 // Handle the case where `uriString` is empty
@@ -290,20 +298,21 @@ fun makeCollection(make: List<MakeCollection>, viewModel: DatabaseViewModel, use
                         IconButton(
                                 onClick = { isPopClicked = true },
                                 modifier = Modifier
-                                        .width(120.dp)
-                                        .border(1.dp, Color.Transparent, RoundedCornerShape(25)),
+                                        .width(200.dp)
+                                        .border(1.dp, Color.Transparent, RectangleShape),
                                 colors = IconButtonDefaults.iconButtonColors(Color.LightGray)
                         ) {
                                 Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.SpaceAround
                                 ) {
-                                        Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                                        Icon(imageVector = Icons.Filled.Add, contentDescription = null, modifier = Modifier.padding(5.dp))
                                         Text(text = "Create Board")
                                 }
                         }
+                        Spacer(modifier = Modifier.padding(15.dp))
 // Display captured image
-                        val Uri by PhotoViewModel.imageUri.collectAsState()
+                        @Suppress("LocalVariableName") val Uri by PhotoViewModel.imageUri.collectAsState()
 
                         if (isPopClicked) {
                                 SaveCollection(
@@ -387,7 +396,7 @@ fun DisplayCollection(bank: MutableList<MakeCollection>) {
                         }
                 }
         } else {
-                Text(text = "No Collections Found, You have not added any collection")
+                Text(text = "")
         }
 }
 

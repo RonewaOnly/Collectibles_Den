@@ -25,10 +25,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.collectibles_den.CollectiblesDenApp
+import com.example.collectibles_den.R
 import com.example.collectibles_den.data.MakeCollection
 import com.example.collectibles_den.logic.DatabaseViewModel
 import com.example.collectibles_den.logic.DatabaseViewModelFactory
@@ -64,16 +69,29 @@ fun Homepage(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewMode
 
    Column(
       modifier = Modifier.verticalScroll(rememberScrollState(), true)
+         .background(
+            brush = Brush.linearGradient(
+
+               colors = listOf(
+                  colorResource(id = R.color.g_1), colorResource(
+                     id = R.color.g_2
+                  ), colorResource(id = R.color.g_3)
+               ),
+               start = Offset(0f, 0f),
+               end = Offset(1000f, 1000f)
+            )
+         )
    ) {
       Text(
          text = "Recent Additions",
-         textAlign = TextAlign.Center,
-         fontSize = 30.sp,
+         textAlign = TextAlign.Start,
+         fontSize = 20.sp,
+         fontWeight = FontWeight.SemiBold,
          modifier = Modifier
             .fillMaxWidth()
             .height(50.dp)
-            .background(Color.LightGray)
-            .padding(5.dp)
+            .background(Color.Transparent)
+            .padding(15.dp)
 
       )
       MainSection(collectionsState)
@@ -150,7 +168,7 @@ fun CollectionItem(collect: MakeCollection) {
       modifier = Modifier
          .fillMaxWidth()
          .padding(8.dp)
-         .border(1.dp, Color.Blue),
+         .border(1.dp, Color.Black),
       verticalAlignment = Alignment.CenterVertically
    ) {
       Image(
@@ -158,7 +176,7 @@ fun CollectionItem(collect: MakeCollection) {
          contentDescription = null,
          modifier = Modifier
             .size(100.dp)
-            .border(1.dp, color = Color.Blue, shape = RectangleShape)
+            .border(1.dp, color = Color.Red, shape = RectangleShape)
             .padding(8.dp),
          contentScale = ContentScale.Crop
       )
