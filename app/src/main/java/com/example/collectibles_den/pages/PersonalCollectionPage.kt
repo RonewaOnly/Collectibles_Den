@@ -1,19 +1,15 @@
 package com.example.collectibles_den.pages
 
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -25,13 +21,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -45,8 +38,7 @@ import kotlinx.coroutines.launch
 
 @Preview
 @Composable
-fun PersonalCollection(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewModelFactory(context = LocalContext.current))){
-        //Text(text = "Personal Collection")
+fun PersonalCollection(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewModelFactory(context = LocalContext.current))) {
         val context = LocalContext.current
         val userID = CollectiblesDenApp.getUserID()
         var collectionsState by remember { mutableStateOf<List<MakeCollection>>(emptyList()) }
@@ -61,60 +53,11 @@ fun PersonalCollection(viewModel: DatabaseViewModel = viewModel(factory = Databa
                         }
                 }
         }
-        //val getCollections = DefaultValuesClass()
+
         Column(
-                modifier = Modifier.verticalScroll(rememberScrollState(),true)
+                modifier = Modifier.verticalScroll(rememberScrollState(), true)
         ) {
-                //ShowCollectionByCategories(collectionsState)
                 CollectSameCategories(collection = collectionsState)
-        }
-}
-
-
-@Composable
-fun ShowCollectionByCategories(collection: List<MakeCollection>) {
-        LazyColumn(
-                modifier = Modifier
-                        .padding(vertical = 8.dp)
-                        .height(3000.dp)
-        ) {
-                items(collection) { item ->
-                        Column(
-                                modifier = Modifier
-                                        .width(450.dp)
-                                        .border(1.dp, Color.Black),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                                val imageUrl = if (item.makeCollectionCameraImages.isNotEmpty()) {
-                                        item.makeCollectionCameraImages[0]
-                                } else if (item.makeCollectionCameraImages.isNotEmpty()){
-                                        item.makeCollectionImages[0]
-                                }
-
-                                else {
-                                        "https://media.istockphoto.com/id/1550540247/photo/decision-thinking-and-asian-man-in-studio-with-glasses-questions-and-brainstorming-on-grey.jpg?s=1024x1024&w=is&k=20&c=M4QZ9PB4fVixyNIrWTgJjIQNPgr2TxX1wlYbyRK40dE="
-                                }
-                                Image(
-                                        painter = rememberAsyncImagePainter(imageUrl),
-                                        modifier = Modifier
-                                                .width(200.dp)
-                                                .height(200.dp),
-                                        contentScale = ContentScale.FillBounds,
-                                        contentDescription = null
-                                )
-                                Text(
-                                        text = if (item.makeCollectionCategory.isEmpty()) "Unknown" else item.makeCollectionCategory,
-                                        textAlign = TextAlign.Center,
-                                        color = Color.Black,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier
-                                                .fillMaxWidth()
-                                                .background(Color.LightGray)
-                                )
-                        }
-                        Spacer(modifier = Modifier.padding(10.dp))
-                }
         }
 }
 
@@ -122,9 +65,9 @@ fun ShowCollectionByCategories(collection: List<MakeCollection>) {
 fun CollectSameCategories(collection: List<MakeCollection>) {
         var expandedCategories by remember { mutableStateOf<Set<String>>(emptySet()) }
         val categoryGroups = collection.groupBy { it.makeCollectionCategory }
-        val image = "https://media.istockphoto.com/id/1550540247/photo/decision-thinking-and-asian-man-in-studio-with-glasses-questions-and-brainstorming-on-grey.jpg?s=1024x1024&w=is&k=20&c=M4QZ9PB4fVixyNIrWTgJjIQNPgr2TxX1wlYbyRK40dE="
+        val placeholderImage = "https://media.istockphoto.com/id/1550540247/photo/decision-thinking-and-asian-man-in-studio-with-glasses-questions-and-brainstorming-on-grey.jpg?s=1024x1024&w=is&k=20&c=M4QZ9PB4fVixyNIrWTgJjIQNPgr2TxX1wlYbyRK40dE="
 
-        LazyColumn(modifier = Modifier.height(20000.dp)) {
+        LazyColumn(modifier = Modifier.fillMaxWidth().height(3200.dp).padding(8.dp)) {
                 categoryGroups.forEach { (category, items) ->
                         item {
                                 val isExpanded = category in expandedCategories
@@ -132,7 +75,7 @@ fun CollectSameCategories(collection: List<MakeCollection>) {
                                 Column(
                                         modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(8.dp)
+                                                .padding(vertical = 4.dp)
                                                 .clickable {
                                                         expandedCategories = if (isExpanded) {
                                                                 expandedCategories - category
@@ -147,62 +90,16 @@ fun CollectSameCategories(collection: List<MakeCollection>) {
                                                 style = MaterialTheme.typography.labelSmall,
                                                 modifier = Modifier
                                                         .fillMaxWidth()
+                                                        .background(Color.LightGray)
                                                         .padding(8.dp)
                                         )
 
                                         if (isExpanded) {
                                                 items.forEach { item ->
-                                                        Column(
-                                                                modifier = Modifier
-                                                                        .fillMaxWidth()
-                                                                        .padding(8.dp)
-                                                                        .border(
-                                                                                1.dp,
-                                                                                Color.LightGray
-                                                                        )
-                                                        ) {
-                                                                if (item.makeCollectionImages.isNotEmpty()) {
-                                                                        Image(
-                                                                                painter = rememberAsyncImagePainter(image),
-                                                                                contentDescription = null,
-                                                                                modifier = Modifier
-                                                                                        .fillMaxWidth()
-                                                                                        .height(200.dp),
-                                                                                contentScale = ContentScale.Crop
-                                                                        )
-                                                                }
-                                                                Text(text = item.makeCollectionName, style = MaterialTheme.typography.bodySmall)
-                                                                Text(
-                                                                        text ="Description ${item.makeCollectionDescription.ifEmpty { "No description" }}",
-                                                                        style = MaterialTheme.typography.bodyMedium
-                                                                )
-                                                                Spacer(modifier = Modifier.height(8.dp))
-                                                        }
+                                                        CollectionItem(item = item, image = placeholderImage)
                                                 }
                                         } else {
-                                                val item = items.first()
-                                                Column(
-                                                        modifier = Modifier
-                                                                .fillMaxWidth()
-                                                                .padding(8.dp)
-                                                                .border(1.dp, Color.LightGray)
-                                                ) {
-                                                        Image(
-                                                                painter = rememberAsyncImagePainter(
-                                                                        Uri.parse(image)),
-                                                                contentDescription = null,
-                                                                modifier = Modifier
-                                                                        .fillMaxWidth()
-                                                                        .height(200.dp),
-                                                                contentScale = ContentScale.Crop
-                                                        )
-                                                        Text(text = item.makeCollectionName, style = MaterialTheme.typography.bodySmall)
-                                                        Text(
-                                                                text ="Description ${item.makeCollectionDescription.ifEmpty { "No description" }}",
-                                                                style = MaterialTheme.typography.bodyMedium
-                                                        )
-
-                                                }
+                                                CollectionItem(item = items.first(), image = placeholderImage)
                                         }
                                 }
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -210,4 +107,35 @@ fun CollectSameCategories(collection: List<MakeCollection>) {
                 }
         }
 }
+
+@Composable
+fun CollectionItem(item: MakeCollection, image: String) {
+        Column(
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .border(1.dp, Color.LightGray)
+        ) {
+                Image(
+                        painter = rememberAsyncImagePainter(image),
+                        contentDescription = null,
+                        modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                        contentScale = ContentScale.Crop
+                )
+                Text(
+                        text = item.makeCollectionName,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(8.dp)
+                )
+                Text(
+                        text = "Description: ${item.makeCollectionDescription.ifEmpty { "No description" }}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(8.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+        }
+}
+
 

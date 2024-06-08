@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.example.collectibles_den.logic
 
 import android.content.Context
@@ -133,26 +135,29 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val collections = mutableListOf<MakeCollection>()
 
-                for (collectionSnapShot in snapshot.children) {
-                    // Retrieve the value from the snapshot
-                    val dataMap = collectionSnapShot.getValue() as? Map<String, Any>
+                for (collectionSnapshot in snapshot.children) {
+                    val dataMap = collectionSnapshot.value as? Map<String, Any>
                     if (dataMap != null && dataMap["userAssigned"] != null && userID == dataMap["userAssigned"].toString()) {
-                        // Convert the dataMap to a MakeCollection object
-                        val collection = MakeCollection(
-                            makeCollectionID = dataMap["makeCollectionID"] as? String ?: "",
-                            makeCollectionName = dataMap["makeCollectionName"] as? String ?: "",
-                            makeCollectionDescription = dataMap["makeCollectionDescription"] as? String ?: "",
-                            makeCollectionCategory = dataMap["makeCollectionCategory"] as? String ?: "",
-                            makeCollectionImages = dataMap["makeCollectionImages"] as? List<String> ?: emptyList(),
-                            makeCollectionCameraImages = dataMap["makeCollectionCameraImages"] as? List<String> ?: emptyList(),
-                            makeCollectionNotes = dataMap["makeCollectionNotes"] as? List<NoteData> ?: emptyList(),
-                            makeCollectionScannedItems = dataMap["makeCollectionScannedItems"] as? List<String> ?: emptyList(),
-                            makeCollectionFiles = dataMap["makeCollectionFiles"] as? List<String> ?: emptyList(),
-                            userAssigned = dataMap["userAssigned"] as? String ?: "",
-                            makeCollectionDate = dataMap["makeCollectionDate"] ?: ServerValue.TIMESTAMP
-                        )
-
-                        collections.add(collection)
+                        val collection = try {
+                            MakeCollection(
+                                makeCollectionID = dataMap["makeCollectionID"] as? String ?: "",
+                                makeCollectionName = dataMap["makeCollectionName"] as? String ?: "",
+                                makeCollectionDescription = dataMap["makeCollectionDescription"] as? String ?: "",
+                                makeCollectionCategory = dataMap["makeCollectionCategory"] as? String ?: "",
+                                makeCollectionImages = dataMap["makeCollectionImages"] as? List<String> ?: emptyList(),
+                                makeCollectionCameraImages = dataMap["makeCollectionCameraImages"] as? List<String> ?: emptyList(),
+                                makeCollectionNotes = dataMap["makeCollectionNotes"] as? List<NoteData> ?: emptyList(),
+                                makeCollectionScannedItems = dataMap["makeCollectionScannedItems"] as? List<String> ?: emptyList(),
+                                makeCollectionFiles = dataMap["makeCollectionFiles"] as? List<String> ?: emptyList(),
+                                userAssigned = dataMap["userAssigned"] as? String ?: "",
+                                makeCollectionDate = dataMap["makeCollectionDate"] ?: ServerValue.TIMESTAMP
+                            )
+                        } catch (e: Exception) {
+                            null
+                        }
+                        if (collection != null) {
+                            collections.add(collection)
+                        }
                     }
                 }
                 onResult(collections)
@@ -218,7 +223,6 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
             Log.e("StoryboardActivity", "Failed to generate a story key")
             return
         }
-
         val storyboard = storyboardLine.copy(storyID = storyKey)
         Log.d("StoryboardActivity", "Generated Storyboard: $storyboard")
 
@@ -233,28 +237,45 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
     }
 
 
-    fun getStoryboard(userID: String, onResult: (List<Storyboard_Stories.StoryboardLine>) -> Unit ){
+    fun getStoryboard(userID: String, onResult: (List<Storyboard_Stories.StoryboardLine>) -> Unit) {
         val databaseRef = FirebaseDatabase.getInstance().getReference("Storyboard")
         databaseRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val storyboards = mutableListOf<Storyboard_Stories.StoryboardLine>()
 
-                //val storyboards = dataSnapshot.children.mapNotNull { it.getValue(Storyboard_Stories.StoryboardLine::class.java) }
-                for(storyboardsnapshot in dataSnapshot.children) {
-                    // Retrieve the value from the snapshot
-                    val dataMap = storyboardsnapshot.getValue() as? Map<String, Any>
+                for (storyboardSnapshot in dataSnapshot.children) {
+                    val dataMap = storyboardSnapshot.value as? Map<String, Any>
                     if (dataMap != null && dataMap["user"] != null && userID == dataMap["user"].toString()) {
-                       val storyboard = Storyboard_Stories.StoryboardLine(
+                        val storyboard = Storyboard_Stories.StoryboardLine(
                             storyID = dataMap["storyID"] as? String ?: "",
-                           storyName = dataMap["storyName"] as? String ?: "",
-                           storyItems = dataMap["storyItems"] as? List<MakeCollection> ?: emptyList(),
-                           storyCategory = dataMap["storyCategory"] as? String ?: "",
-                           storyDescription = dataMap["storyDescription"] as? String ?: "",
-                           storyCovers = dataMap["storyCovers"] as? List<String> ?: emptyList(),
-                           showGoalDialog = dataMap["showGoalDialog"] as? Boolean ?: false,
-                           goalSet = dataMap["goalSet"] as? Int ?: 0,
-                           currentProgress = dataMap["currentProgress"] as? Int ?: 0,
+                            storyName = dataMap["storyName"] as? String ?: "",
+                            storyItems = (dataMap["storyItems"] as? List<Map<String, Any>>)?.mapNotNull { item ->
+                                try {
+                                    MakeCollection(
+                                        makeCollectionID = item["makeCollectionID"] as? String ?: "",
+                                        makeCollectionName = item["makeCollectionName"] as? String ?: "",
+                                        makeCollectionDescription = item["makeCollectionDescription"] as? String ?: "",
+                                        makeCollectionCategory = item["makeCollectionCategory"] as? String ?: "",
+                                        makeCollectionImages = item["makeCollectionImages"] as? List<String> ?: emptyList(),
+                                        makeCollectionCameraImages = item["makeCollectionCameraImages"] as? List<String> ?: emptyList(),
+                                        makeCollectionNotes = item["makeCollectionNotes"] as? List<NoteData> ?: emptyList(),
+                                        makeCollectionScannedItems = item["makeCollectionScannedItems"] as? List<String> ?: emptyList(),
+                                        makeCollectionFiles = item["makeCollectionFiles"] as? List<String> ?: emptyList(),
+                                        userAssigned = item["userAssigned"] as? String ?: "",
+                                        makeCollectionDate = item["makeCollectionDate"] ?: ServerValue.TIMESTAMP
+                                    )
+                                } catch (e: Exception) {
+                                    null
+                                }
+                            } ?: emptyList(),
+                            storyCategory = dataMap["storyCategory"] as? String ?: "",
+                            storyDescription = dataMap["storyDescription"] as? String ?: "",
+                            storyCovers = dataMap["storyCovers"] as? List<String> ?: emptyList(),
+                            showGoalDialog = dataMap["showGoalDialog"] as? Boolean ?: false,
+                            goalSet = dataMap["goalSet"] as? String ?: "",
+                            currentProgress = dataMap["currentProgress"] as? String ?: ""
                         )
+                        Log.d("StoryboardActivity", "Storyboard fetched: $storyboard")
                         storyboards.add(storyboard)
                     }
                 }
@@ -266,8 +287,13 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
             }
         })
     }
-    fun updateStoryboard(storyboardId: String, updatedStoryboardLine: Storyboard_Stories.StoryboardLine, onSuccess: () -> Unit, onError: (String) -> Unit) {
-        //val storyboardId = updatedStoryboardLine.storyID // Assuming storyboard ID is used as the key
+
+    fun updateStoryboard(
+        storyboardId: String,
+        updatedStoryboardLine: Storyboard_Stories.StoryboardLine,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
         val storyboardRef = database.child("Storyboard").child(storyboardId)
 
         storyboardRef.setValue(updatedStoryboardLine)

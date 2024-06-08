@@ -4,16 +4,19 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-06-07T13:09:16.132537800Z">
+        <DropdownSelection timestamp="2024-06-04T14:07:05.549020Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\RC_Student_lab\.android\avd\Stamp_25.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=US8PCU6LXGUOCMDI" />
             </handle>
           </Target>
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="AddCollections">
+      <SelectionState runConfigName="Homepage">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="MainScreen">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
