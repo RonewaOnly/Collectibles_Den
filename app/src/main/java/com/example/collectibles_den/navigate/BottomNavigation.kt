@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -76,7 +77,7 @@ fun BottomNavigation(navController: NavController) {
                     }
                 },
                 icon = {
-                    Icon(imageVector = item.icon, contentDescription = item.title)
+                    Icon(imageVector = item.icon, tint = Color.Red, contentDescription = item.title)
                 }
             )
         }
