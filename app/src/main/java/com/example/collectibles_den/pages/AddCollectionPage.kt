@@ -181,7 +181,7 @@ fun makeCollection(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                        Icon(imageVector = Icons.Sharp.OpenInBrowser, contentDescription = null, modifier = Modifier.padding(5.dp))
+                        Icon(imageVector = Icons.Sharp.OpenInBrowser, tint = Color.Red, contentDescription = null, modifier = Modifier.padding(5.dp))
                         Text(text = "Make Collection")
                 }
         }

@@ -47,312 +47,374 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.collectibles_den.data.UserData
+import com.example.collectibles_den.CollectiblesDenApp
 import com.example.collectibles_den.DefaultValuesClass
+import com.example.collectibles_den.R
+import com.example.collectibles_den.data.UserData
 import com.example.collectibles_den.logic.DatabaseViewModel
 import com.example.collectibles_den.logic.DatabaseViewModelFactory
-import com.example.collectibles_den.CollectiblesDenApp
-import com.example.collectibles_den.R
 
 @Suppress("unused")
 var getData = DefaultValuesClass()//This variable used to call the list with the data
+
 @Preview(showBackground = true)
 @Composable
-fun ProfileAccount(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewModelFactory(context = LocalContext.current))) {
-        val userID = CollectiblesDenApp.getUserID()
-        val collectionsState = remember { mutableStateOf<List<UserData>>(emptyList()) }
+fun ProfileAccount(
+    viewModel: DatabaseViewModel = viewModel(
+        factory = DatabaseViewModelFactory(
+            context = LocalContext.current
+        )
+    )
+) {
+    val userID = CollectiblesDenApp.getUserID()
+    val collectionsState = remember { mutableStateOf<List<UserData>>(emptyList()) }
 
-        LaunchedEffect(userID) {
-                userID?.let { uid ->
-                        viewModel.getUser(uid) { user ->
-                                collectionsState.value = user
-                        }
-                }
+    LaunchedEffect(userID) {
+        userID?.let { uid ->
+            viewModel.getUser(uid) { user ->
+                collectionsState.value = user
+            }
         }
+    }
 
-        Column(
-                modifier = Modifier.verticalScroll(rememberScrollState(), true)
+    Text(
+        text = "Account",
+        fontSize = 25.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(15.dp)
+    )
+    Spacer(modifier = Modifier.padding(5.dp))
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState(), true),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
 
-        ) {
-                Spacer(modifier = Modifier.padding(5.dp))
-                Text(text = "Account", fontSize = 25.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(5.dp))
-                ProfileSection(collectionsState.value)
-        }
+    ) {
+        Spacer(modifier = Modifier.padding(25.dp))
+        ProfileSection(collectionsState.value)
+    }
 }
 
 @Composable
 fun ProfileSection(users: List<UserData>) {
-        var isPopProfile by remember { mutableStateOf(false) }
+    var isPopProfile by remember { mutableStateOf(false) }
 
-        if (!isPopProfile) {
-                Column(
+    if (!isPopProfile) {
+        Column(
+            modifier = Modifier
+                .width(400.dp)
+                .background(
+                    colorResource(id = R.color.Thistle),
+                    shape = RoundedCornerShape(15.dp)
+                )
+                .padding(10.dp)
+                .border(1.dp, Color.Transparent, RoundedCornerShape(10.dp))
+
+
+        ) {//Mini Version for personal Details
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                items(users) { user ->
+                    Column(
                         modifier = Modifier
-                                .fillMaxWidth()
-                                .background(colorResource(id = R.color.transparent))
-                                .padding(10.dp)
-                                .border(1.dp, Color.Transparent, RoundedCornerShape(25.dp))
-                ) {//Mini Version for personal Details
-                        LazyRow(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                                items(users) { user ->
-                                        Column(
-                                                modifier = Modifier
-                                                        .clip(RoundedCornerShape(50))
-                                                        .border(2.dp, Color.White)
-                                                        .width(55.dp)
-                                                        .height(55.dp)
-                                                        .background(Color.LightGray),
-                                                verticalArrangement = Arrangement.Center,
-                                                horizontalAlignment = Alignment.CenterHorizontally
-                                        ) {//The circle
-                                                user.username?.let { username ->
-                                                        Text(
-                                                                text = username.substring(0, 2),
-                                                                color = Color.White,
-                                                                textAlign = TextAlign.Center,
-                                                                modifier = Modifier
-                                                                        .clip(RoundedCornerShape(50))
-                                                        )
-                                                }
-                                        }
-                                        Column(
-                                                modifier = Modifier
-                                                        .padding(10.dp)
-                                                        .width(295.dp)
-                                        ) {
-                                                user.firstname?.let { username ->
-                                                        Text(text = username, color = Color.White)
-                                                }
-                                                user.email?.let { email ->
-                                                        Text(
-                                                                text = email,
-                                                                color = Color.White,
-                                                                modifier = Modifier.fillMaxWidth(0.7f)
-                                                        )
-                                                }
-                                        }
-
-                                        Icon(
-                                                imageVector = Icons.Default.SubdirectoryArrowRight,
-                                                contentDescription = null,
-                                                tint = Color.White,
-                                                modifier = Modifier
-                                                        .clickable {
-                                                                isPopProfile = true
-                                                        }
-                                                        .align(Alignment.End)
-                                        )
-                                }
+                            .clip(RoundedCornerShape(50))
+                            .border(2.dp, Color.Red)
+                            .width(55.dp)
+                            .height(55.dp)
+                            .background(Color.LightGray),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {//The circle
+                        user.username?.let { username ->
+                            Text(
+                                text = username.substring(0, 2),
+                                color = Color.Black,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(50))
+                            )
                         }
-                        HorizontalDivider(modifier = Modifier.padding(10.dp) .background(Color.Red))
-                        Text(text = "Extra memory")
-                }
-
-                Spacer(modifier = Modifier.padding(12.dp))
-                //Contact Form
-                Column(
+                    }
+                    Column(
                         modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color.Gray)
-                                .padding(10.dp)
-                        ,
-                        horizontalAlignment = Alignment.Start
-                ) {
-                        Text(text = "Contact",color=Color.White,modifier = Modifier.fillMaxWidth())
-                        HorizontalDivider(modifier = Modifier.padding(10.dp))
+                            .padding(10.dp)
+                            .width(280.dp)
 
-                        TextButton(onClick = { /*TODO*/ },
-                                shape = RoundedCornerShape(25),
-                                border = BorderStroke(1.dp, Color.Black),
-                                colors = ButtonDefaults.buttonColors(Color.LightGray),
-                                modifier = Modifier.width(160.dp)
-                        ) {
-                                Text(text = "Rate Our app")
+                    ) {
+                        user.firstname?.let { username ->
+                            Text(text = username, color = Color.Black)
                         }
-                        Spacer(modifier = Modifier.padding(10.dp))
-                        TextButton(onClick = { /*TODO*/ },
-                                shape = RoundedCornerShape(25),
-                                border = BorderStroke(1.dp, Color.Black),
-                                colors = ButtonDefaults.buttonColors(Color.LightGray),
-                                modifier = Modifier.width(160.dp)
-                        ) {
-                                Text(text = "Help")
+                        Spacer(modifier = Modifier.padding(2.dp))
+                        user.email?.let { email ->
+                            Text(
+                                text = email,
+                                color = Color.Black,
+                                modifier = Modifier.fillMaxWidth(0.7f)
+                            )
                         }
-                        Spacer(modifier = Modifier.padding(10.dp))
-                        TextButton(onClick = { /*TODO*/ },
-                                shape = RoundedCornerShape(25),
-                                border = BorderStroke(1.dp, Color.Black),
-                                colors = ButtonDefaults.buttonColors(Color.LightGray),
-                                modifier = Modifier.width(160.dp)
-                        ) {
-                                Text(text = "Report an Issue")
-                        }
-                        Spacer(modifier = Modifier.padding(10.dp))
-                        TextButton(onClick = { /*TODO*/ },
-                                shape = RoundedCornerShape(25),
-                                border = BorderStroke(1.dp, Color.Black),
-                                colors = ButtonDefaults.buttonColors(Color.LightGray),
-                                modifier = Modifier.width(160.dp)
-                        ) {
-                                Text(text = "Term and Condition")
-                        }
-                        Spacer(modifier = Modifier.padding(10.dp))
+                    }
+
+                    Icon(
+                        imageVector = Icons.Default.SubdirectoryArrowRight,
+                        contentDescription = null,
+                        tint = Color.Red,
+                        modifier = Modifier
+                            .clickable {
+                                isPopProfile = true
+                            }
+                            .align(Alignment.Start)
+                    )
                 }
-                Spacer(modifier = Modifier.padding(12.dp))
-                Column (
-                        modifier = Modifier.fillMaxWidth(),
-
-                        ){
-                        Text(text = "Guild line Video's ", fontWeight = FontWeight.Bold)
-
-                        Text(text = "Video's will be coming soon")
-                }
-
-        } else {
-                //Text(text = "Clicked")
-                val currentUser = users.firstOrNull()
-                currentUser?.let { user ->
-                        FullPersonalProfile(
-                                user = user,
-                                userID = user.id ?: "",
-                                onClose = {
-                                        isPopProfile = false
-                                },
-                                onSave = { updatedUser ->
-                                        // Update the user in the list
-                                        val index = users.indexOfFirst { it.id == updatedUser.id }
-                                        if (index != -1) {
-                                                val updatedUsers = users.toMutableList()
-                                                updatedUsers[index] = updatedUser
-                                                isPopProfile = false
-                                        }
-                                }
-                        )
-                }
+            }
+            HorizontalDivider(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .background(Color.Red)
+                    .border(2.dp, Color.Red)
+                    .fillMaxWidth()
+            )
+            Text(text = "Extra memory", fontWeight = FontWeight.Bold, modifier = Modifier.padding(10.dp, 0.dp, 0.dp))
         }
+
+
+        Spacer(modifier = Modifier.padding(12.dp))
+        //Contact Form
+        Column(
+            modifier = Modifier
+                .width(400.dp)
+                .background(colorResource(id = R.color.Thistle), shape = RoundedCornerShape(15.dp))
+                .padding(10.dp),
+            verticalArrangement = Arrangement.Center,
+
+            ) {
+            Text(text = "Contact", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp, 2.dp, 0.dp, 0.dp))
+            HorizontalDivider(modifier = Modifier
+                .padding(10.dp)
+                .border(2.dp, Color.Red))
+
+            TextButton(
+                onClick = { /*TODO*/ },
+                shape = RoundedCornerShape(25),
+                border = BorderStroke(1.dp, Color.Transparent),
+                colors = ButtonDefaults.buttonColors(colorResource(id = R.color.text)),
+                modifier = Modifier
+                    .width(160.dp)
+                    .padding(10.dp, 0.dp)
+            ) {
+                Text(text = "Rate Our app", color = Color.White)
+            }
+            Spacer(modifier = Modifier.padding(10.dp))
+            TextButton(
+                onClick = { /*TODO*/ },
+                shape = RoundedCornerShape(25),
+                border = BorderStroke(1.dp, Color.Transparent),
+                colors = ButtonDefaults.buttonColors(colorResource(id = R.color.text)),
+                modifier = Modifier
+                    .width(160.dp)
+                    .padding(10.dp, 0.dp)
+            ) {
+                Text(text = "Help", color = Color.White)
+            }
+            Spacer(modifier = Modifier.padding(10.dp))
+            TextButton(
+                onClick = { /*TODO*/ },
+                shape = RoundedCornerShape(25),
+                border = BorderStroke(1.dp, Color.Transparent),
+                colors = ButtonDefaults.buttonColors(colorResource(id = R.color.text)),
+                modifier = Modifier
+                    .width(160.dp)
+                    .padding(10.dp, 0.dp)
+            ) {
+                Text(text = "Report an Issue", color = Color.White)
+            }
+            Spacer(modifier = Modifier.padding(10.dp))
+            TextButton(
+                onClick = { /*TODO*/ },
+                shape = RoundedCornerShape(25),
+                border = BorderStroke(1.dp, Color.Transparent),
+                colors = ButtonDefaults.buttonColors(colorResource(id = R.color.text)),
+                modifier = Modifier
+                    .width(160.dp)
+                    .padding(10.dp, 0.dp)
+            ) {
+                Text(text = "Term and Condition" , fontSize = 12.sp)
+            }
+            Spacer(modifier = Modifier.padding(10.dp))
+        }
+        Spacer(modifier = Modifier.padding(12.dp))
+        Column(
+            modifier = Modifier
+                .padding(5.dp, 0.dp, 5.dp, 0.dp)
+                .background(colorResource(id = R.color.Thistle), shape = RoundedCornerShape(15.dp)),
+
+            ) {
+            Text(text = "Guild line Video's ", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(10.dp, 10.dp))
+
+            HorizontalDivider(modifier = Modifier
+                .padding(10.dp, 1.dp)
+                .border(2.dp, Color.Red))
+            Text(text = "Video's will be coming soon", modifier = Modifier.padding(10.dp, 10.dp))
+        }
+
+    } else {
+        //Text(text = "Clicked")
+        val currentUser = users.firstOrNull()
+        currentUser?.let { user ->
+            FullPersonalProfile(
+                user = user,
+                userID = user.id ?: "",
+                onClose = {
+                    isPopProfile = false
+                },
+                onSave = { updatedUser ->
+                    // Update the user in the list
+                    val index = users.indexOfFirst { it.id == updatedUser.id }
+                    if (index != -1) {
+                        val updatedUsers = users.toMutableList()
+                        updatedUsers[index] = updatedUser
+                        isPopProfile = false
+                    }
+                }
+            )
+        }
+    }
 }
 
 @Composable
 fun FullPersonalProfile(
-        user: UserData,
-        userID: String,
-        onClose: () -> Unit,
-        onSave: (UserData) -> Unit
+    user: UserData,
+    userID: String,
+    onClose: () -> Unit,
+    onSave: (UserData) -> Unit
 ) {
-        var firstname by remember { mutableStateOf(user.firstname ?: "") }
-        var lastname by remember { mutableStateOf(user.lastname ?: "") }
-        var username by remember { mutableStateOf(user.username ?: "") }
-        var email by remember { mutableStateOf(user.email ?: "") }
-        var password by remember { mutableStateOf(user.password ?: "") }
+    var firstname by remember { mutableStateOf(user.firstname ?: "") }
+    var lastname by remember { mutableStateOf(user.lastname ?: "") }
+    var username by remember { mutableStateOf(user.username ?: "") }
+    var email by remember { mutableStateOf(user.email ?: "") }
+    var password by remember { mutableStateOf(user.password ?: "") }
 
-        var isEnable by remember { mutableStateOf(false) } //Will enable for changing details
-        val context = LocalContext.current
+    var isEnable by remember { mutableStateOf(false) } //Will enable for changing details
+    val context = LocalContext.current
 
-        Column(
-                modifier = Modifier
-                        .width(650.dp)
-                        .background(Color.LightGray),
-                verticalArrangement = Arrangement.SpaceEvenly,
-                horizontalAlignment = Alignment.Start
-        ) {
-                Icon(
-                        imageVector = Icons.Filled.Close,
-                        contentDescription = null,
-                        tint = Color.Black,
-                        modifier = Modifier
-                                .align(Alignment.Start)
-                                .clickable {
-                                        onClose()
-                                }
-                )//Close
-                Icon(
-                        imageVector = Icons.Filled.Edit,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier
-                                .align(Alignment.End)
-                                .clickable {
-                                        isEnable = true
-                                }
-                )// Live Edit
-                LazyColumn(
-                        modifier = Modifier
-                                .height(400.dp)
-                                .width(400.dp)
-                                .padding(10.dp)
-                ) {
-                        item {
-                                TextField(
-                                        value = firstname,
-                                        onValueChange = { firstname = it },
-                                        enabled = isEnable,
-                                        label = { Text(text = "Enter Firstname: ") }
-                                )
-                                TextField(
-                                        value = lastname,
-                                        onValueChange = { lastname = it },
-                                        enabled = isEnable,
-                                        label = { Text(text = "Enter Lastname: ") }
-                                )
-                                TextField(
-                                        value = username,
-                                        onValueChange = { username = it },
-                                        enabled = isEnable,
-                                        label = { Text(text = "Enter Username: ") }
-                                )
-                                TextField(
-                                        value = email,
-                                        onValueChange = { email = it },
-                                        enabled = isEnable,
-                                        label = { Text(text = "Enter Email: ") }
-                                )
-                                TextField(
-                                        value = password,
-                                        onValueChange = { password = it },
-                                        enabled = isEnable,
-                                        label = { Text(text = "Enter Password: ") },
-                                        minLines = 2
-                                )
+    Column(
+        modifier = Modifier
+            .width(400.dp)
+            .background(colorResource(id = R.color.Thistle), shape = RoundedCornerShape(15.dp))
+            .border(1.dp, color = Color.Blue, shape = RoundedCornerShape(15.dp))
+            .padding(29.dp),
 
-                                Button(onClick = {
-                                        val updatedProfile = updateUserProfile(
-                                                userID,
-                                                firstname,
-                                                lastname,
-                                                username,
-                                                email,
-                                                password
-                                        )
-                                        onSave(updatedProfile)
-                                        Toast.makeText(context, "Saved", Toast.LENGTH_LONG).show()
-                                        isEnable = false
-                                }) {
-                                        Text(text = "Save")
-                                }
-                        }
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Close,
+            contentDescription = null,
+            tint = Color.Black,
+            modifier = Modifier
+                .align(Alignment.Start)
+                .padding(5.dp)
+                .clickable {
+                    onClose()
                 }
+        )//Close
+        Icon(
+            imageVector = Icons.Filled.Edit,
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(5.dp, 0.dp, 2.dp,0.dp)
+                .clickable {
+                    isEnable = true
+                }
+        )// Live Edit
+        LazyColumn(
+            modifier = Modifier
+                .height(400.dp)
+                .width(400.dp)
+                .padding(10.dp)
+        ) {
+            item {
+                TextField(
+                    value = firstname,
+                    onValueChange = { firstname = it },
+                    enabled = isEnable,
+                    label = { Text(text = "Enter Firstname: ") }
+                )
+                TextField(
+                    value = lastname,
+                    onValueChange = { lastname = it },
+                    enabled = isEnable,
+                    label = { Text(text = "Enter Lastname: ") }
+                )
+                TextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    enabled = isEnable,
+                    label = { Text(text = "Enter Username: ") }
+                )
+                TextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    enabled = isEnable,
+                    label = { Text(text = "Enter Email: ") }
+                )
+                TextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    enabled = isEnable,
+                    label = { Text(text = "Enter Password: ") },
+                    minLines = 2
+                )
+
+                Button(modifier = Modifier
+                    .width(200.dp)
+                    .height(50.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .padding(20.dp, 10.dp, 0.dp, 0.dp), onClick = {
+
+                    val updatedProfile = updateUserProfile(
+                        userID,
+                        firstname,
+                        lastname,
+                        username,
+                        email,
+                        password
+                    )
+
+                    onSave(updatedProfile)
+                    Toast.makeText(context, "Saved", Toast.LENGTH_LONG).show()
+                    isEnable = false
+                }) {
+
+                    Text(text = "Save", fontSize = 18.sp, color = Color.White )
+                }
+            }
         }
+    }
 }
 
 fun updateUserProfile(
-        userId: String,
-        newFirstName: String? = null,
-        newLastName: String? = null,
-        newUsername: String? = null,
-        newEmail: String? = null,
-        newPassword: String? = null
+    userId: String,
+    newFirstName: String? = null,
+    newLastName: String? = null,
+    newUsername: String? = null,
+    newEmail: String? = null,
+    newPassword: String? = null
 ): UserData {
-        return UserData(
-                id = userId,
-                firstname = newFirstName,
-                lastname = newLastName,
-                username = newUsername,
-                email = newEmail,
-                password = newPassword
-        )
+    return UserData(
+        id = userId,
+        firstname = newFirstName,
+        lastname = newLastName,
+        username = newUsername,
+        email = newEmail,
+        password = newPassword
+    )
 }
 
 /*//This is an example of a card
