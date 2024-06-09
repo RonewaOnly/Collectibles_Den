@@ -171,7 +171,7 @@ class AchievementBlock {
             Surface(
                 modifier = Modifier
                     .width(300.dp)
-                    .height(120.dp)
+                    .height(125.dp)
                     .padding(18.dp),
                 shape = RoundedCornerShape(8.dp)
             ) {
