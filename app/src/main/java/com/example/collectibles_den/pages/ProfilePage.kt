@@ -249,7 +249,7 @@ fun ProfileSection(users: List<UserData>) {
         Spacer(modifier = Modifier.padding(12.dp))
         Column(
             modifier = Modifier
-                .padding(9.dp, 0.dp, 5.dp, 0.dp)
+                .padding(5.dp, 0.dp, 5.dp, 0.dp)
                 .background(colorResource(id = R.color.Thistle), shape = RoundedCornerShape(15.dp)),
 
             ) {
