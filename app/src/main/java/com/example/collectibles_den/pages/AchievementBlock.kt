@@ -119,7 +119,7 @@ class AchievementBlock {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 when (story.currentProgress) {
-                    "2" -> {
+                   in listOf("1","2") -> {
                         // Less than 3 but greater than or equal to 2
                         Text(text = BadgesTitles.Starter)
                         Spacer(modifier = Modifier.padding(10.dp))
@@ -131,7 +131,7 @@ class AchievementBlock {
                             })
                     }
 
-                    in listOf("4", "5", "6", "7", "8", "9") -> {
+                    in listOf("3","4", "5", "6", "7", "8", "9") -> {
                         // Greater than or equal to 4 but less than 10
                         Text(text = BadgesTitles.Collector)
                         Spacer(modifier = Modifier.padding(10.dp))
