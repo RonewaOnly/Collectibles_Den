@@ -143,6 +143,7 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
                                 makeCollectionID = dataMap["makeCollectionID"] as? String ?: "",
                                 makeCollectionName = dataMap["makeCollectionName"] as? String ?: "",
                                 makeCollectionDescription = dataMap["makeCollectionDescription"] as? String ?: "",
+                                makeCollectionCover = dataMap["makeCollectionCover"] as? String ?: "",
                                 makeCollectionCategory = dataMap["makeCollectionCategory"] as? String ?: "",
                                 makeCollectionImages = dataMap["makeCollectionImages"] as? List<String> ?: emptyList(),
                                 makeCollectionCameraImages = dataMap["makeCollectionCameraImages"] as? List<String> ?: emptyList(),
@@ -175,6 +176,7 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
         collectionName: String,
         collectionDesc: String,
         category: String,
+        cover:String,
         images: List<Uri?> = emptyList(),
         cameraImages: List<Uri?> = emptyList(),
         notes: List<NoteData> = emptyList(),
@@ -190,6 +192,7 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
                 collectionName,
                 collectionDesc,
                 category,
+                cover,
                 images.map { it.toString() }, // Convert Uri to String
                 cameraImages.map { it.toString() }, // Convert Uri to String
                 notes,

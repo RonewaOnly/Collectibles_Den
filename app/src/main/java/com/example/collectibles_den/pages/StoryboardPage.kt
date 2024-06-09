@@ -1,5 +1,3 @@
-package com.example.collectibles_den.pages
-
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -61,6 +59,7 @@ import com.example.collectibles_den.data.MakeCollection
 import com.example.collectibles_den.data.Storyboard_Stories
 import com.example.collectibles_den.logic.DatabaseViewModel
 import com.example.collectibles_den.logic.DatabaseViewModelFactory
+import com.example.collectibles_den.pages.AchievementBlock
 
 @Composable
 fun Storyboard(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewModelFactory(context = LocalContext.current))) {
@@ -535,7 +534,6 @@ fun EditBoard(
         }
     }
 }
-
 fun handleSaveStoryboard(
     storyID: String,
     updatedStoryboardItem: Storyboard_Stories.StoryboardLine,

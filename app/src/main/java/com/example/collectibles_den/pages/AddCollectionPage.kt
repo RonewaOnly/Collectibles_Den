@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Attachment
 import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.ImageSearch
 import androidx.compose.material.icons.filled.NoteAlt
 import androidx.compose.material.icons.filled.Scanner
 import androidx.compose.material.icons.sharp.OpenInBrowser
@@ -58,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.collectibles_den.CollectiblesDenApp
@@ -65,11 +67,13 @@ import com.example.collectibles_den.R
 import com.example.collectibles_den.coreFunction_AddCollection.FileReaderClass
 import com.example.collectibles_den.coreFunction_AddCollection.ScannerClass
 import com.example.collectibles_den.coreFunction_AddCollection.TakePhotosClass
+import com.example.collectibles_den.coreFunction_AddCollection.UploadImages
 import com.example.collectibles_den.data.MakeCollection
 import com.example.collectibles_den.data.NoteData
 import com.example.collectibles_den.logic.DatabaseViewModel
 import com.example.collectibles_den.logic.DatabaseViewModelFactory
 import com.example.collectibles_den.logic.TakePhotosViewModel
+import com.google.firebase.storage.FirebaseStorage
 
 @Preview
 @Composable
@@ -96,13 +100,22 @@ fun AddCollections(viewModel: DatabaseViewModel = viewModel(factory = DatabaseVi
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
-fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, viewModel: DatabaseViewModel, userID: String?): MutableList<MakeCollection> {
+fun makeCollection(
+        @Suppress("UNUSED_PARAMETER") make: List<MakeCollection>,
+        viewModel: DatabaseViewModel,
+        userID: String?
+): MutableList<MakeCollection> {
         val context = LocalContext.current
         val takePhotosClass = remember { TakePhotosClass() }
         @Suppress("LocalVariableName") val PhotoViewModel: TakePhotosViewModel = viewModel()
-
+        var image by remember {
+                mutableStateOf<Uri?>(null)
+        }
         var mainSwitch by remember { mutableStateOf(false) }
         var isPopClicked by remember { mutableStateOf(false) }
+        var isImageGet by remember {
+                mutableStateOf(false)
+        }
         @Suppress("UNUSED_VARIABLE") var isCameraClick by remember { mutableStateOf(false) }
         var isNotesClick by remember { mutableStateOf(false) }
         var isScannerClick by remember { mutableStateOf(false) }
@@ -111,7 +124,6 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
         val noteClass = FileReaderClass()
         val scanClass = ScannerClass()
         var imageUri by remember { mutableStateOf<Uri?>(null) }
-        //var imageCameraUri by remember { mutableStateOf<Uri?>(null) }
         var scannedUri by remember { mutableStateOf<Uri?>(null) }
         var notesBank by remember { mutableStateOf<List<NoteData>>(emptyList()) }
         var attachedFileUri by remember { mutableStateOf<Uri?>(null) }
@@ -120,18 +132,43 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
                 imageUri = uri
         }
 
+        var coverUri by remember { mutableStateOf<Uri?>(null) }
+        var coverDownloadUrl by remember { mutableStateOf<String?>(null) }
+
+        val coverLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+                coverUri = uri
+                uri?.let {
+                        uploadCoverImageToFirebase(it) { downloadUrl ->
+                                coverDownloadUrl = downloadUrl
+                                Toast.makeText(context, "Cover uploaded: $downloadUrl", Toast.LENGTH_SHORT).show()
+                        }
+                }
+        }
+
+        val filePickerLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent()
+        ) { uri: Uri? ->
+                image = uri
+        }
+        var imageCameraUri by remember { mutableStateOf<Uri?>(null) }
         // Setup camera and permission launchers
         val (cameraLauncher, permissionLauncher) = takePhotosClass.setupCameraLauncher(
                 viewModel = PhotoViewModel,
                 onImageCaptured = { uri ->
-                        Toast.makeText(context, "Image captured: $uri", Toast.LENGTH_SHORT).show()
+                        takePhotosClass.uploadImageToFirebase(uri,
+                                onImageCaptured = { downloadUri ->
+                                        Toast.makeText(context, "Image uploaded: $downloadUri", Toast.LENGTH_SHORT).show()
+                                        imageCameraUri = downloadUri
+                                },
+                                onError = { error ->
+                                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                                }
+                        )
                 },
                 onError = { error ->
                         Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
                 }
         )
-        @Suppress("UNUSED_VARIABLE") var imageCameraUri by remember { mutableStateOf<Uri?>(null) }
-
 
         IconButton(
                 onClick = { mainSwitch = true },
@@ -147,14 +184,11 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
                         Icon(imageVector = Icons.Sharp.OpenInBrowser, contentDescription = null, modifier = Modifier.padding(5.dp))
                         Text(text = "Make Collection")
                 }
-
         }
         Spacer(modifier = Modifier.padding(15.dp))
 
         if (mainSwitch) {
-
                 Column(
-
                         modifier = Modifier
                                 .border(1.dp, Color.Blue, shape = RoundedCornerShape(15.dp))
                                 .width(370.dp)
@@ -169,7 +203,10 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
                         Text(text = "Add Items", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
                         Spacer(modifier = Modifier.padding(12.dp))
                         IconButton(
-                                onClick = { launcher.launch("image/*") },
+                                onClick = {
+                                        isImageGet = true
+                                        filePickerLauncher.launch("image/*")
+                                },
                                 modifier = Modifier
                                         .width(200.dp)
                                         .border(1.dp, Color.Transparent, RectangleShape),
@@ -182,6 +219,17 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
                                         Icon(imageVector = Icons.Filled.Image, tint = Color.Red, contentDescription = null, modifier = Modifier.padding(5.dp))
                                         Text(text = "Get Image", color = Color.Black)
                                 }
+                        }
+                        if (image != null) {
+                                UploadImages(
+                                        filePickerLauncher = filePickerLauncher,
+                                        selectedFileUri = image,
+                                        onUploadSuccess = {
+                                                // Handle successful upload
+                                                image = it.toUri()
+                                        },
+                                        storageRef = FirebaseStorage.getInstance().reference // Pass Firebase Storage reference
+                                )
                         }
                         Spacer(modifier = Modifier.padding(5.dp))
                         IconButton(
@@ -204,7 +252,6 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
                                                 // Request camera permissions
                                                 permissionLauncher.launch(Manifest.permission.CAMERA)
                                         }
-                                
                                 },
                                 modifier = Modifier
                                         .width(200.dp)
@@ -257,11 +304,17 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
                                 }
                         }
                         if (isScannerClick) {
-                                scanClass.ScannerDocument(onScanSuccess = { uri ->
-                                        scannedUri = uri
-                                }, onScanError = { message ->
-                                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                                })
+                                scanClass.scannerDocument(
+                                        storageRef = FirebaseStorage.getInstance().reference.child("scanned_documents"),
+                                        onScanSuccess = { uri ->
+                                                scannedUri = uri
+                                                // Handle successful scan and upload here
+                                                Toast.makeText(context, "Scan and upload successful: $uri", Toast.LENGTH_SHORT).show()
+                                        },
+                                        onScanError = { message ->
+                                                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                        }
+                                )
                         }
                         Spacer(modifier = Modifier.padding(5.dp))
                         IconButton(
@@ -295,6 +348,23 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
                                 }
                         }
                         Spacer(modifier = Modifier.padding(5.dp))
+                        IconButton(onClick = {
+                                coverLauncher.launch("image/*")
+
+                        }, modifier = Modifier
+                                .width(200.dp)
+                                .border(1.dp, Color.Transparent, RectangleShape),
+                        ) {
+                                Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceAround
+                                ) {
+                                        Icon(imageVector = Icons.Filled.ImageSearch, contentDescription = null)
+                                        Text(text = "Select Cover")
+                                }
+
+                        }
+                        Spacer(modifier = Modifier.padding(5.dp))
                         IconButton(
                                 onClick = { isPopClicked = true },
                                 modifier = Modifier
@@ -310,15 +380,15 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
                                         Text(text = "Create Board")
                                 }
                         }
+
                         Spacer(modifier = Modifier.padding(15.dp))
-// Display captured image
                         @Suppress("LocalVariableName") val Uri by PhotoViewModel.imageUri.collectAsState()
 
                         if (isPopClicked) {
                                 SaveCollection(
                                         user = userID,
-                                        getImage = imageUri,
-                                        takeImage = Uri,
+                                        getImage = image,
+                                        takeImage = imageCameraUri,
                                         notes = notesBank,
                                         scanned = scannedUri,
                                         file = attachedFileUri,
@@ -329,8 +399,9 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
                                                                 collectionName = collection.makeCollectionName,
                                                                 collectionDesc = collection.makeCollectionDescription,
                                                                 category = collection.makeCollectionCategory,
-                                                                images = listOfNotNull(imageUri),
-                                                                cameraImages = listOfNotNull(Uri),
+                                                                cover = coverDownloadUrl ?: "",
+                                                                images = listOfNotNull(image),
+                                                                cameraImages = listOfNotNull(imageCameraUri),
                                                                 notes = notesBank,
                                                                 scannedItems = listOfNotNull(scannedUri),
                                                                 files = listOfNotNull(attachedFileUri),
@@ -351,6 +422,20 @@ fun makeCollection(@Suppress("UNUSED_PARAMETER") make: List<MakeCollection>, vie
         return listCollection
 }
 
+private fun uploadCoverImageToFirebase(uri: Uri, onUploadSuccess: (String) -> Unit) {
+        val storageRef = FirebaseStorage.getInstance().reference.child("cover_images/${uri.lastPathSegment}")
+        storageRef.putFile(uri)
+                .addOnSuccessListener {
+                        storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                                onUploadSuccess(downloadUri.toString())
+                        }
+                }
+                .addOnFailureListener {
+                        // Handle upload failure
+                }
+}
+
+
 @Composable
 fun DisplayCollection(bank: MutableList<MakeCollection>) {
         if (bank.isNotEmpty()) {
@@ -365,11 +450,10 @@ fun DisplayCollection(bank: MutableList<MakeCollection>) {
                                         verticalArrangement = Arrangement.Center,
                                         horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                        val imageUriString = collection.makeCollectionImages.getOrNull(0)
-                                        val scannedUriString = collection.makeCollectionScannedItems.getOrNull(0)
+                                        val imageUriString = collection.makeCollectionCover
+                                        //val scannedUriString = collection.makeCollectionScannedItems.getOrNull(0)
                                         val painter = when {
-                                                !imageUriString.isNullOrEmpty() -> rememberAsyncImagePainter(Uri.parse(imageUriString))
-                                                !scannedUriString.isNullOrEmpty() -> rememberAsyncImagePainter(Uri.parse(scannedUriString))
+                                                imageUriString.isNotEmpty() -> rememberAsyncImagePainter(Uri.parse(imageUriString))
                                                 else -> rememberAsyncImagePainter(Uri.parse("https://media.istockphoto.com/id/1550540247/photo/decision-thinking-and-asian-man-in-studio-with-glasses-questions-and-brainstorming-on-grey.jpg?s=1024x1024&w=is&k=20&c=M4QZ9PB4fVixyNIrWTgJjIQNPgr2TxX1wlYbyRK40dE=")) // or use a placeholder image
                                         }
 
@@ -379,7 +463,7 @@ fun DisplayCollection(bank: MutableList<MakeCollection>) {
                                                 modifier = Modifier
                                                         .width(200.dp)
                                                         .height(200.dp),
-                                                contentScale = ContentScale.Fit,
+                                                contentScale = ContentScale.Crop,
                                         )
                                         Text(
                                                 text = collection.makeCollectionName,

@@ -1,8 +1,19 @@
-package com.example.collectibles_den.pages
+@file:Suppress("KotlinConstantConditions", "UNREACHABLE_CODE")
 
+package com.example.collectibles_den.pages
+import android.Manifest
+import android.content.ContentResolver
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,8 +25,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,6 +52,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.collectibles_den.CollectiblesDenApp
@@ -46,8 +63,10 @@ import com.example.collectibles_den.logic.DatabaseViewModel
 import com.example.collectibles_den.logic.DatabaseViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.InputStream
 import java.sql.Timestamp
 import java.util.Calendar
+import java.util.Locale
 
 @Preview
 @Composable
@@ -56,6 +75,11 @@ fun Homepage(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewMode
    val userID = CollectiblesDenApp.getUserID()
    var collectionsState by remember { mutableStateOf<List<MakeCollection>>(emptyList()) }
    val coroutineScope = rememberCoroutineScope()
+   val requestPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+      if (!isGranted) {
+         // Handle permission not granted case
+      }
+   }
 
    LaunchedEffect(userID) {
       userID?.let { uid ->
@@ -65,13 +89,16 @@ fun Homepage(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewMode
             }
          }
       }
+      if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+         requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+      }
    }
 
    Column(
-      modifier = Modifier.verticalScroll(rememberScrollState(), true)
+      modifier = Modifier
+         .verticalScroll(rememberScrollState(), true)
          .background(
             brush = Brush.linearGradient(
-
                colors = listOf(
                   colorResource(id = R.color.g_1), colorResource(
                      id = R.color.g_2
@@ -92,7 +119,6 @@ fun Homepage(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewMode
             .height(50.dp)
             .background(Color.Transparent)
             .padding(15.dp)
-
       )
       MainSection(collectionsState)
 
@@ -164,15 +190,22 @@ fun PastSection(lateCollection: List<MakeCollection>) {
 
 @Composable
 fun CollectionItem(collect: MakeCollection) {
+   val collectionId = remember { mutableStateOf("") }
+   val toggle = remember { mutableStateOf(true) }
+
    Row(
       modifier = Modifier
          .fillMaxWidth()
          .padding(8.dp)
-         .border(1.dp, Color.Black),
+         .border(1.dp, Color.Black)
+         .clickable {
+            collectionId.value = collect.makeCollectionID
+            toggle.value = true
+         },
       verticalAlignment = Alignment.CenterVertically
    ) {
       Image(
-         painter = rememberAsyncImagePainter(collect.makeCollectionCameraImages.firstOrNull() ?: "https://media.istockphoto.com/id/1550540247/photo/decision-thinking-and-asian-man-in-studio-with-glasses-questions-and-brainstorming-on-grey.jpg?s=1024x1024&w=is&k=20&c=M4QZ9PB4fVixyNIrWTgJjIQNPgr2TxX1wlYbyRK40dE="),
+         painter = rememberAsyncImagePainter(model = collect.makeCollectionCover ?: "https://media.istockphoto.com/id/1550540247/photo/decision-thinking-and-asian-man-in-studio-with-glasses-questions-and-brainstorming-on-grey.jpg?s=1024x1024&w=is&k=20&c=M4QZ9PB4fVixyNIrWTgJjIQNPgr2TxX1wlYbyRK40dE="),
          contentDescription = null,
          modifier = Modifier
             .size(100.dp)
@@ -187,7 +220,153 @@ fun CollectionItem(collect: MakeCollection) {
          Text(text = "${collect.makeCollectionDate}")
       }
    }
+
+   if (collectionId.value != "" && toggle.value) {
+      CollectionPopUp(collect = collect, collectionID = collectionId.value) {
+         toggle.value = false
+      }
+   }
 }
+
+@Composable
+fun CollectionPopUp(collect: MakeCollection, collectionID: String, onClose: () -> Unit) {
+   val find = collect.makeCollectionID == collectionID
+   val context = LocalContext.current
+   var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+   var imageBtnToggle by remember { mutableStateOf(false) }
+   var cameraBtnToggle by remember { mutableStateOf(false) }
+   var filesBtnToggle by remember { mutableStateOf(false) }
+   var scannedBtnToggle by remember { mutableStateOf(false) }
+   var noteBtnToggle by remember { mutableStateOf(false) }
+
+
+
+   if (find) {
+      Dialog(onDismissRequest = { onClose() }) {
+         Surface(
+            modifier = Modifier.width(450.dp),
+            shape = RectangleShape
+         ) {
+            Column {
+               Row(
+                  modifier = Modifier.fillMaxWidth(),
+                  verticalAlignment = Alignment.CenterVertically,
+                  horizontalArrangement = Arrangement.Start
+               ) {
+                   Image(
+                     painter = rememberAsyncImagePainter(
+                        collect.makeCollectionCover
+                     ),
+                     contentDescription = null,
+                     modifier = Modifier.size(150.dp),
+                     contentScale = ContentScale.Crop
+                  )
+                  Text(text = collect.makeCollectionName.toUpperCase(Locale.ROOT), fontSize = 35.sp)
+               }
+               HorizontalDivider(modifier = Modifier.width(350.dp))
+
+               Text(text = "Description: ${collect.makeCollectionDescription}")
+               val values = mutableListOf<String>()
+
+               // Check the lists and update values
+               for (search in listOf(collect)) {
+                  if (search.makeCollectionCameraImages.isNotEmpty()) {
+                     values += "Camera Images"
+                  }
+                  if (search.makeCollectionImages.isNotEmpty()) {
+                     values += "Images"
+                  }
+                  if (search.makeCollectionScannedItems.isNotEmpty()) {
+                     values += "Scanned Images"
+                  }
+                  if (search.makeCollectionFiles.isNotEmpty()) {
+                     values += "Files"
+                  }
+                  if (search.makeCollectionNotes.isNotEmpty()) {
+                     values += "Notes"
+                  }
+                  break
+               }
+
+               // Display the content
+               Row {
+                  values.forEach { value ->
+                     TextButton(
+                        onClick = {
+                           when (value) {
+                              "Camera Images" -> {
+                                 cameraBtnToggle = !cameraBtnToggle
+                              }
+                              "Images" -> {
+                                 imageBtnToggle = !imageBtnToggle
+                              }
+                              "Files" -> {
+                                 filesBtnToggle = !filesBtnToggle
+                              }
+                              "Scanned Images" -> {
+                                 scannedBtnToggle = !scannedBtnToggle
+                              }
+                              "Notes" -> {
+                                 noteBtnToggle = !noteBtnToggle
+                              }
+                           }
+                        },
+                        modifier = Modifier
+                           .border(
+                              2.dp, Color.Gray,
+                              RoundedCornerShape(15.dp)
+                           )
+                           .height(35.dp)
+                     ) {
+                        Text(text = value, fontSize = 12.sp, textAlign = TextAlign.Center)
+                     }
+                     Spacer(modifier = Modifier.padding(2.dp))
+                  }
+               }
+               HorizontalDivider(modifier = Modifier.padding(2.dp))
+
+               // Display the corresponding text based on toggles
+               if (imageBtnToggle && find) {
+                  Text(text = "Image")
+                  Image(painter = rememberAsyncImagePainter(collect.makeCollectionImages[0]), contentDescription = null )
+               }
+               if (cameraBtnToggle) {
+                  Text(text = "Camera")
+               }
+               if (filesBtnToggle) {
+                  Text(text = "Files")
+               }
+               if (scannedBtnToggle) {
+                  Text(text = "Scanned Images")
+                  Image(painter = rememberAsyncImagePainter(Uri.parse(collect.makeCollectionScannedItems[0])), contentDescription = "")
+                  Text(text = "Key ${collect.makeCollectionCover}")
+
+               }
+               if (noteBtnToggle) {
+                  Text(text = "Notes")
+               }
+            }
+         }
+      }
+   }
+}
+
+
+fun loadImageFromUri(contentResolver: ContentResolver, uri: Uri): Bitmap? {
+   var inputStream: InputStream? = null
+   return try {
+      inputStream = contentResolver.openInputStream(uri)
+      BitmapFactory.decodeStream(inputStream)
+   } catch (e: Exception) {
+      e.printStackTrace()
+      null
+   } finally {
+      inputStream?.close()
+   }
+}
+
+
 
 fun getBeginningOfPastMonth(): Timestamp {
    val calendar = Calendar.getInstance()
@@ -195,7 +374,6 @@ fun getBeginningOfPastMonth(): Timestamp {
    calendar.set(Calendar.DAY_OF_MONTH, 1)
    return Timestamp(calendar.timeInMillis)
 }
-
 fun convertServerTimestampToTimestamp(serverTimestamp: Any): Timestamp? {
    return when (serverTimestamp) {
       is Long -> Timestamp(serverTimestamp)
@@ -206,3 +384,4 @@ fun convertServerTimestampToTimestamp(serverTimestamp: Any): Timestamp? {
       else -> null
    }
 }
+
