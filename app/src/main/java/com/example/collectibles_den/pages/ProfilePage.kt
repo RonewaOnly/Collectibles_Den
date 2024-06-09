@@ -201,51 +201,64 @@ fun ProfileSection(users: List<UserData>) {
                 onClick = { /*TODO*/ },
                 shape = RoundedCornerShape(25),
                 border = BorderStroke(1.dp, Color.Transparent),
-                colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue)),
-                modifier = Modifier.width(160.dp) .padding(10.dp, 0.dp)
+                colors = ButtonDefaults.buttonColors(colorResource(id = R.color.text)),
+                modifier = Modifier
+                    .width(160.dp)
+                    .padding(10.dp, 0.dp)
             ) {
-                Text(text = "Rate Our app", color = Color.Black)
+                Text(text = "Rate Our app", color = Color.White)
             }
             Spacer(modifier = Modifier.padding(10.dp))
             TextButton(
                 onClick = { /*TODO*/ },
                 shape = RoundedCornerShape(25),
-                border = BorderStroke(1.dp, Color.Black),
-                colors = ButtonDefaults.buttonColors(Color.LightGray),
-                modifier = Modifier.width(160.dp) .padding(10.dp, 0.dp)
+                border = BorderStroke(1.dp, Color.Transparent),
+                colors = ButtonDefaults.buttonColors(colorResource(id = R.color.text)),
+                modifier = Modifier
+                    .width(160.dp)
+                    .padding(10.dp, 0.dp)
             ) {
-                Text(text = "Help", color = Color.Black)
+                Text(text = "Help", color = Color.White)
             }
             Spacer(modifier = Modifier.padding(10.dp))
             TextButton(
                 onClick = { /*TODO*/ },
                 shape = RoundedCornerShape(25),
-                border = BorderStroke(1.dp, Color.Black),
-                colors = ButtonDefaults.buttonColors(Color.LightGray),
-                modifier = Modifier.width(160.dp)
+                border = BorderStroke(1.dp, Color.Transparent),
+                colors = ButtonDefaults.buttonColors(colorResource(id = R.color.text)),
+                modifier = Modifier
+                    .width(160.dp)
+                    .padding(10.dp, 0.dp)
             ) {
-                Text(text = "Report an Issue")
+                Text(text = "Report an Issue", color = Color.White)
             }
             Spacer(modifier = Modifier.padding(10.dp))
             TextButton(
                 onClick = { /*TODO*/ },
                 shape = RoundedCornerShape(25),
-                border = BorderStroke(1.dp, Color.Black),
-                colors = ButtonDefaults.buttonColors(Color.LightGray),
-                modifier = Modifier.width(160.dp)
+                border = BorderStroke(1.dp, Color.Transparent),
+                colors = ButtonDefaults.buttonColors(colorResource(id = R.color.text)),
+                modifier = Modifier
+                    .width(160.dp)
+                    .padding(10.dp, 0.dp)
             ) {
-                Text(text = "Term and Condition")
+                Text(text = "Term and Condition" , fontSize = 12.sp)
             }
             Spacer(modifier = Modifier.padding(10.dp))
         }
         Spacer(modifier = Modifier.padding(12.dp))
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .padding(9.dp, 0.dp, 5.dp, 0.dp)
+                .background(colorResource(id = R.color.Thistle), shape = RoundedCornerShape(15.dp)),
 
             ) {
-            Text(text = "Guild line Video's ", fontWeight = FontWeight.Bold)
+            Text(text = "Guild line Video's ", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(10.dp, 5.dp))
 
-            Text(text = "Video's will be coming soon")
+            HorizontalDivider(modifier = Modifier
+                .padding(10.dp, 1.dp)
+                .border(2.dp, Color.Red))
+            Text(text = "Video's will be coming soon", modifier = Modifier.padding(10.dp, 10.dp))
         }
 
     } else {
