@@ -174,7 +174,7 @@ fun ProfileSection(users: List<UserData>) {
                     .padding(10.dp)
                     .background(Color.Red)
                     .border(2.dp, Color.Red)
-                    .width(400.dp)
+                    .fillMaxWidth()
             )
             Text(text = "Extra memory", fontWeight = FontWeight.Bold, modifier = Modifier.padding(10.dp, 0.dp, 0.dp))
         }
@@ -190,17 +190,21 @@ fun ProfileSection(users: List<UserData>) {
             verticalArrangement = Arrangement.Center,
 
             ) {
-            Text(text = "Contact", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth() .padding(10.dp, 2.dp, 0.dp, 0.dp))
-            HorizontalDivider(modifier = Modifier.padding(10.dp) .border(2.dp, Color.Red))
+            Text(text = "Contact", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp, 2.dp, 0.dp, 0.dp))
+            HorizontalDivider(modifier = Modifier
+                .padding(10.dp)
+                .border(2.dp, Color.Red))
 
             TextButton(
                 onClick = { /*TODO*/ },
                 shape = RoundedCornerShape(25),
-                border = BorderStroke(1.dp, Color.Black),
-                colors = ButtonDefaults.buttonColors(Color.LightGray),
-                modifier = Modifier.width(160.dp)
+                border = BorderStroke(1.dp, Color.Transparent),
+                colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue)),
+                modifier = Modifier.width(160.dp) .padding(10.dp, 0.dp)
             ) {
-                Text(text = "Rate Our app")
+                Text(text = "Rate Our app", color = Color.Black)
             }
             Spacer(modifier = Modifier.padding(10.dp))
             TextButton(
@@ -208,9 +212,9 @@ fun ProfileSection(users: List<UserData>) {
                 shape = RoundedCornerShape(25),
                 border = BorderStroke(1.dp, Color.Black),
                 colors = ButtonDefaults.buttonColors(Color.LightGray),
-                modifier = Modifier.width(160.dp)
+                modifier = Modifier.width(160.dp) .padding(10.dp, 0.dp)
             ) {
-                Text(text = "Help")
+                Text(text = "Help", color = Color.Black)
             }
             Spacer(modifier = Modifier.padding(10.dp))
             TextButton(
