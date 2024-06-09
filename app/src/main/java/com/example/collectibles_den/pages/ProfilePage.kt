@@ -40,17 +40,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.collectibles_den.data.UserData
 import com.example.collectibles_den.DefaultValuesClass
 import com.example.collectibles_den.logic.DatabaseViewModel
 import com.example.collectibles_den.logic.DatabaseViewModelFactory
 import com.example.collectibles_den.CollectiblesDenApp
+import com.example.collectibles_den.R
 
+@Suppress("unused")
 var getData = DefaultValuesClass()//This variable used to call the list with the data
 @Preview(showBackground = true)
 @Composable
@@ -68,8 +72,10 @@ fun ProfileAccount(viewModel: DatabaseViewModel = viewModel(factory = DatabaseVi
 
         Column(
                 modifier = Modifier.verticalScroll(rememberScrollState(), true)
+
         ) {
-                Text(text = "Account")
+                Spacer(modifier = Modifier.padding(5.dp))
+                Text(text = "Account", fontSize = 25.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(5.dp))
                 ProfileSection(collectionsState.value)
         }
 }
@@ -82,9 +88,9 @@ fun ProfileSection(users: List<UserData>) {
                 Column(
                         modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color.Gray)
+                                .background(colorResource(id = R.color.transparent))
                                 .padding(10.dp)
-                                .border(1.dp, Color.Gray, RoundedCornerShape(25.dp))
+                                .border(1.dp, Color.Transparent, RoundedCornerShape(25.dp))
                 ) {//Mini Version for personal Details
                         LazyRow(
                                 modifier = Modifier.fillMaxWidth(),
@@ -141,7 +147,7 @@ fun ProfileSection(users: List<UserData>) {
                                         )
                                 }
                         }
-                        HorizontalDivider(modifier = Modifier.padding(10.dp))
+                        HorizontalDivider(modifier = Modifier.padding(10.dp) .background(Color.Red))
                         Text(text = "Extra memory")
                 }
 
