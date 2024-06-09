@@ -253,7 +253,7 @@ fun ProfileSection(users: List<UserData>) {
                 .background(colorResource(id = R.color.Thistle), shape = RoundedCornerShape(15.dp)),
 
             ) {
-            Text(text = "Guild line Video's ", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(10.dp, 5.dp))
+            Text(text = "Guild line Video's ", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(10.dp, 10.dp))
 
             HorizontalDivider(modifier = Modifier
                 .padding(10.dp, 1.dp)
@@ -303,10 +303,13 @@ fun FullPersonalProfile(
 
     Column(
         modifier = Modifier
-            .width(650.dp)
-            .background(Color.LightGray),
-        verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.Start
+            .width(400.dp)
+            .background(colorResource(id = R.color.Thistle), shape = RoundedCornerShape(15.dp))
+            .border(1.dp, color = Color.Blue, shape = RoundedCornerShape(15.dp))
+            .padding(29.dp),
+
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
             imageVector = Icons.Filled.Close,
@@ -314,6 +317,7 @@ fun FullPersonalProfile(
             tint = Color.Black,
             modifier = Modifier
                 .align(Alignment.Start)
+                .padding(5.dp)
                 .clickable {
                     onClose()
                 }
@@ -324,6 +328,7 @@ fun FullPersonalProfile(
             tint = Color.White,
             modifier = Modifier
                 .align(Alignment.End)
+                .padding(5.dp, 0.dp, 2.dp,0.dp)
                 .clickable {
                     isEnable = true
                 }
@@ -367,7 +372,12 @@ fun FullPersonalProfile(
                     minLines = 2
                 )
 
-                Button(onClick = {
+                Button(modifier = Modifier
+                    .width(200.dp)
+                    .height(50.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .padding(20.dp, 10.dp, 0.dp, 0.dp), onClick = {
+
                     val updatedProfile = updateUserProfile(
                         userID,
                         firstname,
@@ -376,11 +386,13 @@ fun FullPersonalProfile(
                         email,
                         password
                     )
+
                     onSave(updatedProfile)
                     Toast.makeText(context, "Saved", Toast.LENGTH_LONG).show()
                     isEnable = false
                 }) {
-                    Text(text = "Save")
+
+                    Text(text = "Save", fontSize = 18.sp, color = Color.White )
                 }
             }
         }
