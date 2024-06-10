@@ -386,7 +386,8 @@ fun FullPersonalProfile(
                     onValueChange = { email = it },
                     enabled = isEnable,
                     label = { Text(text = "Enter Email: ") })
-                TextField(value = password,
+                TextField(
+                    value = password,
                     onValueChange = { password = it },
                     enabled = isEnable,
                     label = { Text(text = "Enter Password: ") },
@@ -444,8 +445,13 @@ fun RatePop(onClose: () -> Unit) {
     }
     Dialog(onDismissRequest = { onClose() }) {
         Surface {
-            Column (modifier = Modifier.padding(20.dp) .border(1.dp, Color.Blue, shape = RoundedCornerShape(10.dp)),   verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .border(1.dp, Color.Blue, shape = RoundedCornerShape(10.dp)),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
 
                 for (i in 1..5) {
@@ -458,14 +464,18 @@ fun RatePop(onClose: () -> Unit) {
                     )
                 }
                 Spacer(modifier = Modifier.padding(18.dp))
-                TextField(modifier = Modifier.border(1.dp, Color.Black, shape = RoundedCornerShape(10.dp)), value = comment,
+                TextField(modifier = Modifier.border(
+                    1.dp,
+                    Color.Black,
+                    shape = RoundedCornerShape(10.dp)
+                ), value = comment,
                     onValueChange = { comment = it },
                     minLines = 5,
                     maxLines = 10,
                     label = { Text(text = "Your feedback would helps us a lot", fontSize = 14.sp) })
 
                 Spacer(modifier = Modifier.padding(18.dp))
-                Button(onClick = { onClose() })  {
+                Button(onClick = { onClose() }) {
                     Text(text = "Close")
                 }
                 Spacer(modifier = Modifier.padding(10.dp))
@@ -486,14 +496,19 @@ fun HelpPop(onClose: () -> Unit) {
 
     Dialog(onDismissRequest = { onClose() }) {
         Surface {
-            Column () {
-                TextField(value = problem, onValueChange = { problem = it })
-                Spacer(modifier = Modifier.padding(18.dp))
-                TextField(value = problem, onValueChange = { problemsDescription = it })
+            Column(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .border(1.dp, Color.Blue, shape = RoundedCornerShape(10.dp)),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "Hey", fontSize = 16.sp, modifier = Modifier.padding(20.dp, 10.dp))
                 Spacer(modifier = Modifier.padding(18.dp))
                 Button(onClick = { onClose() }) {
                     Text(text = "Send")
                 }
+                Spacer(modifier = Modifier.padding(10.dp))
             }
         }
     }
@@ -507,13 +522,28 @@ fun Issue(onClose: () -> Unit) {
 
     Dialog(onDismissRequest = { onClose() }) {
         Surface {
-            Column {
-                Text(text = "Have you been experiencing some problems with app ")
-                TextField(value = issue, onValueChange = { issue = it })
-                Spacer(modifier = Modifier.padding(18.dp))
+            Column(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .border(1.dp, Color.Blue, shape = RoundedCornerShape(10.dp)),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Experiencing Problems With The App?",
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(0.dp, 10.dp)
+                )
+                TextField(
+                    modifier = Modifier.height(180.dp),
+                    value = issue,
+                    onValueChange = { issue = it })
+
+                Spacer(modifier = Modifier.padding(15.dp))
                 Button(onClick = { onClose() }) {
                     Text(text = "Send")
                 }
+                Spacer(modifier = Modifier.padding(10.dp))
 
             }
         }
@@ -525,9 +555,18 @@ fun TermsPop(onClose: () -> Unit) {
 
     Dialog(onDismissRequest = { onClose() }) {
         Surface {
-            Column (modifier = Modifier.padding(20.dp) .border(1.dp, Color.Blue, shape = RoundedCornerShape(10.dp)),   verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "bbbb", fontSize = 14.sp,  modifier = Modifier.fillMaxWidth() .padding(20.dp, 10.dp))
+            Column(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .border(1.dp, Color.Blue, shape = RoundedCornerShape(10.dp)),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "bbbb", fontSize = 14.sp, modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp, 10.dp)
+                )
 
                 Spacer(modifier = Modifier.padding(18.dp))
                 Row {
