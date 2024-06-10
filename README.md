@@ -7,8 +7,8 @@ Welcome to Collectibles Den, your go-to mobile application for collecting and or
 Collectibles Den provides users with an intuitive interface and a wide range of features to enhance their collecting experience. Whether you're an avid collector of images, videos, documents, or audio files, this app has you covered. Let's explore some of its key features:
 
 ## Technologies Used
-Android Studio Software Application
-Kotlin Programming Language
+Android Studio Software Application\n
+Kotlin Programming Language\n
 Firebase Online Database Storage
 Jetpack Compose UI Framework
 
