@@ -2,10 +2,8 @@
 
 package com.example.collectibles_den.pages
 import android.Manifest
-import android.content.ContentResolver
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -47,6 +45,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,9 +60,11 @@ import com.example.collectibles_den.R
 import com.example.collectibles_den.data.MakeCollection
 import com.example.collectibles_den.logic.DatabaseViewModel
 import com.example.collectibles_den.logic.DatabaseViewModelFactory
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageMetadata
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.InputStream
 import java.sql.Timestamp
 import java.util.Calendar
 import java.util.Locale
@@ -329,22 +330,36 @@ fun CollectionPopUp(collect: MakeCollection, collectionID: String, onClose: () -
                // Display the corresponding text based on toggles
                if (imageBtnToggle && find) {
                   Text(text = "Image")
-                  Image(painter = rememberAsyncImagePainter(collect.makeCollectionImages[0]), contentDescription = null )
+                  //checkDocumentType(collect.makeCollectionImages[0])
+                  ViewContent(link = collect.makeCollectionImages[0])
+                  //Image(painter = rememberAsyncImagePainter(collect.makeCollectionImages[0]), contentDescription = null )
                }
                if (cameraBtnToggle) {
                   Text(text = "Camera")
+                  //checkDocumentType(collect.makeCollectionCameraImages[0])
+                  ViewContent(link = collect.makeCollectionCameraImages[0])
+
+
                }
                if (filesBtnToggle) {
                   Text(text = "Files")
+                 // checkDocumentType(collect.makeCollectionFiles[0])
+                  ViewContent(link = collect.makeCollectionFiles[0])
+
+
                }
                if (scannedBtnToggle) {
                   Text(text = "Scanned Images")
                   Image(painter = rememberAsyncImagePainter(Uri.parse(collect.makeCollectionScannedItems[0])), contentDescription = "")
-                  Text(text = "Key ${collect.makeCollectionCover}")
+                  //checkDocumentType(collect.makeCollectionScannedItems[0])
+                  ViewContent(link = collect.makeCollectionScannedItems[0])
+
 
                }
                if (noteBtnToggle) {
                   Text(text = "Notes")
+                  //checkDocumentType(collect.makeCollectionNotes[0].downloadLink)
+                  ViewContent(link = collect.makeCollectionNotes[0])
                }
             }
          }
@@ -352,22 +367,109 @@ fun CollectionPopUp(collect: MakeCollection, collectionID: String, onClose: () -
    }
 }
 
+@Composable
+fun ViewContent(link: String) {
+   var fileType by remember { mutableStateOf("loading") }
 
-fun loadImageFromUri(contentResolver: ContentResolver, uri: Uri): Bitmap? {
-   var inputStream: InputStream? = null
-   return try {
-      inputStream = contentResolver.openInputStream(uri)
-      BitmapFactory.decodeStream(inputStream)
-   } catch (e: Exception) {
-      e.printStackTrace()
-      null
-   } finally {
-      inputStream?.close()
+   LaunchedEffect(link) {
+      checkDocumentType(link) { result ->
+         fileType = result
+      }
+   }
+
+   Row(
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.Center
+   ) {
+      when (fileType) {
+         "image" -> Image(
+            painter = painterResource(R.drawable.default_image), // Replace with your image resource
+            contentDescription = null,
+            modifier = Modifier.size(48.dp) // Adjust size as needed
+         )
+         "audio" -> Image(
+            painter = painterResource(R.drawable.ic_audio), // Replace with your audio resource
+            contentDescription = null,
+            modifier = Modifier.size(48.dp) // Adjust size as needed
+         )
+         "video" -> Image(
+            painter = painterResource(R.drawable.ic_video), // Replace with your video resource
+            contentDescription = null,
+            modifier = Modifier.size(48.dp) // Adjust size as needed
+         )
+         "text" -> Image(
+            painter = painterResource(R.drawable.ic_text), // Replace with your text resource
+            contentDescription = null,
+            modifier = Modifier.size(48.dp) // Adjust size as needed
+         )
+         "application" -> Image(
+            painter = painterResource(R.drawable.ic_application), // Replace with your application resource
+            contentDescription = null,
+            modifier = Modifier.size(48.dp) // Adjust size as needed
+         )
+         else -> Image(
+            painter = painterResource(R.drawable.ic_unknown), // Replace with your unknown file resource
+            contentDescription = null,
+            modifier = Modifier.size(48.dp) // Adjust size as needed
+         )
+      }
+      Spacer(modifier = Modifier.height(4.dp))
+      // Display file name
+      Text(text = getFileName(link))
    }
 }
 
+// Function to extract file name from link
+private fun getFileName(link: String): String {
+   // Split the URL string by '/'
+   val segments = link.split("/")
 
+   // Get the last segment, which should represent the file name
+   val lastSegment = segments.lastOrNull()
 
+   // If the last segment is null or empty, return an empty string
+   if (lastSegment.isNullOrEmpty()) {
+      return ""
+   }
+
+   // If the last segment contains a query parameter, remove it
+   val fileName = if (lastSegment.contains("?")) {
+      lastSegment.substringBefore("?")
+   } else {
+      lastSegment
+   }
+   return fileName
+}
+
+//Function to get the MIME type of a file stored in Firebase Storage
+fun getMimeType(storageRef: StorageReference, onResult: (String?) -> Unit) {
+   storageRef.metadata
+      .addOnSuccessListener { metadata: StorageMetadata ->
+         val mimeType = metadata.contentType
+         onResult(mimeType)
+      }
+      .addOnFailureListener { exception ->
+         onResult(null)
+      }
+}
+
+// Example usage
+fun checkDocumentType(uri: String, onResult: (String) -> Unit) {
+   // Assuming uri is a valid Firebase Storage URI
+   val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(uri)
+   getMimeType(storageRef) { mimeType ->
+      val fileType = when {
+         mimeType == null -> "unknown"
+         mimeType.startsWith("image/") -> "image"
+         mimeType.startsWith("video/") -> "video"
+         mimeType.startsWith("audio/") -> "audio"
+         mimeType.startsWith("text/") -> "text"
+         mimeType.startsWith("application/") -> "application"
+         else -> "unknown"
+      }
+      onResult(fileType)
+   }
+}
 fun getBeginningOfPastMonth(): Timestamp {
    val calendar = Calendar.getInstance()
    calendar.add(Calendar.MONTH, -1)
@@ -381,7 +483,9 @@ fun convertServerTimestampToTimestamp(serverTimestamp: Any): Timestamp? {
          val timestamp = serverTimestamp["timestamp"] as? Long
          timestamp?.let { Timestamp(it) }
       }
-      else -> null
+      else -> {
+         // Handle other cases appropriately, e.g., logging or throwing an exception
+         null
+      }
    }
 }
-
