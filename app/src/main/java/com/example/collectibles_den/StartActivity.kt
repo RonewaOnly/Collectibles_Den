@@ -24,12 +24,10 @@ class StartActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    //onclick function to navigate to login activity
-    fun userLogin(@Suppress("UNUSED_PARAMETER") view: View) {
+    fun navToLogin(@Suppress("UNUSED_PARAMETER") view: View) {
 
         //using intent class to switch activities
         val intent = Intent(this@StartActivity, Login::class.java)
         startActivity(intent)
-
     }
 }

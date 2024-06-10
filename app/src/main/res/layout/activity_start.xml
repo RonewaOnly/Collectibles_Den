@@ -69,7 +69,7 @@
         android:layout_width="250dp"
         android:layout_height="50dp"
         android:layout_marginStart="75dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
         android:background="@drawable/get_started_btn"
         android:elevation="95dp"
         android:onClick="getStarted"
@@ -80,24 +80,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2"
         tools:ignore="VisualLintButtonSize,TouchTargetSizeCheck" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn_user_login"
-        style="@android:style/Widget.Button"
-        android:layout_width="250dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="75dp"
-        android:layout_marginTop="25dp"
-        android:background="@drawable/get_started_btn"
-        android:elevation="95dp"
-        android:onClick="userLogin"
-        android:text="Login"
-        android:textColor="@color/black"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView8"
-        tools:ignore="HardcodedText,TouchTargetSizeCheck,VisualLintButtonSize,VisualLintBounds" />
 
     <TextView
         android:id="@+id/textView2"
@@ -118,15 +100,36 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="80dp"
-        android:layout_marginTop="32dp"
-        android:text="Already have an account? Login"
+        android:layout_marginTop="24dp"
+        android:text="Already have an account?"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="16sp"
-        android:textStyle="bold"
+        android:textStyle="normal"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/get_started_btn"
         tools:ignore="HardcodedText" />
+
+    <TextView
+        android:id="@+id/textViewLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="48dp"
+        android:onClick="navToLogin"
+        android:text="Login"
+        android:textAllCaps="true"
+        android:textColor="@color/darkBlue"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/textView8"
+        app:layout_constraintTop_toBottomOf="@+id/get_started_btn"
+        tools:ignore="HardcodedText,DuplicateSpeakableTextCheck" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
