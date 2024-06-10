@@ -328,7 +328,7 @@ fun CollectionPopUp(collect: MakeCollection, collectionID: String, onClose: () -
 
                // Display the corresponding text based on toggles
                if (imageBtnToggle && find) {
-                  Text(text = "Image")
+                  Text(text = "Images")
                   Image(painter = rememberAsyncImagePainter(collect.makeCollectionImages[0]), contentDescription = null )
                }
                if (cameraBtnToggle) {
