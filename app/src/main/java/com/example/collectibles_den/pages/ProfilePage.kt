@@ -507,7 +507,7 @@ fun HelpPop(onClose: () -> Unit) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "HeyGet Help\n" +
+                Text(text = "Get Help\n" +
                         "Get started\n" +
                         "•\tAll about Collectables Den\n" +
                         "•\tDark mode\n" +
