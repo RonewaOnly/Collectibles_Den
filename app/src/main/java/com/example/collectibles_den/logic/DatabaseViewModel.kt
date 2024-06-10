@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.collectibles_den.CollectiblesDenApp
 import com.example.collectibles_den.data.MakeCollection
-import com.example.collectibles_den.data.NoteData
 import com.example.collectibles_den.data.Storyboard_Stories
 import com.example.collectibles_den.data.UserData
 import com.google.firebase.database.DataSnapshot
@@ -143,7 +142,7 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
                                 makeCollectionCategory = dataMap["makeCollectionCategory"] as? String ?: "",
                                 makeCollectionImages = dataMap["makeCollectionImages"] as? List<String> ?: emptyList(),
                                 makeCollectionCameraImages = dataMap["makeCollectionCameraImages"] as? List<String> ?: emptyList(),
-                                makeCollectionNotes = dataMap["makeCollectionNotes"] as? List<NoteData> ?: emptyList(),
+                                makeCollectionNotes = dataMap["makeCollectionNotes"] as? List<String> ?: emptyList(),
                                 makeCollectionScannedItems = dataMap["makeCollectionScannedItems"] as? List<String> ?: emptyList(),
                                 makeCollectionFiles = dataMap["makeCollectionFiles"] as? List<String> ?: emptyList(),
                                 userAssigned = dataMap["userAssigned"] as? String ?: "",
@@ -173,7 +172,7 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
         cover: String,
         images: List<Uri?> = emptyList(),
         cameraImages: List<Uri?> = emptyList(),
-        notes: List<NoteData> = emptyList(),
+        notes: List<String> = emptyList(),
         scannedItems: List<Uri?> = emptyList(),
         files: List<Uri?> = emptyList(),
         user: String,
@@ -254,7 +253,7 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
                                         makeCollectionCategory = item["makeCollectionCategory"] as? String ?: "",
                                         makeCollectionImages = item["makeCollectionImages"] as? List<String> ?: emptyList(),
                                         makeCollectionCameraImages = item["makeCollectionCameraImages"] as? List<String> ?: emptyList(),
-                                        makeCollectionNotes = item["makeCollectionNotes"] as? List<NoteData> ?: emptyList(),
+                                        makeCollectionNotes = item["makeCollectionNotes"] as? List<String> ?: emptyList(),
                                         makeCollectionScannedItems = item["makeCollectionScannedItems"] as? List<String> ?: emptyList(),
                                         makeCollectionFiles = item["makeCollectionFiles"] as? List<String> ?: emptyList(),
                                         userAssigned = item["userAssigned"] as? String ?: "",

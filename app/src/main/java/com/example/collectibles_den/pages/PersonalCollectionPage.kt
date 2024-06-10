@@ -63,17 +63,16 @@ fun PersonalCollection(
         }
     }
 
-    Text(
-        text = "My Collections",
-        color = Color.Black,
-        fontSize = 22.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(20.dp, 10.dp)
-    )
-
     Column(
         modifier = Modifier.verticalScroll(rememberScrollState(), true)
     ) {
+        Text(
+            text = "My Collections",
+            color = Color.Black,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(20.dp, 10.dp)
+        )
         CollectSameCategories(collection = collectionsState)
     }
 }

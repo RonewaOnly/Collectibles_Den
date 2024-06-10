@@ -1,12 +1,9 @@
-@file:Suppress("KotlinConstantConditions")
+@file:Suppress("KotlinConstantConditions", "UNREACHABLE_CODE")
 
 package com.example.collectibles_den.pages
 import android.Manifest
-import android.content.ContentResolver
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -47,6 +44,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,13 +55,19 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.collectibles_den.CollectiblesDenApp
+import com.example.collectibles_den.Extras.DocumentViewer
+import com.example.collectibles_den.Extras.MusicPlayer
+import com.example.collectibles_den.Extras.VideoPlayer
+import com.example.collectibles_den.Extras.ViewImage
 import com.example.collectibles_den.R
 import com.example.collectibles_den.data.MakeCollection
 import com.example.collectibles_den.logic.DatabaseViewModel
 import com.example.collectibles_den.logic.DatabaseViewModelFactory
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageMetadata
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.InputStream
 import java.sql.Timestamp
 import java.util.Calendar
 import java.util.Locale
@@ -75,7 +79,7 @@ fun Homepage(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewMode
    val userID = CollectiblesDenApp.getUserID()
    var collectionsState by remember { mutableStateOf<List<MakeCollection>>(emptyList()) }
    val coroutineScope = rememberCoroutineScope()
-   @Suppress("ControlFlowWithEmptyBody") val requestPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+   val requestPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
       if (!isGranted) {
          // Handle permission not granted case
       }
@@ -124,14 +128,11 @@ fun Homepage(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewMode
 
       Text(
          text = "Past Collection",
-         textAlign = TextAlign.Start,
-         fontSize = 20.sp,
-         fontWeight = FontWeight.SemiBold,
+         textAlign = TextAlign.Center,
          modifier = Modifier
             .fillMaxWidth()
             .height(50.dp)
-            .padding(15.dp)
-            .background(Color.Transparent)
+            .background(Color.LightGray)
       )
       PastSection(collectionsState)
    }
@@ -157,11 +158,9 @@ fun MainSection(recentCollection: List<MakeCollection>) {
       Text(
          text = "No Records Found :)",
          textAlign = TextAlign.Center,
-         fontSize = 20.sp,
-         fontWeight = FontWeight.SemiBold,
          modifier = Modifier
             .fillMaxWidth()
-            .background(Color.Transparent)
+            .background(Color.LightGray)
       )
    }
 }
@@ -185,12 +184,10 @@ fun PastSection(lateCollection: List<MakeCollection>) {
    } else {
       Text(
          text = "No Records Found :)",
-         fontSize = 20.sp,
-         fontWeight = FontWeight.SemiBold,
          textAlign = TextAlign.Center,
          modifier = Modifier
             .fillMaxWidth()
-            .background(Color.Transparent)
+            .background(Color.LightGray)
       )
    }
 }
@@ -211,7 +208,6 @@ fun CollectionItem(collect: MakeCollection) {
          },
       verticalAlignment = Alignment.CenterVertically
    ) {
-      @Suppress("USELESS_ELVIS")
       Image(
          painter = rememberAsyncImagePainter(model = collect.makeCollectionCover ?: "https://media.istockphoto.com/id/1550540247/photo/decision-thinking-and-asian-man-in-studio-with-glasses-questions-and-brainstorming-on-grey.jpg?s=1024x1024&w=is&k=20&c=M4QZ9PB4fVixyNIrWTgJjIQNPgr2TxX1wlYbyRK40dE="),
          contentDescription = null,
@@ -239,8 +235,8 @@ fun CollectionItem(collect: MakeCollection) {
 @Composable
 fun CollectionPopUp(collect: MakeCollection, collectionID: String, onClose: () -> Unit) {
    val find = collect.makeCollectionID == collectionID
-   @Suppress("UNUSED_VARIABLE") val context = LocalContext.current
-   @Suppress("UNUSED_VARIABLE") var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+   val context = LocalContext.current
+   var bitmap by remember { mutableStateOf<Bitmap?>(null) }
 
    var imageBtnToggle by remember { mutableStateOf(false) }
    var cameraBtnToggle by remember { mutableStateOf(false) }
@@ -270,7 +266,6 @@ fun CollectionPopUp(collect: MakeCollection, collectionID: String, onClose: () -
                      modifier = Modifier.size(150.dp),
                      contentScale = ContentScale.Crop
                   )
-                  @Suppress("DEPRECATION")
                   Text(text = collect.makeCollectionName.toUpperCase(Locale.ROOT), fontSize = 35.sp)
                }
                HorizontalDivider(modifier = Modifier.width(350.dp))
@@ -338,22 +333,31 @@ fun CollectionPopUp(collect: MakeCollection, collectionID: String, onClose: () -
                // Display the corresponding text based on toggles
                if (imageBtnToggle && find) {
                   Text(text = "Image")
-                  Image(painter = rememberAsyncImagePainter(collect.makeCollectionImages[0]), contentDescription = null )
+                  //Image(painter = rememberAsyncImagePainter(collect.makeCollectionImages[0]), contentDescription = null )
+                  ViewContent(link = collect.makeCollectionImages[0])
+
                }
                if (cameraBtnToggle) {
                   Text(text = "Camera")
+                  ViewContent(link = collect.makeCollectionCameraImages[0])
+
                }
                if (filesBtnToggle) {
                   Text(text = "Files")
+                  ViewContent(link = collect.makeCollectionFiles[0])
+
                }
                if (scannedBtnToggle) {
                   Text(text = "Scanned Images")
-                  Image(painter = rememberAsyncImagePainter(Uri.parse(collect.makeCollectionScannedItems[0])), contentDescription = "")
+                  //Image(painter = rememberAsyncImagePainter(Uri.parse(collect.makeCollectionScannedItems[0])), contentDescription = "")
                   Text(text = "Key ${collect.makeCollectionCover}")
+                  ViewContent(link = collect.makeCollectionScannedItems[0])
+
 
                }
                if (noteBtnToggle) {
                   Text(text = "Notes")
+                  ViewContent(link = collect.makeCollectionNotes[0])
                }
             }
          }
@@ -362,17 +366,95 @@ fun CollectionPopUp(collect: MakeCollection, collectionID: String, onClose: () -
 }
 
 
-@Suppress("unused")
-fun loadImageFromUri(contentResolver: ContentResolver, uri: Uri): Bitmap? {
-   var inputStream: InputStream? = null
-   return try {
-      inputStream = contentResolver.openInputStream(uri)
-      BitmapFactory.decodeStream(inputStream)
-   } catch (e: Exception) {
-      e.printStackTrace()
-      null
-   } finally {
-      inputStream?.close()
+@Composable
+fun ViewContent(link: String) {
+   var fileType by remember { mutableStateOf("loading") }
+
+   LaunchedEffect(link) {
+      checkDocumentType(link) { result ->
+         fileType = result
+      }
+   }
+
+   Column(
+      verticalArrangement = Arrangement.Center,
+      horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = Modifier
+         .fillMaxWidth()
+         .height(350.dp)
+         .verticalScroll(rememberScrollState(),true)
+   ) {
+      when (fileType) {
+         "image" -> ViewImage(link)
+         "audio" -> MusicPlayer(link)
+         "video" -> VideoPlayer(link)
+         "text" -> DocumentViewer(link)
+         "application" -> DocumentViewer(link)
+         else -> {
+            Image(
+               painter = painterResource(R.drawable.ic_unknown),
+               contentDescription = null,
+               modifier = Modifier.size(48.dp)
+            )
+            Text(text = "Unknown file type")
+         }
+      }
+      Spacer(modifier = Modifier.height(4.dp))
+      Text(text = getFileName(link))
+   }
+}
+
+// Function to extract file name from link
+private fun getFileName(link: String): String {
+   // Split the URL string by '/'
+   val segments = link.split("/")
+
+   // Get the last segment, which should represent the file name
+   val lastSegment = segments.lastOrNull()
+
+   // If the last segment is null or empty, return an empty string
+   if (lastSegment.isNullOrEmpty()) {
+      return ""
+   }
+
+   // If the last segment contains a query parameter, remove it
+   val fileName = if (lastSegment.contains("?")) {
+      lastSegment.substringBefore("?")
+   } else {
+      lastSegment
+   }
+
+   return fileName
+}
+
+
+//Function to get the MIME type of a file stored in Firebase Storage
+fun getMimeType(storageRef: StorageReference, onResult: (String?) -> Unit) {
+   storageRef.metadata
+      .addOnSuccessListener { metadata: StorageMetadata ->
+         val mimeType = metadata.contentType
+         onResult(mimeType)
+      }
+      .addOnFailureListener { exception ->
+         onResult(null)
+      }
+}
+
+// Example usage
+fun checkDocumentType(uri: String, onResult: (String) -> Unit) {
+   // Assuming uri is a valid Firebase Storage URI
+   val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(uri)
+   getMimeType(storageRef) { mimeType ->
+      val fileType = when {
+         mimeType == null -> "unknown"
+         mimeType.startsWith("image/") -> "image"
+         mimeType.startsWith("video/") -> "video"
+         mimeType.startsWith("audio/") -> "audio"
+         mimeType.startsWith("text/") -> "text"
+         mimeType.startsWith("application/") -> "application"
+         else -> "unknown"
+      }
+      onResult(fileType)
    }
 }
 

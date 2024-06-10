@@ -79,7 +79,9 @@ fun Storyboard(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewMo
         }
     }
     val achievement = AchievementBlock()
-    Column(modifier = Modifier.width(1200.dp).height(3500.dp)) {
+    Column(modifier = Modifier
+        .width(1200.dp)
+        .height(3500.dp)) {
         achievement.ViewPage()
         MaxSection(collectionsState.value, getCollectionsState.value, viewModel, userID)
     }

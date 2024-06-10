@@ -75,8 +75,9 @@ class FileReaderClass {
                         Spacer(modifier = Modifier.width(8.dp))
                         TextButton(
                             onClick = {
-                                WriteToFileAndUpload(context, formTitle, formContent)
-                                onSave(NoteData(formTitle, formContent))
+                                WriteToFileAndUpload(context, formTitle, formContent) { downloadLink ->
+                                    onSave(NoteData(title = formTitle, notes =  formContent, downloadLink =  downloadLink))
+                                }
                                 onClose()
                             }
                         ) {
@@ -88,25 +89,35 @@ class FileReaderClass {
         }
     }
 
-    private fun WriteToFileAndUpload(context: Context, title: String, content: String) {
+    private fun WriteToFileAndUpload(context: Context, title: String, content: String, onComplete: (String) -> Unit) {
         val file = File(context.filesDir, "$title.txt")
         try {
             val outputStreamWriter = OutputStreamWriter(FileOutputStream(file))
             outputStreamWriter.use {
                 it.write(content)
             }
-            uploadFileToFirebase(file, title, context)
+            uploadFileToFirebase(file, title, context) { downloadUrl ->
+                onComplete(downloadUrl)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    private fun uploadFileToFirebase(file: File, title: String, context: Context) {
+    private fun uploadFileToFirebase(file: File, title: String, context: Context, onComplete: (String) -> Unit) {
         val storageRef: StorageReference = FirebaseStorage.getInstance().reference.child("Notes/$title.txt")
         val uri = Uri.fromFile(file)
         storageRef.putFile(uri)
-            .addOnSuccessListener {
-                Toast.makeText(context, "File Uploaded Successfully", Toast.LENGTH_LONG).show()
+            .addOnSuccessListener { taskSnapshot ->
+                // Get the download URL of the uploaded file
+                storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    // Here, 'downloadUri' contains the URL of the uploaded file
+                    val downloadUrl = downloadUri.toString()
+                    Toast.makeText(context, "File Uploaded Successfully", Toast.LENGTH_LONG).show()
+                    onComplete(downloadUrl)
+                }.addOnFailureListener {
+                    Toast.makeText(context, "Failed to get download URL", Toast.LENGTH_LONG).show()
+                }
             }
             .addOnFailureListener {
                 Toast.makeText(context, "File Upload Failed", Toast.LENGTH_LONG).show()

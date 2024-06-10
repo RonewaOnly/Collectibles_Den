@@ -11,7 +11,7 @@ data class MakeCollection(
     val makeCollectionCover: String ="",
     val makeCollectionImages: List<String> = emptyList(),
     val makeCollectionCameraImages: List<String> = emptyList(),
-    val makeCollectionNotes: List<NoteData> = emptyList(),
+    val makeCollectionNotes: List<String> = emptyList(),
     val makeCollectionScannedItems: List<String> = emptyList(),
     val makeCollectionFiles: List<String> = emptyList(),
     val userAssigned: String = "",
