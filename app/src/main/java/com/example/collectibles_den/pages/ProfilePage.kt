@@ -520,25 +520,25 @@ fun HelpPop(onClose: () -> Unit) {
                         "•\tAccidentally created a second account\n" +
                         "See more\n" +
                         "Create and edit\n" +
-                        "•\tGuide to creating Pins\n" +
-                        "•\tEdit or delete a Pin\n" +
+                        "•\tGuide to creating board\n" +
+                        "•\tEdit or delete a board\n" +
                         "•\tCreate a board\n" +
                         "•\tEdit a board\n" +
                         "See more\n" +
                         "Privacy, safety and legal\n" +
-                        "•\tAge requirements for using Pinterest\n" +
+                        "•\tAge requirements for using Collectable Den\n" +
                         "•\tTeen safety options\n" +
                         "•\tAccess, edit or delete personal data\n" +
-                        "•\tAds performance reporting on Pinterest\n" +
+                        "•\tAds performance reporting on Collectables Den\n" +
                         "See more\n" +
                         "Still need help?\n" +
                         "Contact us\n" +
-                        "\n", fontSize = 16.sp, modifier = Modifier.padding(20.dp, 10.dp))
-                Spacer(modifier = Modifier.padding(18.dp))
+                        "\n", fontSize = 16.sp, modifier = Modifier.padding(20.dp, 5.dp))
+                Spacer(modifier = Modifier.padding(2.dp))
                 Button(onClick = { onClose() }) {
-                    Text(text = "Send")
+                    Text(text = "Close")
                 }
-                Spacer(modifier = Modifier.padding(10.dp))
+                Spacer(modifier = Modifier.padding(4.dp))
             }
         }
     }
