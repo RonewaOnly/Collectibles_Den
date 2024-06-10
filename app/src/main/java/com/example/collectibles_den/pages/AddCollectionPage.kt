@@ -404,7 +404,7 @@ fun makeCollection(
                                                                 user = userID
                                                         ) { savedCollection ->
                                                                 listCollection.add(savedCollection)
-                                                                Toast.makeText(context, "Collection saved", Toast.LENGTH_LONG).show()
+                                                                Toast.makeText(context, "Collection saveds", Toast.LENGTH_LONG).show()
                                                                 mainSwitch = false
                                                                 isPopClicked = false
                                                         }
