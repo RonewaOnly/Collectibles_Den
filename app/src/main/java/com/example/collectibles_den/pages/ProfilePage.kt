@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,6 +26,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -45,6 +49,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.collectibles_den.CollectiblesDenApp
 import com.example.collectibles_den.DefaultValuesClass
@@ -97,6 +102,10 @@ fun ProfileAccount(
 @Composable
 fun ProfileSection(users: List<UserData>) {
     var isPopProfile by remember { mutableStateOf(false) }
+    var isRate by remember { mutableStateOf(false) }
+    var isHelp by remember { mutableStateOf(false) }
+    var iaIssue by remember { mutableStateOf(false) }
+    var isTerm by remember { mutableStateOf(false) }
 
     if (!isPopProfile) {
         Column(
@@ -197,7 +206,7 @@ fun ProfileSection(users: List<UserData>) {
                 .border(2.dp, Color.Red))
 
             TextButton(
-                onClick = { /*TODO*/ },
+                onClick = { isRate = true },
                 shape = RoundedCornerShape(25),
                 border = BorderStroke(1.dp, Color.Transparent),
                 colors = ButtonDefaults.buttonColors(colorResource(id = R.color.text)),
@@ -209,7 +218,7 @@ fun ProfileSection(users: List<UserData>) {
             }
             Spacer(modifier = Modifier.padding(10.dp))
             TextButton(
-                onClick = { /*TODO*/ },
+                onClick = { isHelp = true },
                 shape = RoundedCornerShape(25),
                 border = BorderStroke(1.dp, Color.Transparent),
                 colors = ButtonDefaults.buttonColors(colorResource(id = R.color.text)),
@@ -221,7 +230,7 @@ fun ProfileSection(users: List<UserData>) {
             }
             Spacer(modifier = Modifier.padding(10.dp))
             TextButton(
-                onClick = { /*TODO*/ },
+                onClick = { iaIssue = true },
                 shape = RoundedCornerShape(25),
                 border = BorderStroke(1.dp, Color.Transparent),
                 colors = ButtonDefaults.buttonColors(colorResource(id = R.color.text)),
@@ -233,7 +242,7 @@ fun ProfileSection(users: List<UserData>) {
             }
             Spacer(modifier = Modifier.padding(10.dp))
             TextButton(
-                onClick = { /*TODO*/ },
+                onClick = { isTerm = true },
                 shape = RoundedCornerShape(25),
                 border = BorderStroke(1.dp, Color.Transparent),
                 colors = ButtonDefaults.buttonColors(colorResource(id = R.color.text)),
@@ -244,6 +253,26 @@ fun ProfileSection(users: List<UserData>) {
                 Text(text = "Term and Condition" , fontSize = 12.sp)
             }
             Spacer(modifier = Modifier.padding(10.dp))
+        }
+        if (isRate){
+            RatePop(onClose = {
+                isRate = false
+            })
+        }
+        if (isHelp){
+            HelpPop(onClose = {
+                isHelp = false
+            })
+        }
+        if(iaIssue){
+            Issue(onClose = {
+                iaIssue = false
+            })
+        }
+        if (isTerm){
+            TermsPop(onClose = {
+                isTerm = false
+            })
         }
         Spacer(modifier = Modifier.padding(12.dp))
         Column(
@@ -327,7 +356,7 @@ fun FullPersonalProfile(
             tint = Color.White,
             modifier = Modifier
                 .align(Alignment.End)
-                .padding(5.dp, 0.dp, 2.dp,0.dp)
+                .padding(5.dp, 0.dp, 2.dp, 0.dp)
                 .clickable {
                     isEnable = true
                 }
@@ -416,55 +445,109 @@ fun updateUserProfile(
     )
 }
 
-/*//This is an example of a card
 @Composable
-fun CardExample() {
-        Card(
-                modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(8.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
-        ) {
-                Column(
-                        modifier = Modifier
-                                .background(Color.White)
-                                .padding(16.dp)
-                ) {
-                        Image(
-                                painter = rememberAsyncImagePainter("https://www.example.com/image.jpg"),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(200.dp)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                                text = "Card Title",
-                                style = MaterialTheme.typography.titleLarge,
-                                color = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                                text = "Card content goes here. This is an example of a card in Jetpack Compose.",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = Color.Gray
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End
-                        ) {
-                                TextButton(onClick = { /* Perform some action */ }) {
-                                        Text(text = "ACTION 1")
-                                }
-                                TextButton(onClick = { /* Perform some action */ }) {
-                                        Text(text = "ACTION 2")
-                                }
-                        }
+fun RatePop(onClose: () -> Unit){
+    var comment by remember {
+        mutableStateOf("")
+    }
+    var select  by remember {
+        mutableStateOf(false)
+    }
+    Dialog(onDismissRequest = {onClose()}) {
+        Surface {
+            Column {
+                
+                for (i in 1..5){
+                    RadioButton(selected = select , onClick = { 
+                        select = true
+                    }, colors = RadioButtonDefaults.colors(Color.Yellow)
+                        
+                    )
                 }
+                Spacer(modifier = Modifier.padding(18.dp))
+                TextField(
+                    value =comment , 
+                    onValueChange = {comment = it},
+                    minLines = 5,
+                    maxLines = 10,
+                    label = { Text(text = "Your feedback would helps us a lot")}
+                )
+
+                Spacer(modifier = Modifier.padding(18.dp))
+                Button(onClick = {onClose() }) {
+                    Text(text = "Close")
+                }
+            }
         }
+
+    }
 }
-*/
+
+@Composable
+fun HelpPop(onClose: () -> Unit){
+    var problem by remember {
+        mutableStateOf("")
+    }
+    var problemsDescription by remember {
+        mutableStateOf("")
+    }
+
+    Dialog(onDismissRequest = { onClose() }) {
+        Surface {
+            Column {
+                TextField(value = problem, onValueChange = {problem = it})
+                Spacer(modifier = Modifier.padding(18.dp))
+                TextField(value = problem, onValueChange = {problemsDescription = it})
+                Spacer(modifier = Modifier.padding(18.dp))
+                Button(onClick = { onClose() }) {
+                    Text(text = "Send")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun Issue(onClose: () -> Unit){
+    var issue by remember {
+        mutableStateOf("")
+    }
+
+    Dialog(onDismissRequest = { onClose() }) {
+        Surface {
+            Column {
+                Text(text = "Have you been experiencing some problems with app ")
+                TextField(value = issue, onValueChange = {issue = it})
+                Spacer(modifier = Modifier.padding(18.dp))
+                Button(onClick = {onClose()}) {
+                    Text(text = "Send")
+                }
+
+            }
+        }
+    }
+}
+
+@Composable
+fun TermsPop(onClose: () -> Unit){
+
+    Dialog(onDismissRequest = {onClose()}) {
+        Surface {
+            Column {
+                Text(text = "",modifier = Modifier.fillMaxWidth())
+
+                Spacer(modifier = Modifier.padding(18.dp))
+                Row {
+                    Button(onClick = { onClose() }) {
+                        Text(text = "I agree")
+                    }
+                    Spacer(modifier = Modifier.padding(18.dp))
+                    Button(onClick = { onClose() }) {
+                        Text(text = "I don't agree")
+                    }
+                }
+            }
+        }
+
+    }
+}
