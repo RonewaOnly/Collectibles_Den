@@ -85,7 +85,7 @@ fun AddCollections(viewModel: DatabaseViewModel = viewModel(factory = DatabaseVi
                 modifier = Modifier
                         .width(1200.dp)
                         .height(2500.dp)
-                        .border(1.dp, Color.Black)
+                        .border(1.dp, Color.Transparent)
                         .verticalScroll(rememberScrollState(), true),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -125,7 +125,7 @@ fun makeCollection(
         val scanClass = ScannerClass()
         var imageUri by remember { mutableStateOf<Uri?>(null) }
         var scannedUri by remember { mutableStateOf<Uri?>(null) }
-        var notesBank by remember { mutableStateOf<List<NoteData>>(emptyList()) }
+        @Suppress("UNUSED_VARIABLE") var notesBank by remember { mutableStateOf<List<NoteData>>(emptyList()) }
         var attachedFileUri by remember { mutableStateOf<Uri?>(null) }
         var noteUri by remember {
                 mutableStateOf("")
@@ -336,12 +336,12 @@ fun makeCollection(
                                 }
                         }
                         if (isFolderClick) {
-                                var uriString =""
+                                @Suppress("UNUSED_VARIABLE") var uriString =""
                                 noteClass.FilePickerAndReader(onFileSelected = { uri ->
                                         attachedFileUri = uri
                                 })
                                 attachedFileUri?.let { 
-                                        Text(text = "Selected: ${it}")
+                                        Text(text = "Selected: $it")
                                 }
                         }
                         Spacer(modifier = Modifier.padding(5.dp))
