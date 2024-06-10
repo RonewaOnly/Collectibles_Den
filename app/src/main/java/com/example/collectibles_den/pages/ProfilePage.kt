@@ -112,8 +112,7 @@ fun ProfileSection(users: List<UserData>) {
             modifier = Modifier
                 .width(400.dp)
                 .background(
-                    colorResource(id = R.color.Thistle),
-                    shape = RoundedCornerShape(15.dp)
+                    colorResource(id = R.color.Thistle), shape = RoundedCornerShape(15.dp)
                 )
                 .padding(10.dp)
                 .border(1.dp, Color.Transparent, RoundedCornerShape(10.dp))
@@ -141,8 +140,7 @@ fun ProfileSection(users: List<UserData>) {
                                 text = username.substring(0, 2),
                                 color = Color.Black,
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(50))
+                                modifier = Modifier.clip(RoundedCornerShape(50))
                             )
                         }
                     }
@@ -165,16 +163,14 @@ fun ProfileSection(users: List<UserData>) {
                         }
                     }
 
-                    Icon(
-                        imageVector = Icons.Filled.Edit,
+                    Icon(imageVector = Icons.Filled.Edit,
                         contentDescription = null,
                         tint = Color.Red,
                         modifier = Modifier
                             .clickable {
                                 isPopProfile = true
                             }
-                            .align(Alignment.Start)
-                    )
+                            .align(Alignment.Start))
                 }
             }
             HorizontalDivider(
@@ -184,7 +180,11 @@ fun ProfileSection(users: List<UserData>) {
                     .border(2.dp, Color.Red)
                     .fillMaxWidth()
             )
-            Text(text = "Extra memory", fontWeight = FontWeight.Bold, modifier = Modifier.padding(10.dp, 0.dp, 0.dp))
+            Text(
+                text = "Extra memory",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(10.dp, 0.dp, 0.dp)
+            )
         }
 
 
@@ -198,12 +198,20 @@ fun ProfileSection(users: List<UserData>) {
             verticalArrangement = Arrangement.Center,
 
             ) {
-            Text(text = "Contact", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp, 2.dp, 0.dp, 0.dp))
-            HorizontalDivider(modifier = Modifier
-                .padding(10.dp)
-                .border(2.dp, Color.Red))
+            Text(
+                text = "Contact",
+                color = Color.Black,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp, 2.dp, 0.dp, 0.dp)
+            )
+            HorizontalDivider(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .border(2.dp, Color.Red)
+            )
 
             TextButton(
                 onClick = { isRate = true },
@@ -250,26 +258,26 @@ fun ProfileSection(users: List<UserData>) {
                     .width(160.dp)
                     .padding(10.dp, 0.dp)
             ) {
-                Text(text = "Term and Condition" , fontSize = 12.sp)
+                Text(text = "Term and Condition", fontSize = 12.sp)
             }
             Spacer(modifier = Modifier.padding(10.dp))
         }
-        if (isRate){
+        if (isRate) {
             RatePop(onClose = {
                 isRate = false
             })
         }
-        if (isHelp){
+        if (isHelp) {
             HelpPop(onClose = {
                 isHelp = false
             })
         }
-        if(iaIssue){
+        if (iaIssue) {
             Issue(onClose = {
                 iaIssue = false
             })
         }
-        if (isTerm){
+        if (isTerm) {
             TermsPop(onClose = {
                 isTerm = false
             })
@@ -281,11 +289,18 @@ fun ProfileSection(users: List<UserData>) {
                 .background(colorResource(id = R.color.Thistle), shape = RoundedCornerShape(15.dp)),
 
             ) {
-            Text(text = "Guild line Video's ", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(10.dp, 10.dp))
+            Text(
+                text = "Guild line Video's ",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(10.dp, 10.dp)
+            )
 
-            HorizontalDivider(modifier = Modifier
-                .padding(10.dp, 1.dp)
-                .border(2.dp, Color.Red))
+            HorizontalDivider(
+                modifier = Modifier
+                    .padding(10.dp, 1.dp)
+                    .border(2.dp, Color.Red)
+            )
             Text(text = "Video's will be coming soon", modifier = Modifier.padding(10.dp, 10.dp))
         }
 
@@ -293,32 +308,24 @@ fun ProfileSection(users: List<UserData>) {
         //Text(text = "Clicked")
         val currentUser = users.firstOrNull()
         currentUser?.let { user ->
-            FullPersonalProfile(
-                user = user,
-                userID = user.id ?: "",
-                onClose = {
+            FullPersonalProfile(user = user, userID = user.id ?: "", onClose = {
+                isPopProfile = false
+            }, onSave = { updatedUser ->
+                // Update the user in the list
+                val index = users.indexOfFirst { it.id == updatedUser.id }
+                if (index != -1) {
+                    val updatedUsers = users.toMutableList()
+                    updatedUsers[index] = updatedUser
                     isPopProfile = false
-                },
-                onSave = { updatedUser ->
-                    // Update the user in the list
-                    val index = users.indexOfFirst { it.id == updatedUser.id }
-                    if (index != -1) {
-                        val updatedUsers = users.toMutableList()
-                        updatedUsers[index] = updatedUser
-                        isPopProfile = false
-                    }
                 }
-            )
+            })
         }
     }
 }
 
 @Composable
 fun FullPersonalProfile(
-    user: UserData,
-    userID: String,
-    onClose: () -> Unit,
-    onSave: (UserData) -> Unit
+    user: UserData, userID: String, onClose: () -> Unit, onSave: (UserData) -> Unit
 ) {
     var firstname by remember { mutableStateOf(user.firstname ?: "") }
     var lastname by remember { mutableStateOf(user.lastname ?: "") }
@@ -336,11 +343,9 @@ fun FullPersonalProfile(
             .border(1.dp, color = Color.Blue, shape = RoundedCornerShape(15.dp))
             .padding(29.dp),
 
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(
-            imageVector = Icons.Filled.Close,
+        Icon(imageVector = Icons.Filled.Close,
             contentDescription = null,
             tint = Color.Black,
             modifier = Modifier
@@ -348,10 +353,8 @@ fun FullPersonalProfile(
                 .padding(5.dp)
                 .clickable {
                     onClose()
-                }
-        )//Close
-        Icon(
-            imageVector = Icons.Filled.Edit,
+                })//Close
+        Icon(imageVector = Icons.Filled.Edit,
             contentDescription = null,
             tint = Color.White,
             modifier = Modifier
@@ -359,8 +362,7 @@ fun FullPersonalProfile(
                 .padding(5.dp, 0.dp, 2.dp, 0.dp)
                 .clickable {
                     isEnable = true
-                }
-        )// Live Edit
+                })// Live Edit
         LazyColumn(
             modifier = Modifier
                 .height(400.dp)
@@ -368,32 +370,23 @@ fun FullPersonalProfile(
                 .padding(10.dp)
         ) {
             item {
-                TextField(
-                    value = firstname,
+                TextField(value = firstname,
                     onValueChange = { firstname = it },
                     enabled = isEnable,
-                    label = { Text(text = "Enter Firstname: ") }
-                )
-                TextField(
-                    value = lastname,
+                    label = { Text(text = "Enter Firstname: ") })
+                TextField(value = lastname,
                     onValueChange = { lastname = it },
                     enabled = isEnable,
-                    label = { Text(text = "Enter Lastname: ") }
-                )
-                TextField(
-                    value = username,
+                    label = { Text(text = "Enter Lastname: ") })
+                TextField(value = username,
                     onValueChange = { username = it },
                     enabled = isEnable,
-                    label = { Text(text = "Enter Username: ") }
-                )
-                TextField(
-                    value = email,
+                    label = { Text(text = "Enter Username: ") })
+                TextField(value = email,
                     onValueChange = { email = it },
                     enabled = isEnable,
-                    label = { Text(text = "Enter Email: ") }
-                )
-                TextField(
-                    value = password,
+                    label = { Text(text = "Enter Email: ") })
+                TextField(value = password,
                     onValueChange = { password = it },
                     enabled = isEnable,
                     label = { Text(text = "Enter Password: ") },
@@ -404,23 +397,19 @@ fun FullPersonalProfile(
                     .width(200.dp)
                     .height(50.dp)
                     .align(Alignment.CenterHorizontally)
-                    .padding(20.dp, 10.dp, 0.dp, 0.dp), onClick = {
+                    .padding(20.dp, 10.dp, 0.dp, 0.dp),
+                    onClick = {
 
-                    val updatedProfile = updateUserProfile(
-                        userID,
-                        firstname,
-                        lastname,
-                        username,
-                        email,
-                        password
-                    )
+                        val updatedProfile = updateUserProfile(
+                            userID, firstname, lastname, username, email, password
+                        )
 
-                    onSave(updatedProfile)
-                    Toast.makeText(context, "Saved", Toast.LENGTH_LONG).show()
-                    isEnable = false
-                }) {
+                        onSave(updatedProfile)
+                        Toast.makeText(context, "Saved", Toast.LENGTH_LONG).show()
+                        isEnable = false
+                    }) {
 
-                    Text(text = "Save", fontSize = 18.sp, color = Color.White )
+                    Text(text = "Save", fontSize = 18.sp, color = Color.White)
                 }
             }
         }
@@ -446,37 +435,40 @@ fun updateUserProfile(
 }
 
 @Composable
-fun RatePop(onClose: () -> Unit){
+fun RatePop(onClose: () -> Unit) {
     var comment by remember {
         mutableStateOf("")
     }
-    var select  by remember {
+    var select by remember {
         mutableStateOf(false)
     }
-    Dialog(onDismissRequest = {onClose()}) {
+    Dialog(onDismissRequest = { onClose() }) {
         Surface {
-            Column {
-                
-                for (i in 1..5){
-                    RadioButton(selected = select , onClick = { 
-                        select = true
-                    }, colors = RadioButtonDefaults.colors(Color.Yellow)
-                        
+            Column (modifier = Modifier.padding(20.dp) .border(1.dp, Color.Blue, shape = RoundedCornerShape(10.dp)),   verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally) {
+
+
+                for (i in 1..5) {
+                    RadioButton(
+                        modifier = Modifier.padding(5.dp, 0.dp, 240.dp),
+                        selected = select, onClick = {
+                            select = true
+                        }, colors = RadioButtonDefaults.colors(Color.Yellow)
+
                     )
                 }
                 Spacer(modifier = Modifier.padding(18.dp))
-                TextField(
-                    value =comment , 
-                    onValueChange = {comment = it},
+                TextField(modifier = Modifier.border(1.dp, Color.Black, shape = RoundedCornerShape(10.dp)), value = comment,
+                    onValueChange = { comment = it },
                     minLines = 5,
                     maxLines = 10,
-                    label = { Text(text = "Your feedback would helps us a lot")}
-                )
+                    label = { Text(text = "Your feedback would helps us a lot", fontSize = 14.sp) })
 
                 Spacer(modifier = Modifier.padding(18.dp))
-                Button(onClick = {onClose() }) {
+                Button(onClick = { onClose() })  {
                     Text(text = "Close")
                 }
+                Spacer(modifier = Modifier.padding(10.dp))
             }
         }
 
@@ -484,7 +476,7 @@ fun RatePop(onClose: () -> Unit){
 }
 
 @Composable
-fun HelpPop(onClose: () -> Unit){
+fun HelpPop(onClose: () -> Unit) {
     var problem by remember {
         mutableStateOf("")
     }
@@ -494,10 +486,10 @@ fun HelpPop(onClose: () -> Unit){
 
     Dialog(onDismissRequest = { onClose() }) {
         Surface {
-            Column {
-                TextField(value = problem, onValueChange = {problem = it})
+            Column () {
+                TextField(value = problem, onValueChange = { problem = it })
                 Spacer(modifier = Modifier.padding(18.dp))
-                TextField(value = problem, onValueChange = {problemsDescription = it})
+                TextField(value = problem, onValueChange = { problemsDescription = it })
                 Spacer(modifier = Modifier.padding(18.dp))
                 Button(onClick = { onClose() }) {
                     Text(text = "Send")
@@ -508,7 +500,7 @@ fun HelpPop(onClose: () -> Unit){
 }
 
 @Composable
-fun Issue(onClose: () -> Unit){
+fun Issue(onClose: () -> Unit) {
     var issue by remember {
         mutableStateOf("")
     }
@@ -517,9 +509,9 @@ fun Issue(onClose: () -> Unit){
         Surface {
             Column {
                 Text(text = "Have you been experiencing some problems with app ")
-                TextField(value = issue, onValueChange = {issue = it})
+                TextField(value = issue, onValueChange = { issue = it })
                 Spacer(modifier = Modifier.padding(18.dp))
-                Button(onClick = {onClose()}) {
+                Button(onClick = { onClose() }) {
                     Text(text = "Send")
                 }
 
@@ -529,23 +521,26 @@ fun Issue(onClose: () -> Unit){
 }
 
 @Composable
-fun TermsPop(onClose: () -> Unit){
+fun TermsPop(onClose: () -> Unit) {
 
-    Dialog(onDismissRequest = {onClose()}) {
+    Dialog(onDismissRequest = { onClose() }) {
         Surface {
-            Column {
-                Text(text = "",modifier = Modifier.fillMaxWidth())
+            Column (modifier = Modifier.padding(20.dp) .border(1.dp, Color.Blue, shape = RoundedCornerShape(10.dp)),   verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(text = "bbbb", fontSize = 14.sp,  modifier = Modifier.fillMaxWidth() .padding(20.dp, 5.dp))
 
                 Spacer(modifier = Modifier.padding(18.dp))
                 Row {
                     Button(onClick = { onClose() }) {
-                        Text(text = "I agree")
+                        Text(text = "Agree")
                     }
                     Spacer(modifier = Modifier.padding(18.dp))
                     Button(onClick = { onClose() }) {
-                        Text(text = "I don't agree")
+                        Text(text = "Disagree")
                     }
+
                 }
+                Spacer(modifier = Modifier.padding(10.dp))
             }
         }
 
