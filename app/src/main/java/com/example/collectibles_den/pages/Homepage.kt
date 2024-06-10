@@ -55,6 +55,10 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.collectibles_den.CollectiblesDenApp
+import com.example.collectibles_den.Extras.DocumentViewer
+import com.example.collectibles_den.Extras.MusicPlayer
+import com.example.collectibles_den.Extras.VideoPlayer
+import com.example.collectibles_den.Extras.ViewImage
 import com.example.collectibles_den.R
 import com.example.collectibles_den.data.MakeCollection
 import com.example.collectibles_den.logic.DatabaseViewModel
@@ -372,44 +376,30 @@ fun ViewContent(link: String) {
       }
    }
 
-   Row(
-      verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.Center
+   Column(
+      verticalArrangement = Arrangement.Center,
+      horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = Modifier
+         .fillMaxWidth()
+         .height(350.dp)
+         .verticalScroll(rememberScrollState(),true)
    ) {
       when (fileType) {
-         "image" -> Image(
-            painter = painterResource(R.drawable.default_image), // Replace with your image resource
-            contentDescription = null,
-            modifier = Modifier.size(48.dp) // Adjust size as needed
-         )
-         "audio" -> Image(
-            painter = painterResource(R.drawable.ic_audio), // Replace with your audio resource
-            contentDescription = null,
-            modifier = Modifier.size(48.dp) // Adjust size as needed
-         )
-         "video" -> Image(
-            painter = painterResource(R.drawable.ic_video), // Replace with your video resource
-            contentDescription = null,
-            modifier = Modifier.size(48.dp) // Adjust size as needed
-         )
-         "text" -> Image(
-            painter = painterResource(R.drawable.ic_text), // Replace with your text resource
-            contentDescription = null,
-            modifier = Modifier.size(48.dp) // Adjust size as needed
-         )
-         "application" -> Image(
-            painter = painterResource(R.drawable.ic_application), // Replace with your application resource
-            contentDescription = null,
-            modifier = Modifier.size(48.dp) // Adjust size as needed
-         )
-         else -> Image(
-            painter = painterResource(R.drawable.ic_unknown), // Replace with your unknown file resource
-            contentDescription = null,
-            modifier = Modifier.size(48.dp) // Adjust size as needed
-         )
+         "image" -> ViewImage(link)
+         "audio" -> MusicPlayer(link)
+         "video" -> VideoPlayer(link)
+         "text" -> DocumentViewer(link)
+         "application" -> DocumentViewer(link)
+         else -> {
+            Image(
+               painter = painterResource(R.drawable.ic_unknown),
+               contentDescription = null,
+               modifier = Modifier.size(48.dp)
+            )
+            Text(text = "Unknown file type")
+         }
       }
       Spacer(modifier = Modifier.height(4.dp))
-      // Display file name
       Text(text = getFileName(link))
    }
 }
