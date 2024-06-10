@@ -590,6 +590,7 @@ fun TermsPop(onClose: () -> Unit) {
                     .border(1.dp, Color.Blue, shape = RoundedCornerShape(10.dp)),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
+                //selected
             ) {
                 Text(
                     text = "                                                                                            Business Terms of Service\n" +
