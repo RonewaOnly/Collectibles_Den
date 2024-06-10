@@ -1,6 +1,5 @@
 package com.example.collectibles_den.pages
 
-import Storyboard
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -46,7 +45,7 @@ fun MainScreen(){
 
     Scaffold(
         topBar = { MainSearch() },
-        bottomBar = { BottomNavigation(navController = navController)}
+        bottomBar = { BottomNavigation(navController = navController) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -67,7 +66,7 @@ fun MainScreen(){
         ) {
             HorizontalDivider(
                 thickness = 1.dp,
-                color = Color.DarkGray
+                color = Color.Blue
             )
             NavHost(navController = navController, startDestination = "homepage") {
                 composable("homepage") {

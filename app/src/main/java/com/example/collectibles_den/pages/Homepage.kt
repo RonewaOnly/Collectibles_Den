@@ -1,4 +1,4 @@
-@file:Suppress("KotlinConstantConditions", "UNREACHABLE_CODE")
+@file:Suppress("KotlinConstantConditions")
 
 package com.example.collectibles_den.pages
 import android.Manifest
@@ -75,7 +75,7 @@ fun Homepage(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewMode
    val userID = CollectiblesDenApp.getUserID()
    var collectionsState by remember { mutableStateOf<List<MakeCollection>>(emptyList()) }
    val coroutineScope = rememberCoroutineScope()
-   val requestPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+   @Suppress("ControlFlowWithEmptyBody") val requestPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
       if (!isGranted) {
          // Handle permission not granted case
       }
@@ -124,11 +124,14 @@ fun Homepage(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewMode
 
       Text(
          text = "Past Collection",
-         textAlign = TextAlign.Center,
+         textAlign = TextAlign.Start,
+         fontSize = 20.sp,
+         fontWeight = FontWeight.SemiBold,
          modifier = Modifier
             .fillMaxWidth()
             .height(50.dp)
-            .background(Color.LightGray)
+            .padding(15.dp)
+            .background(Color.Transparent)
       )
       PastSection(collectionsState)
    }
@@ -154,9 +157,11 @@ fun MainSection(recentCollection: List<MakeCollection>) {
       Text(
          text = "No Records Found :)",
          textAlign = TextAlign.Center,
+         fontSize = 20.sp,
+         fontWeight = FontWeight.SemiBold,
          modifier = Modifier
             .fillMaxWidth()
-            .background(Color.LightGray)
+            .background(Color.Transparent)
       )
    }
 }
@@ -180,10 +185,12 @@ fun PastSection(lateCollection: List<MakeCollection>) {
    } else {
       Text(
          text = "No Records Found :)",
+         fontSize = 20.sp,
+         fontWeight = FontWeight.SemiBold,
          textAlign = TextAlign.Center,
          modifier = Modifier
             .fillMaxWidth()
-            .background(Color.LightGray)
+            .background(Color.Transparent)
       )
    }
 }
@@ -204,6 +211,7 @@ fun CollectionItem(collect: MakeCollection) {
          },
       verticalAlignment = Alignment.CenterVertically
    ) {
+      @Suppress("USELESS_ELVIS")
       Image(
          painter = rememberAsyncImagePainter(model = collect.makeCollectionCover ?: "https://media.istockphoto.com/id/1550540247/photo/decision-thinking-and-asian-man-in-studio-with-glasses-questions-and-brainstorming-on-grey.jpg?s=1024x1024&w=is&k=20&c=M4QZ9PB4fVixyNIrWTgJjIQNPgr2TxX1wlYbyRK40dE="),
          contentDescription = null,
@@ -231,8 +239,8 @@ fun CollectionItem(collect: MakeCollection) {
 @Composable
 fun CollectionPopUp(collect: MakeCollection, collectionID: String, onClose: () -> Unit) {
    val find = collect.makeCollectionID == collectionID
-   val context = LocalContext.current
-   var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+   @Suppress("UNUSED_VARIABLE") val context = LocalContext.current
+   @Suppress("UNUSED_VARIABLE") var bitmap by remember { mutableStateOf<Bitmap?>(null) }
 
    var imageBtnToggle by remember { mutableStateOf(false) }
    var cameraBtnToggle by remember { mutableStateOf(false) }
@@ -262,6 +270,7 @@ fun CollectionPopUp(collect: MakeCollection, collectionID: String, onClose: () -
                      modifier = Modifier.size(150.dp),
                      contentScale = ContentScale.Crop
                   )
+                  @Suppress("DEPRECATION")
                   Text(text = collect.makeCollectionName.toUpperCase(Locale.ROOT), fontSize = 35.sp)
                }
                HorizontalDivider(modifier = Modifier.width(350.dp))
@@ -353,6 +362,7 @@ fun CollectionPopUp(collect: MakeCollection, collectionID: String, onClose: () -
 }
 
 
+@Suppress("unused")
 fun loadImageFromUri(contentResolver: ContentResolver, uri: Uri): Bitmap? {
    var inputStream: InputStream? = null
    return try {
