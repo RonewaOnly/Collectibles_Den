@@ -45,7 +45,9 @@ fun MainScreen(){
     val navController = rememberNavController()
 
     Scaffold(
-        topBar = { MainSearch() },
+        topBar = { MainSearch()
+
+                 },
         bottomBar = { BottomNavigation(navController = navController) }
     ) { paddingValues ->
         Column(
