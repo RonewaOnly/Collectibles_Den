@@ -85,7 +85,7 @@ class AchievementBlock {
                 }
             }
         } else {
-            Text(text = "No Storyboard for the achievement ")
+            Text(text = "No com.example.collectibles_den.pages.Storyboard for the achievement ")
         }
     }
 

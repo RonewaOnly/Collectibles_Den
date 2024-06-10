@@ -131,7 +131,7 @@ fun makeCollection(
                 mutableStateOf("")
         }
 
-        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        @Suppress("UNUSED_VARIABLE") val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
                 imageUri = uri
         }
 
@@ -379,7 +379,7 @@ fun makeCollection(
                         }
 
                         Spacer(modifier = Modifier.padding(15.dp))
-                        @Suppress("LocalVariableName") val Uri by PhotoViewModel.imageUri.collectAsState()
+                        @Suppress("LocalVariableName", "UNUSED_VARIABLE") val Uri by PhotoViewModel.imageUri.collectAsState()
 
                         if (isPopClicked) {
                                 SaveCollection(
@@ -420,7 +420,7 @@ fun makeCollection(
 }
 
 private fun uploadCoverImageToFirebase(uri: Uri, onUploadSuccess: (String) -> Unit) {
-        val storageRef = FirebaseStorage.getInstance().reference.child("cover_images/${uri.lastPathSegment}")
+        val storageRef =  FirebaseStorage.getInstance().reference.child("cover_images/${uri.lastPathSegment}")
         storageRef.putFile(uri)
                 .addOnSuccessListener {
                         storageRef.downloadUrl.addOnSuccessListener { downloadUri ->

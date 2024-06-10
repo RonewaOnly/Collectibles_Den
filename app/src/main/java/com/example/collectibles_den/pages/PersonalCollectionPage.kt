@@ -25,8 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.collectibles_den.CollectiblesDenApp
@@ -38,112 +40,130 @@ import kotlinx.coroutines.launch
 
 @Preview
 @Composable
-fun PersonalCollection(viewModel: DatabaseViewModel = viewModel(factory = DatabaseViewModelFactory(context = LocalContext.current))) {
-        val context = LocalContext.current
-        val userID = CollectiblesDenApp.getUserID()
-        var collectionsState by remember { mutableStateOf<List<MakeCollection>>(emptyList()) }
-        val coroutineScope = rememberCoroutineScope()
+fun PersonalCollection(
+    viewModel: DatabaseViewModel = viewModel(
+        factory = DatabaseViewModelFactory(
+            context = LocalContext.current
+        )
+    )
 
-        LaunchedEffect(userID) {
-                userID?.let { uid ->
-                        coroutineScope.launch(Dispatchers.IO) {
-                                viewModel.getCollections(uid) { collections ->
-                                        collectionsState = collections
-                                }
-                        }
+) {
+    @Suppress("UNUSED_VARIABLE") val context = LocalContext.current
+    val userID = CollectiblesDenApp.getUserID()
+    var collectionsState by remember { mutableStateOf<List<MakeCollection>>(emptyList()) }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(userID) {
+        userID?.let { uid ->
+            coroutineScope.launch(Dispatchers.IO) {
+                viewModel.getCollections(uid) { collections ->
+                    collectionsState = collections
                 }
+            }
         }
+    }
 
-        Column(
-                modifier = Modifier.verticalScroll(rememberScrollState(), true)
-        ) {
-                CollectSameCategories(collection = collectionsState)
-        }
+    Text(
+        text = "My Collections",
+        color = Color.Black,
+        fontSize = 22.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(20.dp, 10.dp)
+    )
+
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState(), true)
+    ) {
+        CollectSameCategories(collection = collectionsState)
+    }
 }
 
 @Composable
 fun CollectSameCategories(collection: List<MakeCollection>) {
-        var expandedCategories by remember { mutableStateOf<Set<String>>(emptySet()) }
-        val categoryGroups = collection.groupBy { it.makeCollectionCategory }
+    var expandedCategories by remember { mutableStateOf<Set<String>>(emptySet()) }
+    val categoryGroups = collection.groupBy { it.makeCollectionCategory }
 
-        LazyColumn(modifier = Modifier
+    LazyColumn(
+        modifier = Modifier
                 .fillMaxWidth()
                 .height(3200.dp)
-                .padding(8.dp)) {
-                categoryGroups.forEach { (category, items) ->
-                        item {
-                                val isExpanded = category in expandedCategories
+                .padding(8.dp)
+    ) {
+        categoryGroups.forEach { (category, items) ->
+            item {
+                val isExpanded = category in expandedCategories
 
-                                Column(
-                                        modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(vertical = 4.dp)
-                                                .clickable {
-                                                        expandedCategories = if (isExpanded) {
-                                                                expandedCategories - category
-                                                        } else {
-                                                                expandedCategories + category
-                                                        }
-                                                }
-                                                .border(1.dp, Color.Gray)
-                                ) {
-                                        Text(
-                                                text = category,
-                                                style = MaterialTheme.typography.labelSmall,
-                                                modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .background(Color.LightGray)
-                                                        .padding(8.dp)
-                                        )
+                Column(
+                    modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                            .clickable {
+                                    expandedCategories = if (isExpanded) {
+                                            expandedCategories - category
+                                    } else {
+                                            expandedCategories + category
+                                    }
+                            }
+                            .border(1.dp, Color.Black)
+                ) {
+                    Text(
+                        text = category,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.Transparent)
+                                .padding(8.dp)
+                    )
 
-                                        if (isExpanded) {
-                                                items.forEach { item ->
-                                                        CollectionItem(item = item, image = item.makeCollectionCover)
-                                                }
-                                        } else {
-                                                CollectionItem(item = items.first(), image = items[0].makeCollectionCover)
-                                        }
-                                }
-                                Spacer(modifier = Modifier.height(8.dp))
+                    if (isExpanded) {
+                        items.forEach { item ->
+                            CollectionItem(item = item, image = item.makeCollectionCover)
                         }
+                    } else {
+                        CollectionItem(item = items.first(), image = items[0].makeCollectionCover)
+                    }
                 }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
         }
+    }
 }
 
 @Composable
 fun CollectionItem(item: MakeCollection, image: String) {
-        val placeholderImage = "https://media.istockphoto.com/id/1550540247/photo/decision-thinking-and-asian-man-in-studio-with-glasses-questions-and-brainstorming-on-grey.jpg?s=1024x1024&w=is&k=20&c=M4QZ9PB4fVixyNIrWTgJjIQNPgr2TxX1wlYbyRK40dE="
+    val placeholderImage =
+        "https://media.istockphoto.com/id/1550540247/photo/decision-thinking-and-asian-man-in-studio-with-glasses-questions-and-brainstorming-on-grey.jpg?s=1024x1024&w=is&k=20&c=M4QZ9PB4fVixyNIrWTgJjIQNPgr2TxX1wlYbyRK40dE="
 
-        Column(
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .border(1.dp, Color.LightGray)
-        ) {
-                Image(
-                        painter = if (image == "") {
-                                rememberAsyncImagePainter(model = placeholderImage)
-                        }else{
-                                rememberAsyncImagePainter(image)
-                        },
-                        contentDescription = null,
-                        modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp),
-                        contentScale = ContentScale.Crop
-                )
-                Text(
-                        text = item.makeCollectionName,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(8.dp)
-                )
-                Text(
-                        text = "Description: ${item.makeCollectionDescription.ifEmpty { "No description" }}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(8.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-        }
+    Column(
+        modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .border(1.dp, Color.Red)
+    ) {
+        Image(
+            painter = if (image == "") {
+                rememberAsyncImagePainter(model = placeholderImage)
+            } else {
+                rememberAsyncImagePainter(image)
+            },
+            contentDescription = null,
+            modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+            contentScale = ContentScale.Crop
+        )
+        Text(
+            text = item.makeCollectionName,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(8.dp)
+        )
+        Text(
+            text = "Description: ${item.makeCollectionDescription.ifEmpty { "No description" }}",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(8.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+    }
 }
 
 

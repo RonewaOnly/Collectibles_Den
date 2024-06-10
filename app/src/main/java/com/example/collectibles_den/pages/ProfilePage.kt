@@ -21,7 +21,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.SubdirectoryArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -158,7 +157,7 @@ fun ProfileSection(users: List<UserData>) {
                     }
 
                     Icon(
-                        imageVector = Icons.Default.SubdirectoryArrowRight,
+                        imageVector = Icons.Filled.Edit,
                         contentDescription = null,
                         tint = Color.Red,
                         modifier = Modifier
