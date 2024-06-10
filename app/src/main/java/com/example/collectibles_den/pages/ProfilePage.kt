@@ -35,6 +35,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -440,12 +441,9 @@ fun updateUserProfile(
 
 @Composable
 fun RatePop(onClose: () -> Unit) {
-    var comment by remember {
-        mutableStateOf("")
-    }
-    var select by remember {
-        mutableStateOf(false)
-    }
+    var comment by remember { mutableStateOf("") }
+    val selectedRatings = remember { mutableStateListOf<Boolean>(false, false, false, false, false) }
+
     Dialog(onDismissRequest = { onClose() }) {
         Surface {
             Column(
@@ -455,27 +453,31 @@ fun RatePop(onClose: () -> Unit) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-
-                for (i in 1..5) {
-                    RadioButton(
-                        modifier = Modifier.padding(5.dp, 0.dp, 240.dp),
-                        selected = select, onClick = {
-                            select = true
-                        }, colors = RadioButtonDefaults.colors(Color.Yellow)
-
-                    )
+                Row {
+                    for (index in 0..4) {
+                        RadioButton(
+                            modifier = Modifier.padding(1.dp),
+                            selected = selectedRatings[index],
+                            onClick = {
+                                selectedRatings[index] = !selectedRatings[index]
+                            },
+                            colors = RadioButtonDefaults.colors(Color.Yellow)
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.padding(18.dp))
-                TextField(modifier = Modifier.border(
-                    1.dp,
-                    Color.Black,
-                    shape = RoundedCornerShape(10.dp)
-                ), value = comment,
+                TextField(
+                    modifier = Modifier.border(
+                        1.dp,
+                        Color.Black,
+                        shape = RoundedCornerShape(10.dp)
+                    ),
+                    value = comment,
                     onValueChange = { comment = it },
                     minLines = 5,
                     maxLines = 10,
-                    label = { Text(text = "Your feedback would helps us a lot", fontSize = 14.sp) })
+                    label = { Text(text = "Your feedback would help us a lot", fontSize = 14.sp) }
+                )
 
                 Spacer(modifier = Modifier.padding(18.dp))
                 Button(onClick = { onClose() }) {
@@ -484,7 +486,6 @@ fun RatePop(onClose: () -> Unit) {
                 Spacer(modifier = Modifier.padding(10.dp))
             }
         }
-
     }
 }
 
@@ -587,7 +588,10 @@ fun TermsPop(onClose: () -> Unit) {
             Column(
                 modifier = Modifier
                     .padding(20.dp)
-                    .border(1.dp, Color.Blue, shape = RoundedCornerShape(10.dp)),
+                    .border(1.dp, Color.Blue, shape = RoundedCornerShape(10.dp))
+                    .verticalScroll(
+                        rememberScrollState()
+                    ),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
                 //selected
