@@ -172,7 +172,7 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
         cover: String,
         images: List<Uri?> = emptyList(),
         cameraImages: List<Uri?> = emptyList(),
-        notes: List<String> = emptyList(),
+        notes: List<Uri?> = emptyList(),
         scannedItems: List<Uri?> = emptyList(),
         files: List<Uri?> = emptyList(),
         user: String,
@@ -188,7 +188,7 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
                 cover,
                 images.map { it.toString() }, // Convert Uri to String
                 cameraImages.map { it.toString() }, // Convert Uri to String
-                notes,
+                notes.map { it.toString() },
                 scannedItems.map { it.toString() }, // Convert Uri to String
                 files.map { it.toString() }, // Convert Uri to String
                 user

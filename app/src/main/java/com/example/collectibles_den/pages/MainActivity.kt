@@ -46,8 +46,7 @@ fun MainScreen(){
 
     Scaffold(
         topBar = { MainSearch()
-
-                 },
+                  },
         bottomBar = { BottomNavigation(navController = navController) }
     ) { paddingValues ->
         Column(
