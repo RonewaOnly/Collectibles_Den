@@ -22,6 +22,20 @@ After launching Android will snyc files to ensure all resource are added to the 
 
 ## Features
 
+### Account Creation
+To fully experience Collectables Den as a user first register an account by pressing "Get Started" button 
+To Register an account the following is need:
+First and Last Names
+Email 
+for password 
+                
+                Password must meet the following  password 
+                requirements, the password must be:
+                • At least 8 characters long 
+                • Contain a capital letter 
+                • Contain a number 
+                • Contain a special character
+
 ### Home Page
 
 The home page serves as the central hub where users can access all their collections. With a simple click, users can dive into their collections and explore the various media items stored within.
