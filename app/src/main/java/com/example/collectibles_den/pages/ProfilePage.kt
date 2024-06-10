@@ -527,7 +527,7 @@ fun TermsPop(onClose: () -> Unit) {
         Surface {
             Column (modifier = Modifier.padding(20.dp) .border(1.dp, Color.Blue, shape = RoundedCornerShape(10.dp)),   verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "bbbb", fontSize = 14.sp,  modifier = Modifier.fillMaxWidth() .padding(20.dp, 5.dp))
+                Text(text = "bbbb", fontSize = 14.sp,  modifier = Modifier.fillMaxWidth() .padding(20.dp, 10.dp))
 
                 Spacer(modifier = Modifier.padding(18.dp))
                 Row {
