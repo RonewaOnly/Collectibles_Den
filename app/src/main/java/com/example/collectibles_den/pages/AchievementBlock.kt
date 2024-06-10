@@ -27,7 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.collectibles_den.CollectiblesDenApp
@@ -85,7 +87,12 @@ class AchievementBlock {
                 }
             }
         } else {
-            Text(text = "No  achievement to read yet")
+            Spacer(modifier = Modifier.padding(20.dp))
+            Text(
+                text = "No Achievement To Read Yet...",
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 14.sp
+            )
         }
     }
 
@@ -119,7 +126,7 @@ class AchievementBlock {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 when (story.currentProgress) {
-                   in listOf("1","2") -> {
+                    in listOf("1", "2") -> {
                         // Less than 3 but greater than or equal to 2
                         Text(text = BadgesTitles.Starter)
                         Spacer(modifier = Modifier.padding(10.dp))
@@ -131,7 +138,7 @@ class AchievementBlock {
                             })
                     }
 
-                    in listOf("3","4", "5", "6", "7", "8", "9") -> {
+                    in listOf("3", "4", "5", "6", "7", "8", "9") -> {
                         // Greater than or equal to 4 but less than 10
                         Text(text = BadgesTitles.Collector)
                         Spacer(modifier = Modifier.padding(10.dp))
@@ -189,13 +196,14 @@ class AchievementBlock {
         }
     }
 }
-object BadgesTitles{
+
+object BadgesTitles {
     const val Starter = "Starter"
     const val Collector = "Collector"
     const val Packrat = "Packrat"
 }
 
-object BadgesIcons{
+object BadgesIcons {
     val starter = R.drawable.starterachievement
     val collector = R.drawable.collectorachievement
     val packrat = R.drawable.packratachievement
