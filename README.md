@@ -6,6 +6,20 @@ Welcome to Collectibles Den, your go-to mobile application for collecting and or
 
 Collectibles Den provides users with an intuitive interface and a wide range of features to enhance their collecting experience. Whether you're an avid collector of images, videos, documents, or audio files, this app has you covered. Let's explore some of its key features:
 
+## Technologies Used
+Android Studio Software Application
+Kotlin Programming Language
+Firebase Online Database Storage
+Jetpack Compose UI Framework
+
+## Usage
+### Please note this application run on a computer not a mobile phone
+To use Collectibles Den first download Android Studio from https://developer.android.com/studio/?gclid=Cj0KCQiAjJOQBhCkARIsAEKMtO3zEhdK4_I0CEZic3UH4dl-9gVXuHFR9dCl3TOHKjmv3xWLU3UxfhYaApfAEALw_wcB&gclsrc=aw.ds
+And install Android studio upon successful installation launch Android Studio.
+Open open this lick and download the Collectibles Den zip file and extract it using winZar download from https://www.win-rar.com/start.html?&L=0 and install and extract Collectibles_Den-master zip 
+After extracting the files open Android Studio and click open project navigate to downloads and open Collectibles_Den-master file and open app files and the project will lanch
+After launching Android will snyc files to ensure all resource are added to the project after a succeful loading the application press Shift + f10 to run the application or press the play button on the tool bar.
+
 ## Features
 
 ### Home Page
