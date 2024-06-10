@@ -127,6 +127,9 @@ fun makeCollection(
         var scannedUri by remember { mutableStateOf<Uri?>(null) }
         var notesBank by remember { mutableStateOf<List<NoteData>>(emptyList()) }
         var attachedFileUri by remember { mutableStateOf<Uri?>(null) }
+        var noteUri by remember {
+                mutableStateOf("")
+        }
 
         val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
                 imageUri = uri
@@ -283,7 +286,8 @@ fun makeCollection(
                         }
                         if (isNotesClick) {
                                 noteClass.NoteForm(onClose = { isNotesClick = false }, onSave = { note ->
-                                        notesBank = notesBank + note
+                                        noteUri = note.downloadLink
+
                                 })
                         }
                         Spacer(modifier = Modifier.padding(5.dp))
@@ -382,7 +386,7 @@ fun makeCollection(
                                         user = userID,
                                         getImage = image,
                                         takeImage = imageCameraUri,
-                                        notes = notesBank,
+                                        notes = listOfNotNull(noteUri),
                                         scanned = scannedUri,
                                         file = attachedFileUri,
                                         onClose = { isPopClicked = false },
@@ -395,7 +399,7 @@ fun makeCollection(
                                                                 cover = coverDownloadUrl ?: "",
                                                                 images = listOfNotNull(image),
                                                                 cameraImages = listOfNotNull(imageCameraUri),
-                                                                notes = notesBank,
+                                                                notes = listOfNotNull(noteUri),
                                                                 scannedItems = listOfNotNull(scannedUri),
                                                                 files = listOfNotNull(attachedFileUri),
                                                                 user = userID
@@ -482,7 +486,7 @@ fun SaveCollection(
         user: String?,
         getImage: Uri? = null,
         takeImage: Uri? = null,
-        notes: List<NoteData> = emptyList(),
+        notes: List<String> = emptyList(),
         scanned: Uri? = null,
         file: Uri? = null,
         onClose: () -> Unit,
