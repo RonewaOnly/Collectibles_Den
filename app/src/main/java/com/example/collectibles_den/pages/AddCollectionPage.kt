@@ -127,9 +127,7 @@ fun makeCollection(
         var scannedUri by remember { mutableStateOf<Uri?>(null) }
         @Suppress("UNUSED_VARIABLE") var notesBank by remember { mutableStateOf<List<NoteData>>(emptyList()) }
         var attachedFileUri by remember { mutableStateOf<Uri?>(null) }
-        var noteUri by remember {
-                mutableStateOf("")
-        }
+        var noteUri by remember { mutableStateOf<Uri?>(null) }
 
         @Suppress("UNUSED_VARIABLE") val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
                 imageUri = uri
@@ -286,7 +284,8 @@ fun makeCollection(
                         }
                         if (isNotesClick) {
                                 noteClass.NoteForm(onClose = { isNotesClick = false }, onSave = { note ->
-                                        noteUri = note.downloadLink
+
+                                        noteUri = note.downloadLink.toUri()
 
                                 })
                         }
@@ -386,7 +385,7 @@ fun makeCollection(
                                         user = userID,
                                         getImage = image,
                                         takeImage = imageCameraUri,
-                                        notes = listOfNotNull(noteUri),
+                                        notes = noteUri,
                                         scanned = scannedUri,
                                         file = attachedFileUri,
                                         onClose = { isPopClicked = false },
@@ -486,7 +485,7 @@ fun SaveCollection(
         user: String?,
         getImage: Uri? = null,
         takeImage: Uri? = null,
-        notes: List<String> = emptyList(),
+        notes: Uri? =null,
         scanned: Uri? = null,
         file: Uri? = null,
         onClose: () -> Unit,
@@ -495,6 +494,8 @@ fun SaveCollection(
         var collectionName by remember { mutableStateOf("") }
         var collectionDescription by remember { mutableStateOf("") }
         var collectionCategory by remember { mutableStateOf("") }
+        //var noteForm by remember { mutableStateOf("") }
+        //var imageUri by remember { mutableStateOf<Uri?>(null) }
 
         Dialog(onDismissRequest = { onClose() }) {
                 Surface(
@@ -505,7 +506,7 @@ fun SaveCollection(
                 ) {
                         Column(
                                 modifier = Modifier.padding(16.dp),
-                                verticalArrangement =  Arrangement.spacedBy(8.dp)
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                                 TextField(
                                         value = collectionName,
@@ -519,13 +520,12 @@ fun SaveCollection(
                                         label = { Text(text = "Enter Board Description:") }
                                 )
                                 Spacer(modifier = Modifier.padding(10.dp))
-
                                 TextField(
                                         value = collectionCategory,
                                         onValueChange = { collectionCategory = it },
                                         label = { Text(text = "Enter Board Category:") }
                                 )
-
+                                Spacer(modifier = Modifier.padding(10.dp))
                                 Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.End
@@ -536,24 +536,25 @@ fun SaveCollection(
                                         Spacer(modifier = Modifier.width(8.dp))
                                         TextButton(
                                                 onClick = {
-                                                        user?.let {
-                                                                MakeCollection(
-                                                                        makeCollectionName = collectionName,
-                                                                        makeCollectionDescription = collectionDescription,
-                                                                        makeCollectionCategory = collectionCategory,
-                                                                        makeCollectionFiles = listOfNotNull(file.toString()),
-                                                                        makeCollectionImages = listOfNotNull(getImage.toString()),
-                                                                        makeCollectionCameraImages = listOfNotNull(takeImage.toString()),
-                                                                        makeCollectionNotes = notes.toMutableList(),
-                                                                        makeCollectionScannedItems = listOfNotNull(scanned.toString()),
-                                                                        userAssigned = it
-                                                                )
-                                                        }?.let {
-                                                                onSave(
-                                                                        it
-                                                                )
-                                                        }
-                                                        onClose()
+                                                                user?.let {
+                                                                        MakeCollection(
+                                                                                makeCollectionName = collectionName,
+                                                                                makeCollectionDescription = collectionDescription,
+                                                                                makeCollectionCategory = collectionCategory,
+                                                                                makeCollectionFiles = listOfNotNull(file.toString()),
+                                                                                makeCollectionImages = listOfNotNull(getImage.toString()),
+                                                                                makeCollectionCameraImages = listOfNotNull(takeImage.toString()),
+                                                                                makeCollectionNotes = listOfNotNull(notes.toString()),
+                                                                                makeCollectionScannedItems = listOfNotNull(scanned.toString()),
+                                                                                userAssigned = it
+                                                                        )
+                                                                }?.let {
+                                                                        onSave(
+                                                                                it
+                                                                        )
+                                                                }
+                                                                onClose()
+
                                                 }
                                         ) {
                                                 Text("Save")
@@ -563,4 +564,3 @@ fun SaveCollection(
                 }
         }
 }
-
