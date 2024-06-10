@@ -83,7 +83,6 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
         }
     }
 
-
     fun registrationTaker(firstname: String, lastname: String, email: String, password: String) {
         val key = database.child("Users").push().key
         val registerDetails = UserData(key, firstname, lastname, email, email, password)
@@ -96,24 +95,23 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
                 }
         }
     }
-    fun getUser(userId: String, onSuccess: (List<UserData>) -> Unit){
-        database.child("Users").addListenerForSingleValueEvent(object : ValueEventListener{
+
+    fun getUser(userId: String, onSuccess: (List<UserData>) -> Unit) {
+        database.child("Users").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val user = mutableListOf<UserData>()
 
-                for (usersnapshot in snapshot.children){
-                    //get the values
-                    val loggedValue = usersnapshot.getValue() as? Map<String,Any>
-                    if (loggedValue != null && loggedValue["id"]!= null && userId == loggedValue["id"].toString()){
+                for (usersnapshot in snapshot.children) {
+                    val loggedValue = usersnapshot.value as? Map<String, Any>
+                    if (loggedValue != null && loggedValue["id"] != null && userId == loggedValue["id"].toString()) {
                         val loggedIn = UserData(
                             id = loggedValue["id"] as? String ?: "",
                             firstname = loggedValue["firstname"] as? String ?: "",
-                            lastname = loggedValue["lastname"]as? String ?: "",
+                            lastname = loggedValue["lastname"] as? String ?: "",
                             username = loggedValue["username"] as? String ?: "",
                             email = loggedValue["email"] as? String ?: "",
-                            password = loggedValue["passsword"] as? String ?: ""
+                            password = loggedValue["password"] as? String ?: ""
                         )
-
                         user.add(loggedIn)
                     }
                 }
@@ -122,13 +120,11 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("getUser", error.details)
-
             }
-
         })
     }
-    //The function will be getting and setting collections saved by the user..
 
+    // The function will be getting and setting collections saved by the user.
     @Suppress("UNCHECKED_CAST")
     fun getCollections(userID: String, onResult: (List<MakeCollection>) -> Unit) {
         database.child("Collections").addValueEventListener(object : ValueEventListener {
@@ -170,13 +166,11 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
         })
     }
 
-
-
     fun setCollections(
         collectionName: String,
         collectionDesc: String,
         category: String,
-        cover:String,
+        cover: String,
         images: List<Uri?> = emptyList(),
         cameraImages: List<Uri?> = emptyList(),
         notes: List<NoteData> = emptyList(),
@@ -238,7 +232,6 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
                 Log.e("StoryboardActivity", "Storyboard saving failed: $error")
             }
     }
-
 
     fun getStoryboard(userID: String, onResult: (List<Storyboard_Stories.StoryboardLine>) -> Unit) {
         val databaseRef = FirebaseDatabase.getInstance().getReference("Storyboard")
@@ -308,7 +301,7 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
             }
     }
 
-    fun deleteStoryboard( storyboardId: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun deleteStoryboard(storyboardId: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
         val storyboardRef = database.child("Storyboard").child(storyboardId)
 
         storyboardRef.removeValue()
@@ -324,7 +317,6 @@ class DatabaseViewModel(private val context: Context) : ViewModel() {
         database.child(storyID).child("goalSet").setValue(newGoalSet)
             .addOnSuccessListener {
                 // Handle success if needed
-
             }
             .addOnFailureListener { e ->
                 // Handle failure if needed

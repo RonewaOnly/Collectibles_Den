@@ -332,19 +332,12 @@ fun makeCollection(
                                 }
                         }
                         if (isFolderClick) {
+                                var uriString =""
                                 noteClass.FilePickerAndReader(onFileSelected = { uri ->
                                         attachedFileUri = uri
-                                        val uriString = uri.toString()
-                                        if (uriString.isNotEmpty()) {
-                                                @Suppress("UNUSED_VARIABLE") val parsedUri = Uri.parse(uriString)
-                                                // Proceed with using `parsedUri`
-                                        } else {
-                                                // Handle the case where `uriString` is empty
-                                        }
                                 })
-                                attachedFileUri?.let { uri ->
-                                        // Use the selected file URI
-                                        Text(text = "Selected file URI: $uri")
+                                attachedFileUri?.let { 
+                                        Text(text = "Selected: ${it}")
                                 }
                         }
                         Spacer(modifier = Modifier.padding(5.dp))

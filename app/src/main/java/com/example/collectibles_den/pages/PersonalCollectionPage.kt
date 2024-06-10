@@ -65,9 +65,11 @@ fun PersonalCollection(viewModel: DatabaseViewModel = viewModel(factory = Databa
 fun CollectSameCategories(collection: List<MakeCollection>) {
         var expandedCategories by remember { mutableStateOf<Set<String>>(emptySet()) }
         val categoryGroups = collection.groupBy { it.makeCollectionCategory }
-        var placeholderImage = "https://media.istockphoto.com/id/1550540247/photo/decision-thinking-and-asian-man-in-studio-with-glasses-questions-and-brainstorming-on-grey.jpg?s=1024x1024&w=is&k=20&c=M4QZ9PB4fVixyNIrWTgJjIQNPgr2TxX1wlYbyRK40dE="
 
-        LazyColumn(modifier = Modifier.fillMaxWidth().height(3200.dp).padding(8.dp)) {
+        LazyColumn(modifier = Modifier
+                .fillMaxWidth()
+                .height(3200.dp)
+                .padding(8.dp)) {
                 categoryGroups.forEach { (category, items) ->
                         item {
                                 val isExpanded = category in expandedCategories
@@ -110,6 +112,8 @@ fun CollectSameCategories(collection: List<MakeCollection>) {
 
 @Composable
 fun CollectionItem(item: MakeCollection, image: String) {
+        val placeholderImage = "https://media.istockphoto.com/id/1550540247/photo/decision-thinking-and-asian-man-in-studio-with-glasses-questions-and-brainstorming-on-grey.jpg?s=1024x1024&w=is&k=20&c=M4QZ9PB4fVixyNIrWTgJjIQNPgr2TxX1wlYbyRK40dE="
+
         Column(
                 modifier = Modifier
                         .fillMaxWidth()
@@ -117,7 +121,11 @@ fun CollectionItem(item: MakeCollection, image: String) {
                         .border(1.dp, Color.LightGray)
         ) {
                 Image(
-                        painter = rememberAsyncImagePainter(image),
+                        painter = if (image == "") {
+                                rememberAsyncImagePainter(model = placeholderImage)
+                        }else{
+                                rememberAsyncImagePainter(image)
+                        },
                         contentDescription = null,
                         modifier = Modifier
                                 .fillMaxWidth()
