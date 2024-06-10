@@ -442,7 +442,7 @@ fun updateUserProfile(
 @Composable
 fun RatePop(onClose: () -> Unit) {
     var comment by remember { mutableStateOf("") }
-    val selectedRatings = remember { mutableStateListOf<Boolean>(false, false, false, false, false) }
+    val selectedRatings = remember { mutableStateListOf(false, false, false, false, false) }
 
     Dialog(onDismissRequest = { onClose() }) {
         Surface {
@@ -491,12 +491,12 @@ fun RatePop(onClose: () -> Unit) {
 
 @Composable
 fun HelpPop(onClose: () -> Unit) {
-    var problem by remember {
-        mutableStateOf("")
-    }
-    var problemsDescription by remember {
-        mutableStateOf("")
-    }
+//    var problem by remember {
+//        mutableStateOf("")
+//    }
+//    var problemsDescription by remember {
+//        mutableStateOf("")
+//    }
 
     Dialog(onDismissRequest = { onClose() }) {
         Surface {
